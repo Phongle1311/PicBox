@@ -22,22 +22,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.hcmus.picbox.model.*;
+import com.hcmus.picbox.adapter.*;
+
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 200;
+    private int mSpanCount = 4;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;
-    private ArrayList<String> imagePaths=new ArrayList<>();
-    private List<PhotoModel> items=new ArrayList<>();
-    private Map<LocalDate,List<PhotoModel>> photoByDays=new TreeMap<>(Collections.reverseOrder());
-    private List<GridItem> inputItems=new ArrayList<>();
+    private ArrayList<String> imagePaths = new ArrayList<>();
+    private List<PhotoModel> items = new ArrayList<>();
+    private Map<LocalDate, List<PhotoModel>> photoByDays = new TreeMap<>(Collections.reverseOrder());
+    private List<GridItem> inputItems = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mGallery=findViewById(R.id.RVimages);
+        mGallery = findViewById(R.id.rcv_images);
         requestPermission();
         prepareRecyclerView();
     }
+
     private boolean checkPermission() {
         // in this method we are checking if the permissions are granted or not and returning the result.
         int result = ContextCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE);
@@ -61,22 +67,23 @@ public class MainActivity extends AppCompatActivity {
         //on below line we are requesting the read external storage permissions.
         ActivityCompat.requestPermissions(this, new String[]{READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
     }
+
     private void prepareRecyclerView() {
 
         // in this method we are preparing our recycler view.
         // on below line we are initializing our adapter class.
-        photoAdapter = new PhotoAdapter(MainActivity.this, inputItems);
+        photoAdapter = new PhotoAdapter(inputItems);
 
         // on below line we are creating a new grid layout manager.
-        GridLayoutManager manager = new GridLayoutManager(MainActivity.this, 4);
-        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup(){
+        GridLayoutManager manager = new GridLayoutManager(MainActivity.this, mSpanCount);
+        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
                 switch (photoAdapter.getItemViewType(position)) {
                     case GridItem.TYPE_DATE:
                         return manager.getSpanCount();
-                        case GridItem.TYPE_PHOTO:
-                            return 1;
+                    case GridItem.TYPE_PHOTO:
+                        return 1;
                     default:
                         return -1;
 
@@ -88,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         mGallery.setLayoutManager(manager);
         mGallery.setAdapter(photoAdapter);
     }
+
     private void getImagePath() {
         // in this method we are adding all our image paths
         // in our arraylist which we have created.
@@ -125,22 +133,22 @@ public class MainActivity extends AppCompatActivity {
                 // and adding that path in our array list.
                 items.add(new PhotoModel(cursor.getString(dataColumnIndex)));
             }
-            for(PhotoModel photo: items){
-                LocalDate lastModified=photo.getLastModifiedDate();
+            for (PhotoModel photo : items) {
+                LocalDate lastModified = photo.getLastModifiedDate();
                 YearMonth month = YearMonth.from(lastModified);
-                lastModified=month.atDay(1);
-                List<PhotoModel> list=photoByDays.get(lastModified);
-                if(list==null){
-                    list=new ArrayList<>();
-                    photoByDays.put(lastModified,list);
+                lastModified = month.atDay(1);
+                List<PhotoModel> list = photoByDays.get(lastModified);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    photoByDays.put(lastModified, list);
                 }
                 list.add(photo);
             }
-            for(LocalDate date: photoByDays.keySet()){
-                DateItem dateItem=new DateItem(date);
+            for (LocalDate date : photoByDays.keySet()) {
+                DateItem dateItem = new DateItem(date);
                 inputItems.add(dateItem);
-                for(PhotoModel photo: photoByDays.get(date)){
-                    PhotoItem photoItem=new PhotoItem(photo);
+                for (PhotoModel photo : photoByDays.get(date)) {
+                    PhotoItem photoItem = new PhotoItem(photo);
                     inputItems.add(photoItem);
                 }
             }

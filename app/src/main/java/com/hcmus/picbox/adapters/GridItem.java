@@ -1,4 +1,4 @@
-package com.hcmus.picbox.adapter;
+package com.hcmus.picbox.adapters;
 
 public abstract class GridItem {
     public static final int TYPE_DATE = 0;

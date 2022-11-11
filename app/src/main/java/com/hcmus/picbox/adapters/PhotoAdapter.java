@@ -1,4 +1,4 @@
-package com.hcmus.picbox.adapter;
+package com.hcmus.picbox.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;

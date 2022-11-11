@@ -1,18 +1,12 @@
 package com.hcmus.picbox;
-
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.hcmus.picbox.adapter.ViewPagerAdapter;
+import com.hcmus.picbox.adapters.ViewPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager mainViewPager;
@@ -68,25 +62,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        bottomBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.photos:
-                        mainViewPager.setCurrentItem(0);
-                        break;
-                    case R.id.gallery:
-                        mainViewPager.setCurrentItem(1);
-                        break;
-                    case R.id.drawing:
-                        mainViewPager.setCurrentItem(2);
-                        break;
-                    case R.id.setting:
-                        mainViewPager.setCurrentItem(3);
-                        break;
-                }
-                return true;
+        bottomBar.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.photos:
+                    mainViewPager.setCurrentItem(0);
+                    break;
+                case R.id.gallery:
+                    mainViewPager.setCurrentItem(1);
+                    break;
+                case R.id.drawing:
+                    mainViewPager.setCurrentItem(2);
+                    break;
+                case R.id.setting:
+                    mainViewPager.setCurrentItem(3);
+                    break;
             }
+            return true;
         });
     }
 }

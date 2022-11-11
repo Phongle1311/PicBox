@@ -1,8 +1,8 @@
-package com.hcmus.picbox.adapter;
+package com.hcmus.picbox.adapters;
 
 import androidx.annotation.NonNull;
 
-import com.hcmus.picbox.model.PhotoModel;
+import com.hcmus.picbox.models.PhotoModel;
 
 public class PhotoItem extends GridItem {
     private PhotoModel mPhoto;

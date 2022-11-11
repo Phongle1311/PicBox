@@ -1,4 +1,4 @@
-package com.hcmus.picbox.model;
+package com.hcmus.picbox.models;
 
 import java.io.File;
 /**

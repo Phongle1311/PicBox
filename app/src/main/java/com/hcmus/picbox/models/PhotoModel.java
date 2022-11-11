@@ -1,17 +1,18 @@
-package com.hcmus.picbox.model;
+package com.hcmus.picbox.models;
 
 import java.io.File;
-/**
- * These classes are used to create a LocalDate object from milliseconds.
- */
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
+/**
+ * These classes are used to create a LocalDate object from milliseconds.
+ */
 public class PhotoModel {
     private File mImageFile;
     private LocalDate mLastModifiedDate;
     private String mName;
+    private String thumb;
 
     public PhotoModel(String path) {
         this.mImageFile = new File(path);
@@ -38,5 +39,11 @@ public class PhotoModel {
         return mImageFile;
     }
 
+    public String getThumb() {
+        return thumb;
+    }
 
+    public void setThumb(String thumb) {
+        this.thumb = thumb;
+    }
 }

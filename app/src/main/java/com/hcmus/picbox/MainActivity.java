@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.hcmus.picbox.model.*;
-import com.hcmus.picbox.adapter.*;
+import com.hcmus.picbox.models.*;
+import com.hcmus.picbox.adapters.*;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 200;
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         // in this method we are preparing our recycler view.
         // on below line we are initializing our adapter class.
-        photoAdapter = new PhotoAdapter(inputItems);
+        photoAdapter = new PhotoAdapter(MainActivity.this, inputItems);
 
         // on below line we are creating a new grid layout manager.
         GridLayoutManager manager = new GridLayoutManager(MainActivity.this, mSpanCount);

@@ -6,19 +6,28 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.hcmus.picbox.fragment.ViewPagerAdapter;
+import com.hcmus.picbox.adapter.ViewPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        initUI();
+
+        initViewPager();
+    }
+
     private void initUI() {
-        mainViewPager = findViewById(R.id.MainViewPager);
+        mainViewPager = findViewById(R.id.viewpager_main);
         bottomBar = findViewById(R.id.BottomNavigationView);
     }
 
@@ -76,15 +85,5 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        initUI();
-
-        initViewPager();
     }
 }

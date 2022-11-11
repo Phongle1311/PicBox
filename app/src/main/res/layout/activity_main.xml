@@ -9,7 +9,7 @@
 
 
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/MainViewPager"
+        android:id="@+id/viewpager_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -18,7 +18,7 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.bottomappbar.BottomAppBar
-            android:id="@+id/BottomBar"
+            android:id="@+id/bottomappbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -40,8 +40,9 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@drawable/ic_baseline_camera_enhance_24"
+            android:contentDescription="@string/camera_description"
             app:fabCustomSize="80dp"
-            app:layout_anchor="@id/BottomBar">
+            app:layout_anchor="@id/bottomappbar">
 
         </com.google.android.material.floatingactionbutton.FloatingActionButton>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

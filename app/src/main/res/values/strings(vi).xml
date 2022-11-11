@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PicBox</string>
+    <string name="photos">Ảnh</string>
+    <string name="album">Bộ sưu tập</string>
+    <string name="creativity">Sáng tạo</string>
+    <string name="setting">Cài đặt</string>
+    <string name="camera_description">chụp hình từ camera</string>
+</resources>

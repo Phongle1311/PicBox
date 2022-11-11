@@ -1,7 +1,9 @@
 package com.hcmus.picbox;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -15,6 +17,7 @@ import com.hcmus.picbox.adapter.ViewPagerAdapter;
 public class MainActivity extends AppCompatActivity {
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

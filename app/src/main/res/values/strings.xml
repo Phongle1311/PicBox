@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">PicBox</string>
+    <string name="photos">Photos</string>
+    <string name="album">Album</string>
+    <string name="creativity">Creativity</string>
+    <string name="setting">Setting</string>
+    <string name="camera_description">take a photo with camera</string>
 </resources>

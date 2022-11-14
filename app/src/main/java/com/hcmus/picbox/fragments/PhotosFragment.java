@@ -87,7 +87,7 @@ public class PhotosFragment extends Fragment {
 
         // in this method we are preparing our recycler view.
         // on below line we are initializing our adapter class.
-        photoAdapter = new PhotoAdapter(inputItems);
+        photoAdapter = new PhotoAdapter(context, inputItems);
 
         // on below line we are creating a new grid layout manager.
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);

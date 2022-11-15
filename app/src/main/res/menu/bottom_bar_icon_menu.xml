@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/photos"
         android:title="@string/photos"
-        android:icon="@drawable/ic_baseline_image_24"/>
+        android:icon="@drawable/ic_baseline_image_24"
+        app:showAsAction="ifRoom"
+        />
 
     <item android:id="@+id/gallery"
         android:title="@string/album"
-        android:icon="@drawable/ic_baseline_collections_24"/>
+        android:icon="@drawable/ic_baseline_collections_24"
+        app:showAsAction="ifRoom"
+        />
 
     <item android:id="@+id/empty_space"
-        android:title=""/>
+        android:title=""
+        app:showAsAction="ifRoom"
+        />
 
     <item android:id="@+id/drawing"
         android:title="@string/creativity"
-        android:icon="@drawable/ic_baseline_draw_24"/>
+        android:icon="@drawable/ic_baseline_draw_24"
+        app:showAsAction="ifRoom"
+        />
     <item android:id="@+id/setting"
         android:title="@string/setting"
-        android:icon="@drawable/ic_baseline_settings_24"/>
+        android:icon="@drawable/ic_baseline_settings_24"
+        app:showAsAction="ifRoom"
+        />
 </menu>

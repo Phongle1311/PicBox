@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private void initUI() {
         mainViewPager = findViewById(R.id.viewpager_main);
         bottomBar = findViewById(R.id.BottomNavigationView);
+        bottomBar.setBackground(null);
     }
 
     private void initViewPager() {

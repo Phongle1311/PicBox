@@ -1,4 +1,5 @@
-package com.hcmus.picbox;
+package com.hcmus.picbox.activities;
+
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -6,12 +7,13 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
+
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private void initUI() {
         mainViewPager = findViewById(R.id.viewpager_main);
         bottomBar = findViewById(R.id.BottomNavigationView);
+        bottomBar.setBackground(null);
     }
 
     private void initViewPager() {

@@ -1,5 +1,6 @@
 package com.hcmus.picbox.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,15 +10,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<GridItem> items;
 
-    public PhotoAdapter(List<GridItem> items) {
+    private final Context context;
+    private final List<GridItem> items;
+
+    public PhotoAdapter(Context context, List<GridItem> items) {
+        this.context = context;
         this.items = items;
     }
 
@@ -46,18 +50,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         } else if (type == GridItem.TYPE_PHOTO) {
             PhotoItem photo = (PhotoItem) items.get(position);
             PhotoViewHolder viewHolder = (PhotoViewHolder) holder;
-            Picasso.get().load(photo.getPhoto().getFile()).placeholder(R.drawable.placeholder_color).into(viewHolder.imageView);
+
+            Glide.with(context)
+                    .load(photo.getPhoto().getFile())
+                    .placeholder(R.drawable.placeholder_color)
+                    .error(R.drawable.placeholder_color) // TODO: replace by other drawable
+                    .into(viewHolder.imageView);
         } else {
-            throw new IllegalStateException("unsupported type");
+            throw new IllegalStateException("Unsupported type");
         }
     }
 
     @Override
     public int getItemCount() {
-        if (items == null) {
-            return 0;
-        }
-        return items.size();
+        return items == null ? 0 : items.size();
     }
 
     @Override

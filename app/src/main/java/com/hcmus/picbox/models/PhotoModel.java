@@ -1,28 +1,33 @@
 package com.hcmus.picbox.models;
 
+import android.provider.MediaStore;
+
 import java.io.File;
-/**
- * These classes are used to create a LocalDate object from milliseconds.
- */
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
 public class PhotoModel {
+
+    // what need to load from an image
+    public static final String[] sProjection = {
+            MediaStore.Images.Media.DATA,
+            MediaStore.Images.Media._ID,
+//            MediaStore.Images.Media.DATE_TAKEN,
+//            MediaStore.Images.Media.MIME_TYPE,
+//            MediaStore.Images.Media.SIZE,
+//            MediaStore.Images.Media.ORIENTATION
+    };
+    public static String sOrderBy = MediaStore.Images.Media._ID;
+
     private File mImageFile;
     private LocalDate mLastModifiedDate;
     private String mName;
 
-    public PhotoModel(String path) {
-        this.mImageFile = new File(path);
-        long date = mImageFile.lastModified();
-        this.mLastModifiedDate = Instant.ofEpochMilli(date)
-                .atZone(ZoneId.systemDefault()).toLocalDate();
-        this.mName = mImageFile.getName();
-    }
-
     public PhotoModel(File file) {
         this.mImageFile = file;
+        long date = mImageFile.lastModified();
+        this.mLastModifiedDate = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate();
         this.mName = mImageFile.getName();
     }
 

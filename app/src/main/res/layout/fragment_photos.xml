@@ -6,7 +6,7 @@
     android:layout_gravity="center"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcv_images"

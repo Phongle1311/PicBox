@@ -5,8 +5,10 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -69,7 +71,6 @@ public class PhotosFragment extends Fragment {
         mGallery = view.findViewById(R.id.rcv_images);
         initFAB(view);
         prepareRecyclerView();
-
         // check permission
         if (PermissionUtils.checkPermissions(context, READ_EXTERNAL_STORAGE))
             getPhotoList();
@@ -132,6 +133,14 @@ public class PhotosFragment extends Fragment {
         });
         mGallery.setLayoutManager(manager);
         mGallery.setAdapter(photoAdapter);
+        mGallery.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                hideMiniFABs();
+                fabClicked=0;
+                return false;
+            }
+        });
         mGallery.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -143,7 +152,7 @@ public class PhotosFragment extends Fragment {
                         fabClicked=0;
                     }
                 }
-                else if(dy<-30){
+                else if(dy<-50){
                     if(!FABmain.isShown()){
                         FABmain.show();
                         fabClicked=0;
@@ -158,7 +167,6 @@ public class PhotosFragment extends Fragment {
             }
         });
     }
-
     private void getPhotoList() {
         int oldSize = photoList.size();
 

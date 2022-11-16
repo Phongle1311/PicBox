@@ -64,6 +64,8 @@ public class PhotosFragment extends Fragment {
         context = view.getContext();
         mGallery = view.findViewById(R.id.rcv_images);
 
+        prepareRecyclerView();
+
         // check permission
         if (PermissionUtils.checkPermissions(context, READ_EXTERNAL_STORAGE))
             getPhotoList();
@@ -72,8 +74,6 @@ public class PhotosFragment extends Fragment {
             Toast.makeText(context, "need to show rationale", Toast.LENGTH_LONG).show();
         } else
             requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
-
-        prepareRecyclerView();
 
         return view;
     }

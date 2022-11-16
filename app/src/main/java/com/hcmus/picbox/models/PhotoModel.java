@@ -3,11 +3,12 @@ package com.hcmus.picbox.models;
 import android.provider.MediaStore;
 
 import java.io.File;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-public class PhotoModel {
+public class PhotoModel implements Serializable {
 
     // what need to load from an image
     public static final String[] sProjection = {

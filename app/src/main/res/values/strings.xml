@@ -10,4 +10,10 @@
     <string name="camera_permission_description">Take photos and make video</string>
     <string name="gallery_permission">Access to use all photos in gallery</string>
     <string name="gallery_permission_description">Edit and save your photos</string>
+    <string name="desc_iv_display_media">Full screen media display</string>
+    <string name="desc_iv_fragment_photo">Media thumbnail</string>
+    <string name="title_ic_toggle_favourite">Favourite</string>
+    <string name="desc_ic_toggle_favourite">Toggle favourite</string>
+    <string name="title_ic_more">More</string>
+    <string name="desc_ic_more">More actions</string>
 </resources>

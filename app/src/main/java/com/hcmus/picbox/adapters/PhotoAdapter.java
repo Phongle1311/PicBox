@@ -1,6 +1,7 @@
 package com.hcmus.picbox.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.hcmus.picbox.DisplayMediaActivity;
 import com.hcmus.picbox.R;
 
 import java.util.List;
@@ -56,6 +58,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     .placeholder(R.drawable.placeholder_color)
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                     .into(viewHolder.imageView);
+
+            ((PhotoViewHolder) holder).imageView.setOnClickListener(view -> {
+                Intent i = new Intent(context, DisplayMediaActivity.class);
+                i.putExtra("model", photo.getPhoto());
+                context.startActivity(i);
+            });
         } else {
             throw new IllegalStateException("Unsupported type");
         }

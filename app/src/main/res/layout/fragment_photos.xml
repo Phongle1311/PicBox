@@ -27,7 +27,7 @@
         android:layout_gravity="bottom|right"
         android:layout_marginBottom="160dp"
         android:layout_marginRight="20dp"
-        android:src="@drawable/ic_plus_24"
+        android:src="@drawable/main_fab"
         app:elevation="21dp"
         app:borderWidth="0dp" />
 
@@ -37,6 +37,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:layout_marginRight="50dp"
+        app:backgroundTint="@color/black"
+        android:backgroundTint="#F2E7D5"
         android:visibility="invisible"
         app:fabSize="mini"
         android:layout_marginBottom="110dp"
@@ -47,30 +49,36 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:visibility="invisible"
+        app:backgroundTint="@color/black"
+        android:backgroundTint="#F2E7D5"
         android:layout_marginRight="88dp"
         app:fabSize="mini"
         android:layout_marginBottom="150dp"
-        android:src="@drawable/ic_baseline_search_24" />
+        android:src="@drawable/hidden_media_fab" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_sort_by"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
+        app:backgroundTint="@color/black"
+        android:backgroundTint="#F2E7D5"
         android:visibility="invisible"
         android:layout_marginRight="82dp"
         app:fabSize="mini"
         android:layout_marginBottom="200dp"
-        android:src="@drawable/ic_baseline_search_24" />
+        android:src="@drawable/sort_by_fab" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_grid_view"
+        android:id="@+id/fab_change_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:visibility="invisible"
+        app:backgroundTint="@color/black"
+        android:backgroundTint="#F2E7D5"
         android:layout_marginRight="36dp"
         app:fabSize="mini"
         android:layout_marginBottom="230dp"
-        android:src="@drawable/ic_baseline_search_24" />
+        android:src="@drawable/change_layout_fab" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

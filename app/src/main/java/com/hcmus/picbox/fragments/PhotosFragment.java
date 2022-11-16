@@ -46,7 +46,7 @@ public class PhotosFragment extends Fragment {
     private Map<LocalDate, List<PhotoModel>> photoByDays = new TreeMap<>(Collections.reverseOrder());
     private List<GridItem> inputItems = new ArrayList<>();
     private Context context;
-    private FloatingActionButton FABmain,FABsearch,FABsecret,FABsortby,FABgridview;
+    private FloatingActionButton FABmain,FABsearch,FABsecret,FABsortby,FABchangelayout;
     private int fabClicked=0;
 
     // Use registerForActivityResult instead of onRequestPermissionResult because
@@ -85,7 +85,7 @@ public class PhotosFragment extends Fragment {
         FABmain=(FloatingActionButton)v.findViewById(R.id.fab_main);
         FABsearch=(FloatingActionButton)v.findViewById(R.id.fab_search);
         FABsecret=(FloatingActionButton)v.findViewById(R.id.fab_secret_media);
-        FABgridview=(FloatingActionButton)v.findViewById(R.id.fab_grid_view);
+        FABchangelayout=(FloatingActionButton)v.findViewById(R.id.fab_change_layout);
         FABsortby=(FloatingActionButton) v.findViewById(R.id.fab_sort_by);
         FABmain.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,13 +103,13 @@ public class PhotosFragment extends Fragment {
     private void showMiniFABs(){
         FABsearch.show();
         FABsecret.show();
-        FABgridview.show();
+        FABchangelayout.show();
         FABsortby.show();
     }
     private void hideMiniFABs(){
         FABsearch.hide();
         FABsecret.hide();
-        FABgridview.hide();
+        FABchangelayout.hide();
         FABsortby.hide();
     }
     private void prepareRecyclerView() {
@@ -144,6 +144,12 @@ public class PhotosFragment extends Fragment {
                     }
                 }
                 else if(dy<-30){
+                    if(!FABmain.isShown()){
+                        FABmain.show();
+                        fabClicked=0;
+                    }
+                }
+                else if(!recyclerView.canScrollVertically(-1)){
                     if(!FABmain.isShown()){
                         FABmain.show();
                         fabClicked=0;

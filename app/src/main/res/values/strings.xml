@@ -5,4 +5,9 @@
     <string name="creativity">Creativity</string>
     <string name="setting">Setting</string>
     <string name="camera_description">Take a photo with camera</string>
+    <string name="permissions">Permissions</string>
+    <string name="camera_permission">Access to use camera</string>
+    <string name="camera_permission_description">Take photos and make video</string>
+    <string name="gallery_permission">Access to use all photos in gallery</string>
+    <string name="gallery_permission_description">Edit and save your photos</string>
 </resources>

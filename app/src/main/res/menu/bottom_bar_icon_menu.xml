@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/photos"
-        android:title="@string/photos"
+    <item
+        android:id="@+id/photos"
         android:icon="@drawable/ic_baseline_image_24"
-        app:showAsAction="ifRoom"
-        />
+        android:title="@string/photos"
+        app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/gallery"
-        android:title="@string/album"
+    <item
+        android:id="@+id/gallery"
         android:icon="@drawable/ic_baseline_collections_24"
-        app:showAsAction="ifRoom"
-        />
+        android:title="@string/album"
+        app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/empty_space"
+    <item
+        android:id="@+id/empty_space"
         android:title=""
-        app:showAsAction="ifRoom"
-        />
+        app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/drawing"
-        android:title="@string/creativity"
+    <item
+        android:id="@+id/drawing"
         android:icon="@drawable/ic_baseline_draw_24"
-        app:showAsAction="ifRoom"
-        />
-    <item android:id="@+id/setting"
-        android:title="@string/setting"
+        android:title="@string/creativity"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/setting"
         android:icon="@drawable/ic_baseline_settings_24"
-        app:showAsAction="ifRoom"
-        />
+        android:title="@string/setting"
+        app:showAsAction="ifRoom" />
 </menu>

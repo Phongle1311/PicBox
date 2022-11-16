@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.hcmus.picbox.models.PhotoModel;
 
 /**
@@ -25,6 +26,19 @@ public class DisplayMediaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_media);
 
         mImageView = findViewById(R.id.image_view);
+
+        MaterialToolbar topAppBar = findViewById(R.id.top_app_bar);
+        topAppBar.setNavigationOnClickListener(view -> finish());
+        topAppBar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.ic_favourite) {
+                // TODO: add/remove image to/from favourite album
+                return true;
+            } else if (item.getItemId() == R.id.ic_more) {
+                // TODO: show bottom drawer (show detail)
+                return true;
+            }
+            return false;
+        });
 
         PhotoModel model = (PhotoModel) getIntent().getSerializableExtra("model");
         if (model.checkExists()) {

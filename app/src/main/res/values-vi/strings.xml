@@ -5,4 +5,10 @@
     <string name="creativity">Sáng tạo</string>
     <string name="setting">Cài đặt</string>
     <string name="camera_description">Chụp hình từ camera</string>
+    <string name="desc_iv_display_media">Hiển thị đa phương tiện toàn màn hình</string>
+    <string name="desc_iv_fragment_photo">Hình thu nhỏ đa phương tiện</string>
+    <string name="title_ic_toggle_favourite">Yêu thích</string>
+    <string name="desc_ic_toggle_favourite">Chuyển đổi yêu thích</string>
+    <string name="title_ic_more">Nhiều hơn</string>
+    <string name="desc_ic_more">Nhiều hành động hơn</string>
 </resources>

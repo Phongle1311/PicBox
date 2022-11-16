@@ -5,4 +5,6 @@
     <string name="creativity">Creativity</string>
     <string name="setting">Setting</string>
     <string name="camera_description">Take a photo with camera</string>
+    <string name="desc_iv_display_media">Full screen media display</string>
+    <string name="desc_iv_fragment_photo">Media thumbnail</string>
 </resources>

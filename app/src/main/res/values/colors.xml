@@ -10,4 +10,5 @@
     <color name="black_50">#676565</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#08C810</color>
+    <color name="grey">#959595</color>
 </resources>

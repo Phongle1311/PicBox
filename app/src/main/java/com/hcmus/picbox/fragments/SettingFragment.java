@@ -31,8 +31,11 @@ public class SettingFragment extends Fragment {
     SwitchCompat darkThemeSwitch;
     SwitchCompat floatingButtonSwitch;
     LinearLayout multiColumnLayout;
+    TextView multiColumnTextView;
     LinearLayout languageLayout;
+    TextView languageTextView;
     LinearLayout gridModeLayout;
+    TextView gridModeTextView;
 
     SwitchCompat rotationSwitch;
     LinearLayout passwordImageLayout;
@@ -86,7 +89,7 @@ public class SettingFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //TODO: show dialog choose number column in a row
-
+                //setMultiColumnTextView.text(....);
             }
         });
 
@@ -94,6 +97,7 @@ public class SettingFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //TODO: show dialog choose language
+                //setLanguageTextView.text(....);
                 final String[] language =
                         {
                                 "English",
@@ -106,7 +110,7 @@ public class SettingFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 //TODO: show dialog choose grid mode
-
+                //setGridModeTextView.text(....);
             }
         });
 
@@ -144,13 +148,13 @@ public class SettingFragment extends Fragment {
     private void initUI(View view) {
         cameraPermissionButton = view.findViewById(R.id.cameraPermissionButton);
         if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            cameraPermissionButton.setIconResource(R.drawable.ic_baseline_check_circle_24);
+            cameraPermissionButton.setIconResource(R.drawable.ic_baseline_check_24);
             cameraPermissionButton.setIconTintResource(R.color.green);
         }
 
         galleyPermissionButton = view.findViewById(R.id.galleryPermissionButton);
         if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            galleyPermissionButton.setIconResource(R.drawable.ic_baseline_check_circle_24);
+            galleyPermissionButton.setIconResource(R.drawable.ic_baseline_check_24);
             galleyPermissionButton.setIconTintResource(R.color.green);
         }
 
@@ -158,8 +162,11 @@ public class SettingFragment extends Fragment {
         darkThemeSwitch = view.findViewById(R.id.darkThemeSwitch);
         floatingButtonSwitch = view.findViewById(R.id.floatingButtonSwitch);
         multiColumnLayout = view.findViewById(R.id.multicolumnLayout);
+        multiColumnTextView = view.findViewById(R.id.multicolumnTextView);
         languageLayout = view.findViewById(R.id.languageLayout);
+        languageTextView = view.findViewById(R.id.languageTextView);
         gridModeLayout = view.findViewById(R.id.gridModeLayout);
+        gridModeTextView = view.findViewById(R.id.gridModeTextView);
 
         rotationSwitch = view.findViewById(R.id.rotationSwitch);
 

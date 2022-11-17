@@ -38,10 +38,13 @@
                     android:layout_height="40dp"
                     android:gravity="start"
                     android:text="@string/camera_permission"
+                    android:background="#00000000"
                     android:textAllCaps="false"
+                    android:textColor="@color/black_50"
                     app:cornerRadius="0dp"
                     app:icon="@drawable/ic_baseline_arrow_forward_ios_24"
                     app:iconGravity="end"
+                    app:iconTint="@color/black"
                     app:strokeColor="@color/black_50"
                     app:strokeWidth="1dp" />
 
@@ -57,13 +60,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:gravity="start"
+                    android:background="#00000000"
+                    android:textColor="@color/black_50"
                     android:text="@string/gallery_permission"
                     android:textAllCaps="false"
                     app:cornerRadius="0dp"
                     app:icon="@drawable/ic_baseline_arrow_forward_ios_24"
                     app:iconGravity="end"
-                    app:strokeColor="@color/black_50"
-                    app:strokeWidth="1dp" />
+                    app:iconTint="@color/black"
+                    app:strokeColor="@color/black"
+                    app:strokeWidth="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -131,6 +137,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -170,6 +177,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -210,9 +218,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_weight="4"
-                        android:gravity="center">
+                        android:gravity="end|center">
 
                         <TextView
+                            android:id="@+id/multicolumnTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
@@ -265,10 +274,10 @@
                         android:id="@+id/languageLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="center">
+                        android:gravity="end|center">
 
                         <TextView
-
+                            android:id="@+id/languageTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
@@ -281,6 +290,7 @@
                             android:src="@drawable/ic_baseline_arrow_forward_ios_24" />
                     </LinearLayout>
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
@@ -320,9 +330,10 @@
                         android:id="@+id/gridModeLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="center">
+                        android:gravity="end|center">
 
                         <TextView
+                            android:id="@+id/gridModeTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
@@ -450,7 +461,5 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-
-
     </ScrollView>
 </LinearLayout>

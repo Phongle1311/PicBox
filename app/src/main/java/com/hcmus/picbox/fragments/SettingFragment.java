@@ -54,6 +54,12 @@ public class SettingFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        initUI(getView());
+    }
+
     private void initUI(View view) {
         cameraPermissionButton = view.findViewById(R.id.cameraPermissionButton);
         if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {

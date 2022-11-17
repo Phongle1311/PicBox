@@ -22,4 +22,14 @@
     <string name="prevent_your_phone_rotation">Ngăn chặn chuyển hướng điện thoại</string>
     <string name="change_to_dark_theme">Chuyển sang chế độ tối</string>
     <string name="dark_theme">Chế độ tối</string>
+    <string name="security">Bảo mật</string>
+    <string name="require_password_for_view_image">Yêu cầu mật khẩu để xem ảnh</string>
+    <string name="password_image">Mật khẩu cho ảnh</string>
+    <string name="select_number_of_column_in_each_row">Chọn số lượng cột trên mỗi dòng</string>
+    <string name="column_in_row">Cột trên dòng</string>
+    <string name="grid">Lưới</string>
+    <string name="select_app_grid_mode">Chọn chế độ lưới</string>
+    <string name="grid_mode">Chế độ lưới</string>
+    <string name="floating_button">Nút nổi</string>
+    <string name="show_hide_floating_button">Ẩn hiện nút nổi</string>
 </resources>

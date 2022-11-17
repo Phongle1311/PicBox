@@ -16,4 +16,20 @@
     <string name="desc_ic_toggle_favourite">Toggle favourite</string>
     <string name="title_ic_more">More</string>
     <string name="desc_ic_more">More actions</string>
+    <string name="media">Media</string>
+    <string name="rotation_lock">Rotation lock</string>
+    <string name="theme">Theme</string>
+    <string name="prevent_your_phone_rotation">Prevent your phone rotation</string>
+    <string name="change_to_dark_theme">Change to dark theme</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="security">Security</string>
+    <string name="require_password_for_view_image">Require password for view image</string>
+    <string name="password_image">Password Image</string>
+    <string name="select_number_of_column_in_each_row">Select number of column in each row</string>
+    <string name="column_in_row">Column in row</string>
+    <string name="grid">Grid</string>
+    <string name="select_app_grid_mode">Select app grid mode</string>
+    <string name="grid_mode">Grid mode</string>
+    <string name="floating_button">Floating button</string>
+    <string name="show_hide_floating_button">show hide floating button</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.hcmus.picbox.fragments;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,9 +11,14 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
@@ -20,6 +27,17 @@ import com.hcmus.picbox.R;
 public class SettingFragment extends Fragment {
     MaterialButton cameraPermissionButton;
     MaterialButton galleyPermissionButton;
+
+    SwitchCompat darkThemeSwitch;
+    SwitchCompat floatingButtonSwitch;
+    LinearLayout multiColumnLayout;
+    LinearLayout languageLayout;
+    LinearLayout gridModeLayout;
+
+    SwitchCompat rotationSwitch;
+    LinearLayout passwordImageLayout;
+    SwitchCompat passwordImageSwitch;
+
 
     @Nullable
     @Override
@@ -50,6 +68,69 @@ public class SettingFragment extends Fragment {
             }
         });
 
+        darkThemeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+            }
+        });
+
+        floatingButtonSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+            }
+        });
+
+        multiColumnLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: show dialog choose number column in a row
+
+            }
+        });
+
+        languageLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: show dialog choose language
+                final String[] language =
+                        {
+                                "English",
+                                "Vietnamese"
+                        };
+            }
+        });
+
+        gridModeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: show dialog choose grid mode
+
+            }
+        });
+
+        rotationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+            }
+        });
+
+        passwordImageLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: show dialog edit password image
+            }
+        });
+
+        passwordImageSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                //TODO: enable password for image
+
+            }
+        });
 
         return view;
     }
@@ -72,5 +153,17 @@ public class SettingFragment extends Fragment {
             galleyPermissionButton.setIconResource(R.drawable.ic_baseline_check_circle_24);
             galleyPermissionButton.setIconTintResource(R.color.green);
         }
+
+
+        darkThemeSwitch = view.findViewById(R.id.darkThemeSwitch);
+        floatingButtonSwitch = view.findViewById(R.id.floatingButtonSwitch);
+        multiColumnLayout = view.findViewById(R.id.multicolumnLayout);
+        languageLayout = view.findViewById(R.id.languageLayout);
+        gridModeLayout = view.findViewById(R.id.gridModeLayout);
+
+        rotationSwitch = view.findViewById(R.id.rotationSwitch);
+
+        passwordImageLayout = view.findViewById(R.id.passwordImageLayout);
+        passwordImageSwitch = view.findViewById(R.id.passwordImageSwitch);
     }
 }

@@ -16,4 +16,10 @@
     <string name="desc_ic_toggle_favourite">Chuyển đổi yêu thích</string>
     <string name="title_ic_more">Nhiều hơn</string>
     <string name="desc_ic_more">Nhiều hành động hơn</string>
+    <string name="media">Thiết bị</string>
+    <string name="rotation_lock">Khóa xoay</string>
+    <string name="theme">Chủ đề</string>
+    <string name="prevent_your_phone_rotation">Ngăn chặn chuyển hướng điện thoại</string>
+    <string name="change_to_dark_theme">Chuyển sang chế độ tối</string>
+    <string name="dark_theme">Chế độ tối</string>
 </resources>

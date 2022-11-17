@@ -32,4 +32,6 @@
     <string name="grid_mode">Grid mode</string>
     <string name="floating_button">Floating button</string>
     <string name="show_hide_floating_button">show hide floating button</string>
+    <string name="language">Language</string>
+    <string name="select_app_language">Select app language</string>
 </resources>

@@ -41,7 +41,6 @@ public class SettingFragment extends Fragment {
     LinearLayout passwordImageLayout;
     SwitchCompat passwordImageSwitch;
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

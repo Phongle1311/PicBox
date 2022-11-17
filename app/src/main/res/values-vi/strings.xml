@@ -32,4 +32,6 @@
     <string name="grid_mode">Chế độ lưới</string>
     <string name="floating_button">Nút nổi</string>
     <string name="show_hide_floating_button">Ẩn hiện nút nổi</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="select_app_language">Chọn ngôn ngữ</string>
 </resources>

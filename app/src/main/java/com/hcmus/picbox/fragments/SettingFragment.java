@@ -1,20 +1,15 @@
 package com.hcmus.picbox.fragments;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,21 +20,22 @@ import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
 
 public class SettingFragment extends Fragment {
-    MaterialButton cameraPermissionButton;
-    MaterialButton galleyPermissionButton;
 
-    SwitchCompat darkThemeSwitch;
-    SwitchCompat floatingButtonSwitch;
-    LinearLayout multiColumnLayout;
-    TextView multiColumnTextView;
-    LinearLayout languageLayout;
-    TextView languageTextView;
-    LinearLayout gridModeLayout;
-    TextView gridModeTextView;
+    private MaterialButton cameraPermissionButton;
+    private MaterialButton galleyPermissionButton;
 
-    SwitchCompat rotationSwitch;
-    LinearLayout passwordImageLayout;
-    SwitchCompat passwordImageSwitch;
+    private SwitchCompat darkThemeSwitch;
+    private SwitchCompat floatingButtonSwitch;
+    private LinearLayout multiColumnLayout;
+    private TextView multiColumnTextView;
+    private LinearLayout languageLayout;
+    private TextView languageTextView;
+    private LinearLayout gridModeLayout;
+    private TextView gridModeTextView;
+
+    private SwitchCompat rotationSwitch;
+    private LinearLayout passwordImageLayout;
+    private SwitchCompat passwordImageSwitch;
 
     @Nullable
     @Override
@@ -48,91 +44,63 @@ public class SettingFragment extends Fragment {
 
         initUI(view);
 
-        cameraPermissionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //go to app setting
-                Intent appToSettingIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getActivity().getPackageName()));
-                appToSettingIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                appToSettingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(appToSettingIntent);
-            }
+        cameraPermissionButton.setOnClickListener(view15 -> {
+            //go to app setting
+            Intent appToSettingIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + requireActivity().getPackageName()));
+            appToSettingIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            appToSettingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(appToSettingIntent);
         });
 
-        galleyPermissionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //go to app setting
-                Intent appToSettingIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getActivity().getPackageName()));
-                appToSettingIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                appToSettingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(appToSettingIntent);
-            }
+        galleyPermissionButton.setOnClickListener(view16 -> {
+            //go to app setting
+            Intent appToSettingIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + requireActivity().getPackageName()));
+            appToSettingIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            appToSettingIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(appToSettingIntent);
         });
 
-        darkThemeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        darkThemeSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
 
-            }
         });
 
-        floatingButtonSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        floatingButtonSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
 
-            }
         });
 
-        multiColumnLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: show dialog choose number column in a row
-                //setMultiColumnTextView.text(....);
-            }
+        multiColumnLayout.setOnClickListener(view1 -> {
+            //TODO: show dialog choose number column in a row
+            //setMultiColumnTextView.text(....);
         });
 
-        languageLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: show dialog choose language
-                //setLanguageTextView.text(....);
-                final String[] language =
-                        {
-                                "English",
-                                "Vietnamese"
-                        };
-            }
+        languageLayout.setOnClickListener(view12 -> {
+            //TODO: show dialog choose language
+            //setLanguageTextView.text(....);
+            final String[] language =
+                    {
+                            "English",
+                            "Vietnamese"
+                    };
         });
 
-        gridModeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: show dialog choose grid mode
-                //setGridModeTextView.text(....);
-            }
+        gridModeLayout.setOnClickListener(view13 -> {
+            //TODO: show dialog choose grid mode
+            //setGridModeTextView.text(....);
         });
 
-        rotationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        rotationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
 
-            }
         });
 
-        passwordImageLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: show dialog edit password image
-            }
+        passwordImageLayout.setOnClickListener(view14 -> {
+            //TODO: show dialog edit password image
         });
 
-        passwordImageSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                //TODO: enable password for image
+        passwordImageSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            //TODO: enable password for image
 
-            }
         });
 
         return view;
@@ -141,7 +109,7 @@ public class SettingFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        initUI(getView());
+        initUI(requireView());
     }
 
     private void initUI(View view) {
@@ -160,8 +128,8 @@ public class SettingFragment extends Fragment {
 
         darkThemeSwitch = view.findViewById(R.id.darkThemeSwitch);
         floatingButtonSwitch = view.findViewById(R.id.floatingButtonSwitch);
-        multiColumnLayout = view.findViewById(R.id.multicolumnLayout);
-        multiColumnTextView = view.findViewById(R.id.multicolumnTextView);
+        multiColumnLayout = view.findViewById(R.id.multi_column_layout);
+        multiColumnTextView = view.findViewById(R.id.multi_column_textview);
         languageLayout = view.findViewById(R.id.languageLayout);
         languageTextView = view.findViewById(R.id.languageTextView);
         gridModeLayout = view.findViewById(R.id.gridModeLayout);

@@ -34,4 +34,6 @@
     <string name="show_hide_floating_button">Ẩn hiện nút nổi</string>
     <string name="language">Ngôn ngữ</string>
     <string name="select_app_language">Chọn ngôn ngữ</string>
+    <string name="span_count_default">4</string>
+    <string name="language_default">Tiếng Anh</string>
 </resources>

@@ -34,4 +34,6 @@
     <string name="show_hide_floating_button">show hide floating button</string>
     <string name="language">Language</string>
     <string name="select_app_language">Select app language</string>
+    <string name="span_count_default">4</string>
+    <string name="language_default">English</string>
 </resources>

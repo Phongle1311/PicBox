@@ -13,7 +13,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <LinearLayout
@@ -21,18 +21,17 @@
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/dialog_holo_light_frame"
                 android:orientation="vertical"
-                android:padding="8dp"
-                >
+                android:padding="8dp">
 
                 <TextView
                     android:id="@+id/permissionSection"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/permissions"
                     android:textColor="@color/primary"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp"/>
+                    android:textSize="16sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/cameraPermissionButton"
@@ -96,10 +95,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/theme"
                     android:textColor="@color/primary"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp"/>
+                    android:textSize="16sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -118,7 +117,7 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="11"
                         android:orientation="vertical">
@@ -158,7 +157,7 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="11"
                         android:orientation="vertical">
@@ -217,18 +216,18 @@
 
 
                     <LinearLayout
-                        android:id="@+id/multicolumnLayout"
+                        android:id="@+id/multi_column_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_weight="4"
                         android:gravity="end|center">
 
                         <TextView
-                            android:id="@+id/multicolumnTextView"
+                            android:id="@+id/multi_column_textview"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
-                            android:text="4"
+                            android:text="@string/span_count_default"
                             android:textSize="16sp" />
 
                         <ImageView
@@ -255,7 +254,7 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="11"
                         android:orientation="vertical">
@@ -284,7 +283,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
-                            android:text="English"
+                            android:text="@string/language_default"
                             android:textSize="16sp" />
 
                         <ImageView
@@ -311,7 +310,7 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="11"
                         android:orientation="vertical">
@@ -362,10 +361,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/media"
                     android:textColor="@color/primary"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp"/>
+                    android:textSize="16sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -384,7 +383,7 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="11"
                         android:orientation="vertical">
@@ -419,10 +418,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/security"
                     android:textColor="@color/primary"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp"/>
+                    android:textSize="16sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -442,7 +441,7 @@
 
                     <LinearLayout
                         android:id="@+id/passwordImageLayout"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="11"
                         android:orientation="vertical">
@@ -465,6 +464,7 @@
                         android:layout_height="wrap_content" />
                 </LinearLayout>
             </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="120dp" />

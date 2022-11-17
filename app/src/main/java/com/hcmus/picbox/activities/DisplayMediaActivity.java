@@ -1,4 +1,4 @@
-package com.hcmus.picbox;
+package com.hcmus.picbox.activities;
 
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.hcmus.picbox.R;
 import com.hcmus.picbox.models.PhotoModel;
 
 /**

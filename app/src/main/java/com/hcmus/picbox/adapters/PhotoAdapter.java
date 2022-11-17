@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.hcmus.picbox.DisplayMediaActivity;
+import com.hcmus.picbox.activities.DisplayMediaActivity;
 import com.hcmus.picbox.R;
 
 import java.util.List;

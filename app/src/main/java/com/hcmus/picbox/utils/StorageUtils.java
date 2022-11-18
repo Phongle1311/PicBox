@@ -2,6 +2,7 @@ package com.hcmus.picbox.utils;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.hcmus.picbox.models.PhotoModel;
@@ -36,4 +37,35 @@ public class StorageUtils {
 
         return result;
     }
+
+    public static ArrayList<String> getImageDirectories(Context context) {
+        ArrayList<String> directories = new ArrayList<>();
+
+        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        String[] projection = new String[]{
+                MediaStore.Images.Media.DATA
+        };
+
+        String includeImages = MediaStore.Images.Media.MIME_TYPE + " LIKE 'image/%' ";
+        String excludeGif = " AND " + MediaStore.Images.Media.MIME_TYPE + " != 'image/gif' " + " AND " + MediaStore.Images.Media.MIME_TYPE + " != 'image/giff' ";
+        String selection = includeImages + excludeGif;
+
+        Cursor cursor = context.getContentResolver().query(queryUri, projection, selection, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int index = cursor.getColumnIndex(projection[0]);
+                String photoUri = cursor.getString(index);
+                if (!directories.contains(new File(photoUri).getParent()))
+                    directories.add(new File(photoUri).getParent());
+            }
+            while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+
+        return directories;
+    }
+
 }

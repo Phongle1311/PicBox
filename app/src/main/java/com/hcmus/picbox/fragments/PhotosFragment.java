@@ -31,11 +31,14 @@ import com.hcmus.picbox.utils.StorageUtils;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Stack;
 import java.util.TreeMap;
 
 public class PhotosFragment extends Fragment {
@@ -45,7 +48,7 @@ public class PhotosFragment extends Fragment {
     private PhotoAdapter photoAdapter;
     private ArrayList<String> imagePaths = new ArrayList<>();
     private List<PhotoModel> photoList = new ArrayList<>();
-    private Map<LocalDate, List<PhotoModel>> photoByDays = new TreeMap<>(Collections.reverseOrder());
+    private Map<LocalDate, ArrayDeque<PhotoModel>> photoByDays = new TreeMap<>(Collections.reverseOrder());
     private List<GridItem> inputItems = new ArrayList<>();
     private Context context;
     private FloatingActionButton FABmain,FABsearch,FABsecret,FABsortby,FABchangelayout;
@@ -179,8 +182,8 @@ public class PhotosFragment extends Fragment {
             LocalDate lastModified = photo.getLastModifiedDate();
             YearMonth month = YearMonth.from(lastModified);
             lastModified = month.atDay(1);
-            List<PhotoModel> groupList = photoByDays.computeIfAbsent(lastModified, k -> new ArrayList<>());
-            groupList.add(photo);
+            ArrayDeque<PhotoModel> groupList = photoByDays.computeIfAbsent(lastModified, k -> new ArrayDeque<>());
+            groupList.addFirst(photo);
         }
 
         for (LocalDate date : photoByDays.keySet()) {

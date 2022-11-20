@@ -1,8 +1,10 @@
 package com.hcmus.picbox.fragments;
 
 import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -22,8 +24,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.utils.PermissionUtils;
 
 public class SettingFragment extends Fragment {
+    private Context context;
 
     private MaterialButton cameraPermissionButton;
     private MaterialButton galleyPermissionButton;
@@ -45,7 +49,7 @@ public class SettingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
-
+        context = view.getContext();
         initUI(view);
 
         cameraPermissionButton.setOnClickListener(view15 -> {
@@ -118,13 +122,13 @@ public class SettingFragment extends Fragment {
 
     private void initUI(View view) {
         cameraPermissionButton = view.findViewById(R.id.cameraPermissionButton);
-        if (ContextCompat.checkSelfPermission(getContext(), CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (PermissionUtils.checkPermissions(context, CAMERA)) {
             cameraPermissionButton.setIconResource(R.drawable.ic_baseline_check_24);
             cameraPermissionButton.setIconTintResource(R.color.green);
         }
 
         galleyPermissionButton = view.findViewById(R.id.galleryPermissionButton);
-        if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (PermissionUtils.checkPermissions(context, READ_EXTERNAL_STORAGE)) {
             galleyPermissionButton.setIconResource(R.drawable.ic_baseline_check_24);
             galleyPermissionButton.setIconTintResource(R.color.green);
         }

@@ -1,14 +1,14 @@
 package com.hcmus.picbox.activities;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.view.View;
+import static android.Manifest.permission.CAMERA;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -16,13 +16,22 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
+import com.hcmus.picbox.utils.PermissionUtils;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int PERMISSION_REQUEST_CODE = 200;
-
     private FloatingActionButton cameraButton;
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
+
+    private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
+                    startActivity(cameraIntent);
+                } else {
+                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app..", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,18 +40,16 @@ public class MainActivity extends AppCompatActivity {
 
         initUI();
 
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                    startActivity(intent);
-                } else{
-                    ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.CAMERA},
-                            PERMISSION_REQUEST_CODE);
-                }
+        cameraButton.setOnClickListener(view -> {
+            if (PermissionUtils.checkPermissions(this, CAMERA)) {
+                Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
+                startActivity(cameraIntent);
             }
+            else if (shouldShowRequestPermissionRationale(CAMERA)) {
+                bottomBar.getMenu().findItem(R.id.setting).setChecked(true);
+                mainViewPager.setCurrentItem(3);
+            } else
+                requestCameraPermissionLauncher.launch(CAMERA);
         });
 
         initViewPager();

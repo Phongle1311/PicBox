@@ -1,7 +1,10 @@
 package com.hcmus.picbox.fragments;
 
+import static android.Manifest.permission.CAMERA;
+
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
@@ -114,7 +118,7 @@ public class SettingFragment extends Fragment {
 
     private void initUI(View view) {
         cameraPermissionButton = view.findViewById(R.id.cameraPermissionButton);
-        if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+        if (ContextCompat.checkSelfPermission(getContext(), CAMERA) == PackageManager.PERMISSION_GRANTED) {
             cameraPermissionButton.setIconResource(R.drawable.ic_baseline_check_24);
             cameraPermissionButton.setIconTintResource(R.color.green);
         }

@@ -20,6 +20,7 @@ import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.adapters.PhotoItem;
 import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.utils.SharedPreferencesUtil;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -34,7 +35,7 @@ import java.util.TreeMap;
 public class PhotosFragment extends Fragment {
 
     private final List<GridItem> itemsList = new ArrayList<>();
-    private int mSpanCount = 4;
+    private int mSpanCount;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;
     private Map<LocalDate, ArrayDeque<PhotoModel>> photoByDays = new TreeMap<>(Collections.reverseOrder());
@@ -56,6 +57,12 @@ public class PhotosFragment extends Fragment {
         DataHolder.setOnLoadFinishListener(this::onLoadFinish); // this line is used to avoid bugs, delete it after
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        prepareRecyclerView();
     }
 
     private void initUI(View v) {
@@ -91,7 +98,7 @@ public class PhotosFragment extends Fragment {
 
     private void prepareRecyclerView() {
         photoAdapter = new PhotoAdapter(context, itemsList);
-
+        mSpanCount = SharedPreferencesUtil.getIntData(context,"num_columns_of_row");
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override

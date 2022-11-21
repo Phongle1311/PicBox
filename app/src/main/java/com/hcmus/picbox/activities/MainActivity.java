@@ -19,6 +19,7 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
 import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.utils.PermissionUtils;
+import com.hcmus.picbox.utils.SharedPreferencesUtil;
 import com.hcmus.picbox.utils.StorageUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initSharedPreferencesDefault();
         initUI();
         initViewPager();
 
@@ -77,6 +79,19 @@ public class MainActivity extends AppCompatActivity {
             } else
                 requestCameraPermissionLauncher.launch(CAMERA);
         });
+    }
+
+    private void initSharedPreferencesDefault() {
+        String[] SharedPreferencesKeys = {"num_columns_of_row"} ;
+        for (String key : SharedPreferencesKeys){
+            if (!SharedPreferencesUtil.checkKeyExist(this, key)){
+                switch (key){
+                    case "num_columns_of_row":
+                        SharedPreferencesUtil.saveData(this,"num_columns_of_row", 4);
+                        break;
+                }
+            };
+        }
     }
 
     private void initUI() {

@@ -17,6 +17,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
+import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.StorageUtils;
 
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 requestCameraPermissionLauncher.launch(CAMERA);
         });
 
+        DataHolder.printDeviceAlbums();
         initViewPager();
     }
 

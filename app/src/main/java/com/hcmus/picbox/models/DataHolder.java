@@ -1,5 +1,7 @@
 package com.hcmus.picbox.models;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,10 @@ public class DataHolder {
         sAllMediaList.addAll(list);
     }
 
+    public static void addMedia(PhotoModel media) {
+        sAllMediaList.add(media);
+    }
+
     public static List<PhotoModel> getAllMediaList() {
         return sAllMediaList;
     }
@@ -28,8 +34,29 @@ public class DataHolder {
         sDeviceAlbumList.addAll(list);
     }
 
+    public static void addDeviceAlbum(AlbumModel album) {
+        sDeviceAlbumList.add(album);
+    }
+
     public static List<AlbumModel> getDeviceAlbumList() {
         return sDeviceAlbumList;
+    }
+
+    public static boolean containDeviceAlbumID(String albumId) {
+        for (AlbumModel album : sDeviceAlbumList)
+            if (albumId.equals(album.getId()))
+                return true;
+        return false;
+    }
+
+    public static AlbumModel getDeviceAlbumById(String albumId) {
+        AlbumModel result = null;
+        for (AlbumModel album : sDeviceAlbumList)
+            if (album.getId().equals(albumId)) {
+                result = album;
+                break;
+            }
+        return  result;
     }
 
     public static void addUserAlbums(List<AlbumModel> list) {
@@ -62,5 +89,11 @@ public class DataHolder {
 
     public static List<PhotoModel> getSecretAlbum() {
         return sSecretAlbum;
+    }
+
+    // for test
+    public static void printDeviceAlbums() {
+        for (AlbumModel album : sDeviceAlbumList)
+            Log.d("test", album.getDisplayName() + " " + album.getId());
     }
 }

@@ -14,6 +14,8 @@ public class PhotoModel implements Serializable {
     public static final String[] sProjection = {
             MediaStore.Images.Media.DATA,
             MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.BUCKET_ID,
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
 //            MediaStore.Images.Media.DATE_TAKEN,
 //            MediaStore.Images.Media.MIME_TYPE,
 //            MediaStore.Images.Media.SIZE,

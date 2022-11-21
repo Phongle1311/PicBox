@@ -49,16 +49,17 @@ public class PhotosFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_photos, container, false);
         context = view.getContext();
 
-        mGallery = view.findViewById(R.id.rcv_images);
-        initFAB(view);
+        initUI(view);
         prepareRecyclerView();
-
         getItemsList();
+
+        DataHolder.setOnLoadFinishListener(this::onLoadFinish); // this line is used to avoid bugs, delete it after
 
         return view;
     }
 
-    private void initFAB(View v) {
+    private void initUI(View v) {
+        mGallery = v.findViewById(R.id.rcv_images);
         fabMain = (FloatingActionButton) v.findViewById(R.id.fab_main);
         fabSearch = (FloatingActionButton) v.findViewById(R.id.fab_search);
         fabSecret = (FloatingActionButton) v.findViewById(R.id.fab_secret_media);
@@ -166,11 +167,15 @@ public class PhotosFragment extends Fragment {
         }
 
         int newSize = itemsList.size();
-        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
+//        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
+        photoAdapter.notifyDataSetChanged();
     }
 
     public void onListChanged(int positionStart, int itemCount) {
 //        photoAdapter.notifyItemRangeChanged(positionStart, itemCount);
+    }
 
+    public void onLoadFinish() {
+        getItemsList();
     }
 }

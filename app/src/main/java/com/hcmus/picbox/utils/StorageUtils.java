@@ -64,5 +64,6 @@ public final class StorageUtils {
 
             cursor.close();
         }
+        DataHolder.onLoadFinish();
     }
 }

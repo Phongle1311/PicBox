@@ -2,6 +2,7 @@ package com.hcmus.picbox.models;
 
 import android.util.Log;
 
+import com.hcmus.picbox.interfaces.IOnLoadFinish;
 import com.hcmus.picbox.interfaces.IOnMediaListChanged;
 
 import java.util.ArrayList;
@@ -23,22 +24,32 @@ public class DataHolder {
     private static final List<PhotoModel> sSecretAlbum = new ArrayList<>();
 
     private static IOnMediaListChanged onMediaListChangedListener;
+    private static IOnLoadFinish onLoadFinishListener;
 
-    public static void setOnMediaListChange(IOnMediaListChanged listener) {
+    public static void setOnMediaListChangeListener(IOnMediaListChanged listener) {
         onMediaListChangedListener = listener;
     }
 
+    public static void setOnLoadFinishListener(IOnLoadFinish listener) {
+        onLoadFinishListener = listener;
+    }
+
+    public static void onLoadFinish() {
+        if (onLoadFinishListener != null)
+            onLoadFinishListener.onLoadFinish();
+    }
+
     public static void addMedias(List<PhotoModel> list) {
-        int oldSize = sAllMediaList.size();
+//        int oldSize = sAllMediaList.size();
         sAllMediaList.addAll(list);
-        if (onMediaListChangedListener != null)
-            onMediaListChangedListener.onMediaListChanged(oldSize, list.size());
+//        if (onMediaListChangedListener != null)
+//            onMediaListChangedListener.onMediaListChanged(oldSize, list.size());
     }
 
     public static void addMedia(PhotoModel media) {
         sAllMediaList.add(media);
-        if (onMediaListChangedListener != null)
-            onMediaListChangedListener.onMediaListChanged(sAllMediaList.size() - 1, 1);
+//        if (onMediaListChangedListener != null)
+//            onMediaListChangedListener.onMediaListChanged(sAllMediaList.size() - 1, 1);
     }
 
     public static List<PhotoModel> getAllMediaList() {
@@ -112,11 +123,5 @@ public class DataHolder {
 
     public static List<PhotoModel> getSecretAlbum() {
         return sSecretAlbum;
-    }
-
-    // for test
-    public static void printDeviceAlbums() {
-        for (AlbumModel album : sDeviceAlbumList)
-            Log.d("test", album.getDisplayName() + " " + album.getId());
     }
 }

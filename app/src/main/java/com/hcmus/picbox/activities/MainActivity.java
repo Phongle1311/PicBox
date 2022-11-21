@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initUI();
+        initViewPager();
 
         // check permission
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
@@ -76,9 +77,6 @@ public class MainActivity extends AppCompatActivity {
             } else
                 requestCameraPermissionLauncher.launch(CAMERA);
         });
-
-        DataHolder.printDeviceAlbums();
-        initViewPager();
     }
 
     private void initUI() {

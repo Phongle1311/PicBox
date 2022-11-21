@@ -31,21 +31,33 @@ public final class StorageUtils {
                 int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
                 String data = cursor.getString(dataColumnIndex);
                 File file = new File(data);
-                PhotoModel photoModel = new PhotoModel(file);
-                DataHolder.addMedia(photoModel);
+                PhotoModel media = new PhotoModel(file);
+                DataHolder.addMedia(media);
 
                 // add to album or add new album to albumList
                 dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
                 String albumName = cursor.getString(dataColumnIndex);
                 dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
                 String albumID = cursor.getString(dataColumnIndex);
-                if (DataHolder.containDeviceAlbumID(albumID)) {
-                    AlbumModel album = DataHolder.getDeviceAlbumById(albumID);
-                    if (album != null)
-                        album.addMedia(photoModel);
-                } else {
+
+                // special case: all media in DCIM is belong to Camera album
+                // such as: .../DCIM/Facebook/... or .../DCIM/Camera/....
+                if (data.contains("DCIM")) {
+                    if (DataHolder.containDeviceAlbumID(DataHolder.DCIM_ID)) {
+                        DataHolder.addMediaToDeviceAlbumById(media, DataHolder.DCIM_ID);
+                    }
+                    else {
+                        AlbumModel album = new AlbumModel(DataHolder.DCIM_DISPLAY_NAME, DataHolder.DCIM_ID, file.getParent());
+                        album.addMedia(media);
+                        DataHolder.addDeviceAlbum(album);
+                    }
+                }
+                else if (DataHolder.containDeviceAlbumID(albumID)) {
+                    DataHolder.addMediaToDeviceAlbumById(media, albumID);
+                }
+                else {
                     AlbumModel album = new AlbumModel(albumName, albumID, file.getParent());
-                    album.addMedia(photoModel);
+                    album.addMedia(media);
                     DataHolder.addDeviceAlbum(album);
                 }
             }

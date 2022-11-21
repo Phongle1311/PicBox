@@ -23,6 +23,10 @@ import com.hcmus.picbox.utils.StorageUtils;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ViewPager mainViewPager;
+    private BottomNavigationView bottomBar;
+    private FloatingActionButton cameraButton;
+
     /**
      * Use registerForActivityResult instead of onRequestPermissionResult because
      * the old method is deprecated
@@ -45,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app..", Toast.LENGTH_SHORT).show();
                 }
             });
-
-    private ViewPager mainViewPager;
-    private BottomNavigationView bottomBar;
-    private FloatingActionButton cameraButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

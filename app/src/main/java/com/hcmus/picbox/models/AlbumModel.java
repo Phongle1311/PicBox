@@ -1,5 +1,6 @@
 package com.hcmus.picbox.models;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,6 @@ public class AlbumModel implements Serializable {
     private String displayName;
     private String id;
     private String path;
-    private PhotoModel coverImage;
     private int count;
     private final List<PhotoModel> mediaList = new ArrayList<>();
 
@@ -40,5 +40,11 @@ public class AlbumModel implements Serializable {
 
     public void addMedia(PhotoModel media) {
         mediaList.add(media);
+    }
+
+    public File getCover() {
+        if (mediaList.size() == 0)
+            return null;
+        return mediaList.get(mediaList.size() - 1).getFile();
     }
 }

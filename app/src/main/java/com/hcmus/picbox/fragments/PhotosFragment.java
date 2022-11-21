@@ -168,4 +168,9 @@ public class PhotosFragment extends Fragment {
         int newSize = itemsList.size();
         photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
     }
+
+    public void onListChanged(int positionStart, int itemCount) {
+//        photoAdapter.notifyItemRangeChanged(positionStart, itemCount);
+
+    }
 }

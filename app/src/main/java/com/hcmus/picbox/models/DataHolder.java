@@ -2,6 +2,8 @@ package com.hcmus.picbox.models;
 
 import android.util.Log;
 
+import com.hcmus.picbox.interfaces.IOnMediaListChanged;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +13,8 @@ import java.util.List;
  */
 public class DataHolder {
 
+    public static final String DCIM_ID = "00";
+    public static final String DCIM_DISPLAY_NAME = "Camera";
     private static final List<PhotoModel> sAllMediaList = new ArrayList<>();
     private static final List<AlbumModel> sDeviceAlbumList = new ArrayList<>();
     private static final List<AlbumModel> sUserAlbumList = new ArrayList<>();
@@ -18,12 +22,21 @@ public class DataHolder {
     private static final List<PhotoModel> sDeletedAlbum = new ArrayList<>();
     private static final List<PhotoModel> sSecretAlbum = new ArrayList<>();
 
+    private static IOnMediaListChanged onMediaListChangedListener;
+
+    public static void setOnMediaListChange(IOnMediaListChanged listener) {
+        onMediaListChangedListener = listener;
+    }
+
     public static void addMedias(List<PhotoModel> list) {
+        int oldSize = sAllMediaList.size();
         sAllMediaList.addAll(list);
+        onMediaListChangedListener.onMediaListChanged(oldSize, list.size());
     }
 
     public static void addMedia(PhotoModel media) {
         sAllMediaList.add(media);
+        onMediaListChangedListener.onMediaListChanged(sAllMediaList.size() - 1, 1);
     }
 
     public static List<PhotoModel> getAllMediaList() {
@@ -36,6 +49,14 @@ public class DataHolder {
 
     public static void addDeviceAlbum(AlbumModel album) {
         sDeviceAlbumList.add(album);
+    }
+
+    public static void addMediaToDeviceAlbumById(PhotoModel media, String albumId) {
+        for (AlbumModel album : sDeviceAlbumList)
+            if (album.getId().equals(albumId)) {
+                album.addMedia(media);
+                return;
+            }
     }
 
     public static List<AlbumModel> getDeviceAlbumList() {

@@ -1,18 +1,11 @@
 package com.hcmus.picbox.fragments;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -25,99 +18,79 @@ import com.hcmus.picbox.adapters.DateItem;
 import com.hcmus.picbox.adapters.GridItem;
 import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.adapters.PhotoItem;
+import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;
-import com.hcmus.picbox.utils.PermissionUtils;
-import com.hcmus.picbox.utils.StorageUtils;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Stack;
 import java.util.TreeMap;
 
 public class PhotosFragment extends Fragment {
 
+    private final List<GridItem> itemsList = new ArrayList<>();
     private int mSpanCount = 4;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;
-    private ArrayList<String> imagePaths = new ArrayList<>();
-    private List<PhotoModel> photoList = new ArrayList<>();
     private Map<LocalDate, ArrayDeque<PhotoModel>> photoByDays = new TreeMap<>(Collections.reverseOrder());
-    private List<GridItem> inputItems = new ArrayList<>();
     private Context context;
-    private FloatingActionButton FABmain,FABsearch,FABsecret,FABsortby,FABchangelayout;
-    private int fabClicked=0;
+    private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
+    private int fabClicked = 0;
 
-    // Use registerForActivityResult instead of onRequestPermissionResult because
-    // the old method is deprecated
-
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    getPhotoList();
-                } else {
-                    Toast.makeText(context, "Permissions denied, Permissions are required to use the app..", Toast.LENGTH_SHORT).show();
-                }
-            });
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_photos, container, false);
         context = view.getContext();
-        mGallery = view.findViewById(R.id.rcv_images);
-        initFAB(view);
+
+        initUI(view);
         prepareRecyclerView();
-        // check permission
-        if (PermissionUtils.checkPermissions(context, READ_EXTERNAL_STORAGE))
-            getPhotoList();
-        else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
-            // TODO: show dialog to educate user and persuade user to grant permission
-            Toast.makeText(context, "need to show rationale", Toast.LENGTH_LONG).show();
-        } else
-            requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
+        getItemsList();
+
+        DataHolder.setOnLoadFinishListener(this::onLoadFinish); // this line is used to avoid bugs, delete it after
 
         return view;
     }
-    private void initFAB(View v){
-        FABmain=(FloatingActionButton)v.findViewById(R.id.fab_main);
-        FABsearch=(FloatingActionButton)v.findViewById(R.id.fab_search);
-        FABsecret=(FloatingActionButton)v.findViewById(R.id.fab_secret_media);
-        FABchangelayout=(FloatingActionButton)v.findViewById(R.id.fab_change_layout);
-        FABsortby=(FloatingActionButton) v.findViewById(R.id.fab_sort_by);
-        FABmain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(fabClicked==0){
-                    showMiniFABs();
-                }
-                else{
-                    hideMiniFABs();
-                }
-                fabClicked=~fabClicked;
+
+    private void initUI(View v) {
+        mGallery = v.findViewById(R.id.rcv_images);
+        fabMain = (FloatingActionButton) v.findViewById(R.id.fab_main);
+        fabSearch = (FloatingActionButton) v.findViewById(R.id.fab_search);
+        fabSecret = (FloatingActionButton) v.findViewById(R.id.fab_secret_media);
+        fabChangeLayout = (FloatingActionButton) v.findViewById(R.id.fab_change_layout);
+        fabSortBy = (FloatingActionButton) v.findViewById(R.id.fab_sort_by);
+        fabMain.setOnClickListener(view -> {
+            if (fabClicked == 0) {
+                showMiniFABs();
+            } else {
+                hideMiniFABs();
             }
+            fabClicked = ~fabClicked;
         });
     }
-    private void showMiniFABs(){
-        FABsearch.show();
-        FABsecret.show();
-        FABchangelayout.show();
-        FABsortby.show();
+
+    private void showMiniFABs() {
+        fabSearch.show();
+        fabSecret.show();
+        fabChangeLayout.show();
+        fabSortBy.show();
     }
-    private void hideMiniFABs(){
-        FABsearch.hide();
-        FABsecret.hide();
-        FABchangelayout.hide();
-        FABsortby.hide();
+
+    private void hideMiniFABs() {
+        fabSearch.hide();
+        fabSecret.hide();
+        fabChangeLayout.hide();
+        fabSortBy.hide();
     }
+
     private void prepareRecyclerView() {
-        photoAdapter = new PhotoAdapter(context, inputItems);
+        photoAdapter = new PhotoAdapter(context, itemsList);
 
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -136,49 +109,46 @@ public class PhotosFragment extends Fragment {
         });
         mGallery.setLayoutManager(manager);
         mGallery.setAdapter(photoAdapter);
-        mGallery.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                hideMiniFABs();
-                fabClicked=0;
-                return false;
-            }
+        mGallery.setOnTouchListener((view, motionEvent) -> {
+            hideMiniFABs();
+            fabClicked = 0;
+            return false;
         });
         mGallery.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if(dy>0){
-                    if(FABmain.isShown()){
+                if (dy > 0) {
+                    if (fabMain.isShown()) {
                         hideMiniFABs();
-                        FABmain.hide();
-                        fabClicked=0;
+                        fabMain.hide();
+                        fabClicked = 0;
                     }
                 }
-                else if(dy<-50){
-                    if(!FABmain.isShown()){
-                        FABmain.show();
-                        fabClicked=0;
+                else if (dy < -50) {
+                    if (!fabMain.isShown()) {
+                        fabMain.show();
+                        fabClicked = 0;
                     }
                 }
-                else if(!recyclerView.canScrollVertically(-1)){
-                    if(!FABmain.isShown()){
-                        FABmain.show();
-                        fabClicked=0;
+                else if (!recyclerView.canScrollVertically(-1)) {
+                    if (!fabMain.isShown()) {
+                        fabMain.show();
+                        fabClicked = 0;
                     }
                 }
             }
         });
     }
-    private void getPhotoList() {
-        int oldSize = photoList.size();
 
-        // get photo from storage
-        List<PhotoModel> list = StorageUtils.getAllPhotoPathFromStorage(context);
-        photoList.addAll(list); // don't assign photoList to anything, it will change adapter
+    private void getItemsList() {
+        int oldSize = itemsList.size();
+
+        // get photo from data holder
+        List<PhotoModel> list = DataHolder.getAllMediaList();
 
         // group photo by date - add date items
-        for (PhotoModel photo : photoList) {
+        for (PhotoModel photo : list) {
             LocalDate lastModified = photo.getLastModifiedDate();
             YearMonth month = YearMonth.from(lastModified);
             lastModified = month.atDay(1);
@@ -188,15 +158,24 @@ public class PhotosFragment extends Fragment {
 
         for (LocalDate date : photoByDays.keySet()) {
             DateItem dateItem = new DateItem(date);
-            inputItems.add(dateItem);
+            itemsList.add(dateItem);
             for (PhotoModel photo : Objects.requireNonNull(photoByDays.get(date),
                     "Photo model list must not be null!")) {
                 PhotoItem photoItem = new PhotoItem(photo);
-                inputItems.add(photoItem);
+                itemsList.add(photoItem);
             }
         }
 
-        int newSize = photoList.size();
-        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
+        int newSize = itemsList.size();
+//        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
+        photoAdapter.notifyDataSetChanged();
+    }
+
+    public void onListChanged(int positionStart, int itemCount) {
+//        photoAdapter.notifyItemRangeChanged(positionStart, itemCount);
+    }
+
+    public void onLoadFinish() {
+        getItemsList();
     }
 }

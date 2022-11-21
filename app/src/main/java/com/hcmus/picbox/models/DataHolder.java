@@ -31,12 +31,14 @@ public class DataHolder {
     public static void addMedias(List<PhotoModel> list) {
         int oldSize = sAllMediaList.size();
         sAllMediaList.addAll(list);
-        onMediaListChangedListener.onMediaListChanged(oldSize, list.size());
+        if (onMediaListChangedListener != null)
+            onMediaListChangedListener.onMediaListChanged(oldSize, list.size());
     }
 
     public static void addMedia(PhotoModel media) {
         sAllMediaList.add(media);
-        onMediaListChangedListener.onMediaListChanged(sAllMediaList.size() - 1, 1);
+        if (onMediaListChangedListener != null)
+            onMediaListChangedListener.onMediaListChanged(sAllMediaList.size() - 1, 1);
     }
 
     public static List<PhotoModel> getAllMediaList() {

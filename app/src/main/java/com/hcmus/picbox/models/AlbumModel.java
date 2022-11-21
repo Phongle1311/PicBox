@@ -47,4 +47,7 @@ public class AlbumModel implements Serializable {
             return null;
         return mediaList.get(mediaList.size() - 1).getFile();
     }
+    public int getSize(){
+        return mediaList.size();
+    }
 }

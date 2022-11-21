@@ -37,4 +37,8 @@
     <string name="span_count_default">4</string>
     <string name="language_default">English</string>
     <string name="favorite">Yêu thích</string>
+    <string name="secret">Bí mật</string>
+    <string name="Creativity">Sáng tạo</string>
+    <string name="trash">Thùng rác</string>
+    <string name="from_device">From device</string>
 </resources>

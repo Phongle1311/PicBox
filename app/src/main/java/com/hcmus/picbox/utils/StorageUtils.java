@@ -4,17 +4,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
+import com.hcmus.picbox.models.AlbumModel;
+import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-public class StorageUtils {
+public final class StorageUtils {
 
-    public static List<PhotoModel> getAllPhotoPathFromStorage(Context context) {
-        List<PhotoModel> result = new ArrayList<>();
-
+    public static void getAllPhotoPathFromStorage(Context context) {
         // Check device has SDCard or not
         if (android.os.Environment.getExternalStorageState()
                 .equals(android.os.Environment.MEDIA_MOUNTED)) {
@@ -23,17 +21,49 @@ public class StorageUtils {
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, PhotoModel.sProjection,
                     null, null, PhotoModel.sOrderBy);
 
+            if (cursor == null) return;
+
             int count = cursor.getCount();
             for (int i = 0; i < count; i++) {
                 cursor.moveToPosition(i);
+
+                // add to allMediaList
                 int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                File file = new File(cursor.getString(dataColumnIndex));
-                result.add(new PhotoModel(file));
+                String data = cursor.getString(dataColumnIndex);
+                File file = new File(data);
+                PhotoModel media = new PhotoModel(file);
+                DataHolder.addMedia(media);
+
+                // add to album or add new album to albumList
+                dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+                String albumName = cursor.getString(dataColumnIndex);
+                dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
+                String albumID = cursor.getString(dataColumnIndex);
+
+                // special case: all media in DCIM is belong to Camera album
+                // such as: .../DCIM/Facebook/... or .../DCIM/Camera/....
+                if (data.contains("DCIM")) {
+                    if (DataHolder.containDeviceAlbumID(DataHolder.DCIM_ID)) {
+                        DataHolder.addMediaToDeviceAlbumById(media, DataHolder.DCIM_ID);
+                    }
+                    else {
+                        AlbumModel album = new AlbumModel(DataHolder.DCIM_DISPLAY_NAME, DataHolder.DCIM_ID, file.getParent());
+                        album.addMedia(media);
+                        DataHolder.addDeviceAlbum(album);
+                    }
+                }
+                else if (DataHolder.containDeviceAlbumID(albumID)) {
+                    DataHolder.addMediaToDeviceAlbumById(media, albumID);
+                }
+                else {
+                    AlbumModel album = new AlbumModel(albumName, albumID, file.getParent());
+                    album.addMedia(media);
+                    DataHolder.addDeviceAlbum(album);
+                }
             }
 
             cursor.close();
         }
-
-        return result;
+        DataHolder.onLoadFinish();
     }
 }

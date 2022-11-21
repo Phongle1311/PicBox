@@ -1,6 +1,7 @@
 package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,11 +18,22 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
 import com.hcmus.picbox.utils.PermissionUtils;
+import com.hcmus.picbox.utils.StorageUtils;
 
 public class MainActivity extends AppCompatActivity {
-    private FloatingActionButton cameraButton;
-    private ViewPager mainViewPager;
-    private BottomNavigationView bottomBar;
+
+    /**
+     * Use registerForActivityResult instead of onRequestPermissionResult because
+     * the old method is deprecated
+     */
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    StorageUtils.getAllPhotoPathFromStorage(this);
+                } else {
+                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -33,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+    private ViewPager mainViewPager;
+    private BottomNavigationView bottomBar;
+    private FloatingActionButton cameraButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,12 +56,20 @@ public class MainActivity extends AppCompatActivity {
 
         initUI();
 
+        // check permission
+        if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
+            StorageUtils.getAllPhotoPathFromStorage(this);
+        else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
+            // TODO: show dialog to educate user and persuade user to grant permission
+            Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
+        } else
+            requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
+
         cameraButton.setOnClickListener(view -> {
             if (PermissionUtils.checkPermissions(this, CAMERA)) {
                 Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
                 startActivity(cameraIntent);
-            }
-            else if (shouldShowRequestPermissionRationale(CAMERA)) {
+            } else if (shouldShowRequestPermissionRationale(CAMERA)) {
                 bottomBar.getMenu().findItem(R.id.setting).setChecked(true);
                 mainViewPager.setCurrentItem(3);
             } else

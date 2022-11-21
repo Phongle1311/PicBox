@@ -3,10 +3,13 @@ package com.hcmus.picbox.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class SharedPreferencesUtil {
+/**
+ * Created on 21/11/2022 by Minh Kha
+ */
+public class SharedPreferencesUtils {
     private static final String PREF_APP = "pref_app";
 
-    private SharedPreferencesUtil() {
+    private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(
                 "Should not create instance of Util class. Please use as static..");
     }

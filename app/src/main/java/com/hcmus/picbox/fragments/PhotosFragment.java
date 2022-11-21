@@ -20,7 +20,7 @@ import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.adapters.PhotoItem;
 import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;
-import com.hcmus.picbox.utils.SharedPreferencesUtil;
+import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -62,7 +62,11 @@ public class PhotosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        prepareRecyclerView();
+        int newSpanCount = SharedPreferencesUtils.getIntData(context,"num_columns_of_row");
+        if (newSpanCount != mSpanCount) {
+            mSpanCount = newSpanCount;
+            photoAdapter.notifyDataSetChanged();
+        }
     }
 
     private void initUI(View v) {
@@ -98,7 +102,7 @@ public class PhotosFragment extends Fragment {
 
     private void prepareRecyclerView() {
         photoAdapter = new PhotoAdapter(context, itemsList);
-        mSpanCount = SharedPreferencesUtil.getIntData(context,"num_columns_of_row");
+        mSpanCount = SharedPreferencesUtils.getIntData(context,"num_columns_of_row");
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override

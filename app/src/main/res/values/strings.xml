@@ -40,4 +40,9 @@
     <string name="number_columns_in_each_row">Number columns in each row</string>
     <string name="confirm">confirm</string>
     <string name="cancel">cancel</string>
+    <string name="favorite">Favorite</string>
+    <string name="secret">Secret</string>
+    <string name="Creativity">Creativity</string>
+    <string name="trash">Trash</string>
+    <string name="from_device">From device</string>
 </resources>

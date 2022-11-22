@@ -40,4 +40,9 @@
     <string name="number_columns_in_each_row">Số cột trên dòng</string>
     <string name="confirm">Xác nhận</string>
     <string name="cancel">Hủy</string>
+    <string name="favorite">Yêu thích</string>
+    <string name="secret">Bí mật</string>
+    <string name="Creativity">Sáng tạo</string>
+    <string name="trash">Thùng rác</string>
+    <string name="from_device">Từ thiết bị</string>
 </resources>

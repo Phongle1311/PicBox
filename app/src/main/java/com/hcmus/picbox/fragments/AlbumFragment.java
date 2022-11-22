@@ -32,7 +32,6 @@ import java.util.TreeMap;
 
 public class AlbumFragment extends Fragment {
     private CardView cv_favorite, cv_secret, cv_creativity, cv_trash;
-    private ImageView scrollAlbum;
     private Context context;
     private AlbumAdapter albumAdapter;
     private List<AlbumModel> itemsList = new ArrayList<>();
@@ -57,13 +56,6 @@ public class AlbumFragment extends Fragment {
         cv_trash = view.findViewById(R.id.card_view_trash);
         mAlbums = view.findViewById(R.id.rcv_album);
         mAlbums_from_device = view.findViewById(R.id.rcv_album_from_device);
-        scrollAlbum = view.findViewById(R.id.img_scroll_album);
-        scrollAlbum.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mAlbums.getLayoutManager().scrollToPosition(linearManager.findLastVisibleItemPosition() + 1);
-            }
-        });
     }
 
     private void prepareRecyclerView() {

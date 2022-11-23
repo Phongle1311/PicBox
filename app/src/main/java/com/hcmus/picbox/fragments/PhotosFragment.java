@@ -14,10 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
-import com.hcmus.picbox.adapters.DateItem;
-import com.hcmus.picbox.adapters.GridItem;
+import com.hcmus.picbox.models.DateModel;
+import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.adapters.PhotoAdapter;
-import com.hcmus.picbox.adapters.PhotoItem;
 import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
@@ -34,7 +33,7 @@ import java.util.TreeMap;
 
 public class PhotosFragment extends Fragment {
 
-    private final List<GridItem> itemsList = new ArrayList<>();
+    private final List<AbstractModel> itemsList = new ArrayList<>();
     private int mSpanCount;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;
@@ -108,9 +107,9 @@ public class PhotosFragment extends Fragment {
             @Override
             public int getSpanSize(int position) {
                 switch (photoAdapter.getItemViewType(position)) {
-                    case GridItem.TYPE_DATE:
+                    case AbstractModel.TYPE_DATE:
                         return manager.getSpanCount();
-                    case GridItem.TYPE_PHOTO:
+                    case AbstractModel.TYPE_PHOTO:
                         return 1;
                     default:
                         return -1;
@@ -156,10 +155,10 @@ public class PhotosFragment extends Fragment {
         int oldSize = itemsList.size();
 
         // get photo from data holder
-        List<PhotoModel> list = DataHolder.getAllMediaList();
+        List<AbstractModel> list = DataHolder.getAllMediaList();
 
         // group photo by date - add date items
-        for (PhotoModel photo : list) {
+       /* for (AbstractModel photo : list) {
             LocalDate lastModified = photo.getLastModifiedDate();
             YearMonth month = YearMonth.from(lastModified);
             lastModified = month.atDay(1);
@@ -168,15 +167,15 @@ public class PhotosFragment extends Fragment {
         }
 
         for (LocalDate date : photoByDays.keySet()) {
-            DateItem dateItem = new DateItem(date);
+            DateModel dateItem = new DateModel(date);
             itemsList.add(dateItem);
             for (PhotoModel photo : Objects.requireNonNull(photoByDays.get(date),
                     "Photo model list must not be null!")) {
-                PhotoItem photoItem = new PhotoItem(photo);
+                PhotoModel photoItem = new PhotoModel(photo);
                 itemsList.add(photoItem);
             }
         }
-
+*/
         int newSize = itemsList.size();
 //        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
         photoAdapter.notifyDataSetChanged();

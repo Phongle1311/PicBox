@@ -1,18 +1,18 @@
-package com.hcmus.picbox.adapters;
+package com.hcmus.picbox.models;
 
 import androidx.annotation.NonNull;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class DateItem extends GridItem {
+public class DateModel extends AbstractModel {
     private final String mLastModifiedTime;
 
-    public DateItem(@NonNull String LastModifiedTime) {
+    public DateModel(@NonNull String LastModifiedTime) {
         this.mLastModifiedTime = LastModifiedTime;
     }
 
-    public DateItem(LocalDate date) {
+    public DateModel(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'Tháng 'MM 'năm 'yyyy");
         this.mLastModifiedTime = date.format(formatter);
     }

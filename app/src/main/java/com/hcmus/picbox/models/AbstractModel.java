@@ -1,6 +1,7 @@
-package com.hcmus.picbox.adapters;
+package com.hcmus.picbox.models;
 
-public abstract class GridItem {
+public abstract class AbstractModel {
+
     public static final int TYPE_DATE = 0;
     public static final int TYPE_PHOTO = 1;
 

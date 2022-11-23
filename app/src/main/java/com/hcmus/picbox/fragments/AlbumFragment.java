@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,8 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.AlbumAdapter;
-import com.hcmus.picbox.adapters.GridItem;
-import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;

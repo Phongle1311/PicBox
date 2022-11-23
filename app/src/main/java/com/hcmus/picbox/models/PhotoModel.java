@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-public class PhotoModel implements Serializable {
+public class PhotoModel extends AbstractModel implements Serializable {
 
     // what need to load from an image
     public static final String[] sProjection = {
@@ -47,4 +47,8 @@ public class PhotoModel implements Serializable {
     }
 
 
+    @Override
+    public int getType() {
+        return TYPE_PHOTO;
+    }
 }

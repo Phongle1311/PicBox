@@ -16,12 +16,12 @@ public class DataHolder {
 
     public static final String DCIM_ID = "00";
     public static final String DCIM_DISPLAY_NAME = "Camera";
-    private static final List<PhotoModel> sAllMediaList = new ArrayList<>();
+    private static final List<AbstractModel> sAllMediaList = new ArrayList<>();
     private static final List<AlbumModel> sDeviceAlbumList = new ArrayList<>();
     private static final List<AlbumModel> sUserAlbumList = new ArrayList<>();
-    private static final List<PhotoModel> sFavouriteAlbum = new ArrayList<>();
-    private static final List<PhotoModel> sDeletedAlbum = new ArrayList<>();
-    private static final List<PhotoModel> sSecretAlbum = new ArrayList<>();
+    private static final List<AbstractModel> sFavouriteAlbum = new ArrayList<>();
+    private static final List<AbstractModel> sDeletedAlbum = new ArrayList<>();
+    private static final List<AbstractModel> sSecretAlbum = new ArrayList<>();
 
     private static IOnMediaListChanged onMediaListChangedListener;
     private static IOnLoadFinish onLoadFinishListener;
@@ -39,20 +39,20 @@ public class DataHolder {
             onLoadFinishListener.onLoadFinish();
     }
 
-    public static void addMedias(List<PhotoModel> list) {
+    public static void addMedias(List<AbstractModel> list) {
 //        int oldSize = sAllMediaList.size();
         sAllMediaList.addAll(list);
 //        if (onMediaListChangedListener != null)
 //            onMediaListChangedListener.onMediaListChanged(oldSize, list.size());
     }
 
-    public static void addMedia(PhotoModel media) {
+    public static void addMedia(AbstractModel media) {
         sAllMediaList.add(media);
 //        if (onMediaListChangedListener != null)
 //            onMediaListChangedListener.onMediaListChanged(sAllMediaList.size() - 1, 1);
     }
 
-    public static List<PhotoModel> getAllMediaList() {
+    public static List<AbstractModel> getAllMediaList() {
         return sAllMediaList;
     }
 
@@ -101,27 +101,27 @@ public class DataHolder {
         return sUserAlbumList;
     }
 
-    public static void addFavouriteMedias(List<PhotoModel> list) {
+    public static void addFavouriteMedias(List<AbstractModel> list) {
         sFavouriteAlbum.addAll(list);
     }
 
-    public static List<PhotoModel> getFavouriteAlbum() {
+    public static List<AbstractModel> getFavouriteAlbum() {
         return sFavouriteAlbum;
     }
 
-    public static void addDeletedMedias(List<PhotoModel> list) {
+    public static void addDeletedMedias(List<AbstractModel> list) {
         sDeletedAlbum.addAll(list);
     }
 
-    public static List<PhotoModel> getDeletedAlbum() {
+    public static List<AbstractModel> getDeletedAlbum() {
         return sDeletedAlbum;
     }
 
-    public static void addSecretMedias(List<PhotoModel> list) {
+    public static void addSecretMedias(List<AbstractModel> list) {
         sSecretAlbum.addAll(list);
     }
 
-    public static List<PhotoModel> getSecretAlbum() {
+    public static List<AbstractModel> getSecretAlbum() {
         return sSecretAlbum;
     }
 }

@@ -17,24 +17,17 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.DataHolder;
-import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+import com.hcmus.picbox.utils.StorageUtils;
 
-import java.time.LocalDate;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class PhotosFragment extends Fragment {
 
-    private final List<AbstractModel> itemsList = new ArrayList<>();
+    private final List<AbstractModel> itemsList = DataHolder.getAllMediaList();
     private int mSpanCount;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;
-    private Map<LocalDate, ArrayDeque<PhotoModel>> photoByDays = new TreeMap<>(Collections.reverseOrder());
     private Context context;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
     private int fabClicked = 0;
@@ -48,9 +41,7 @@ public class PhotosFragment extends Fragment {
 
         initUI(view);
         prepareRecyclerView();
-        getItemsList();
-
-        DataHolder.setOnLoadFinishListener(this::onLoadFinish); // this line is used to avoid bugs, delete it after
+        StorageUtils.setPhotoFragmentListener(this::onItemRangeInserted);
 
         return view;
     }
@@ -61,7 +52,7 @@ public class PhotosFragment extends Fragment {
         int newSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
         if (newSpanCount != mSpanCount) {
             mSpanCount = newSpanCount;
-            photoAdapter.notifyDataSetChanged();
+            photoAdapter.notifyAll();
         }
     }
 
@@ -147,41 +138,7 @@ public class PhotosFragment extends Fragment {
         });
     }
 
-    private void getItemsList() {
-        int oldSize = itemsList.size();
-
-        // get photo from data holder
-        itemsList.addAll(DataHolder.getAllMediaList());
-
-        // group photo by date - add date items
-       /* for (AbstractModel photo : list) {
-            LocalDate lastModified = photo.getLastModifiedDate();
-            YearMonth month = YearMonth.from(lastModified);
-            lastModified = month.atDay(1);
-            ArrayDeque<PhotoModel> groupList = photoByDays.computeIfAbsent(lastModified, k -> new ArrayDeque<>());
-            groupList.addFirst(photo);
-        }
-
-        for (LocalDate date : photoByDays.keySet()) {
-            DateModel dateItem = new DateModel(date);
-            itemsList.add(dateItem);
-            for (PhotoModel photo : Objects.requireNonNull(photoByDays.get(date),
-                    "Photo model list must not be null!")) {
-                PhotoModel photoItem = new PhotoModel(photo);
-                itemsList.add(photoItem);
-            }
-        }
-*/
-        int newSize = itemsList.size();
-        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
-//        photoAdapter.notifyDataSetChanged();
-    }
-
-    public void onListChanged(int positionStart, int itemCount) {
-//        photoAdapter.notifyItemRangeChanged(positionStart, itemCount);
-    }
-
-    public void onLoadFinish() {
-        getItemsList();
+    public void onItemRangeInserted(int positionStart, int itemCount) {
+        photoAdapter.notifyItemRangeInserted(positionStart, itemCount);
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
+import com.hcmus.picbox.interfaces.IOnItemRangeInserted;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;
@@ -11,6 +12,16 @@ import com.hcmus.picbox.models.PhotoModel;
 import java.io.File;
 
 public final class StorageUtils {
+
+    private static IOnItemRangeInserted photoFragmentListener, albumFragmentListener;
+
+    public static void setPhotoFragmentListener(IOnItemRangeInserted listener) {
+        photoFragmentListener = listener;
+    }
+
+    public static void setAlbumFragmentListener(IOnItemRangeInserted listener) {
+        albumFragmentListener = listener;
+    }
 
     public static void getAllPhotoPathFromStorage(Context context) {
         // Check device has SDCard or not
@@ -64,6 +75,10 @@ public final class StorageUtils {
 
             cursor.close();
         }
-        DataHolder.onLoadFinish();
+
+        if (photoFragmentListener != null)
+            photoFragmentListener.onItemRangeInserted(0, DataHolder.getAllMediaList().size());
+        if (albumFragmentListener != null)
+            albumFragmentListener.onItemRangeInserted(0, DataHolder.getDeviceAlbumList().size());
     }
 }

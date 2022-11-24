@@ -18,21 +18,16 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.AlbumAdapter;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DataHolder;
-import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.utils.StorageUtils;
 
-import java.io.File;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class AlbumFragment extends Fragment {
 
+    private final List<AlbumModel> itemsList = DataHolder.getDeviceAlbumList();
     private CardView cv_favorite, cv_secret, cv_creativity, cv_trash;
     private Context context;
     private AlbumAdapter albumAdapter;
-    private List<AlbumModel> itemsList = new ArrayList<>();
     private RecyclerView mAlbums, mAlbums_from_device;
     private LinearLayoutManager linearManager;
 
@@ -44,7 +39,7 @@ public class AlbumFragment extends Fragment {
 
         initUI(view);
         prepareRecyclerView();
-        itemsList = DataHolder.getDeviceAlbumList();
+        StorageUtils.setAlbumFragmentListener(this::onItemRangeInserted);
 
         return view;
     }
@@ -66,5 +61,9 @@ public class AlbumFragment extends Fragment {
         mAlbums_from_device.setAdapter(albumAdapter);
         mAlbums.setLayoutManager(linearManager);
         mAlbums.setAdapter(albumAdapter);
+    }
+
+    public void onItemRangeInserted(int positionStart, int itemCount) {
+        albumAdapter.notifyItemRangeInserted(positionStart, itemCount);
     }
 }

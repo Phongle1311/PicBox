@@ -1,8 +1,5 @@
 package com.hcmus.picbox.models;
 
-import com.hcmus.picbox.interfaces.IOnLoadFinish;
-import com.hcmus.picbox.interfaces.IOnMediaListChanged;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,33 +19,12 @@ public class DataHolder {
     private static final List<AlbumModel> sDeviceAlbumList = new ArrayList<>();
     private static final List<AlbumModel> sUserAlbumList = new ArrayList<>();
 
-    private static IOnMediaListChanged onMediaListChangedListener;
-    private static IOnLoadFinish onLoadFinishListener;
-
-    public static void setOnMediaListChangeListener(IOnMediaListChanged listener) {
-        onMediaListChangedListener = listener;
-    }
-
-    public static void setOnLoadFinishListener(IOnLoadFinish listener) {
-        onLoadFinishListener = listener;
-    }
-
-    public static void onLoadFinish() {
-        if (onLoadFinishListener != null)
-            onLoadFinishListener.onLoadFinish();
-    }
-
     public static void addMedias(List<PhotoModel> list) {
-//        int oldSize = sAllMediaList.size();
         sAllMediaList.addAll(list);
-//        if (onMediaListChangedListener != null)
-//            onMediaListChangedListener.onMediaListChanged(oldSize, list.size());
     }
 
     public static void addMedia(PhotoModel media) {
         sAllMediaList.add(media);
-//        if (onMediaListChangedListener != null)
-//            onMediaListChangedListener.onMediaListChanged(sAllMediaList.size() - 1, 1);
     }
 
     public static void addFavouriteMedias(List<PhotoModel> list) {

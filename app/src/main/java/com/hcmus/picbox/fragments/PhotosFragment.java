@@ -41,7 +41,7 @@ public class PhotosFragment extends Fragment {
 
         initUI(view);
         prepareRecyclerView();
-        StorageUtils.setPhotoFragmentListener(this::onItemRangeInserted);
+        StorageUtils.setAllMediaListener(this::onItemRangeInserted);
 
         return view;
     }

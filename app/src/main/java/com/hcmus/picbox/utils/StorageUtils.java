@@ -13,14 +13,20 @@ import java.io.File;
 
 public final class StorageUtils {
 
-    private static IOnItemRangeInserted photoFragmentListener, albumFragmentListener;
+    private static IOnItemRangeInserted allMediaListener;
+    private static IOnItemRangeInserted deviceAlbumListener;
+    private static IOnItemRangeInserted userAlbumListener;
 
-    public static void setPhotoFragmentListener(IOnItemRangeInserted listener) {
-        photoFragmentListener = listener;
+    public static void setAllMediaListener(IOnItemRangeInserted listener) {
+        allMediaListener = listener;
     }
 
-    public static void setAlbumFragmentListener(IOnItemRangeInserted listener) {
-        albumFragmentListener = listener;
+    public static void setDeviceAlbumListener(IOnItemRangeInserted listener) {
+        deviceAlbumListener = listener;
+    }
+
+    public static void setUserAlbumListener(IOnItemRangeInserted listener) {
+        userAlbumListener = listener;
     }
 
     public static void getAllPhotoPathFromStorage(Context context) {
@@ -76,9 +82,11 @@ public final class StorageUtils {
             cursor.close();
         }
 
-        if (photoFragmentListener != null)
-            photoFragmentListener.onItemRangeInserted(0, DataHolder.getAllMediaList().size());
-        if (albumFragmentListener != null)
-            albumFragmentListener.onItemRangeInserted(0, DataHolder.getDeviceAlbumList().size());
+        if (allMediaListener != null)
+            allMediaListener.onItemRangeInserted(0, DataHolder.getAllMediaList().size());
+        if (deviceAlbumListener != null)
+            deviceAlbumListener.onItemRangeInserted(0, DataHolder.getDeviceAlbumList().size());
+        if (userAlbumListener != null)
+            userAlbumListener.onItemRangeInserted(0, DataHolder.getDeviceAlbumList().size());
     }
 }

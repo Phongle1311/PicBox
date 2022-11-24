@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                         SharedPreferencesUtils.saveData(this,"num_columns_of_row", 4);
                         break;
                 }
-            };
+            }
         }
     }
 

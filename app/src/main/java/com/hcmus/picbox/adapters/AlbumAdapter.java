@@ -36,30 +36,32 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        AlbumModel album = (AlbumModel) items.get(position);
+        AlbumModel album = items.get(position);
         AlbumAdapter.AlbumViewHolder viewHolder = (AlbumAdapter.AlbumViewHolder) holder;
+
         Glide.with(context)
                 .load(album.getCover())
                 .placeholder(R.drawable.placeholder_color)
                 .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                 .into(viewHolder.imageView);
-        String albumName = album.getDisplayName();
+
+        StringBuilder albumName = new StringBuilder(album.getDisplayName());
         String albumSize = Integer.toString(album.getSize());
         if (albumName.length() + albumSize.length() > 14) {
             int lengthGet = 14 - albumSize.length();
             lengthGet--;
             if (lengthGet <= 2) {
-                albumName = "";
+                albumName = new StringBuilder();
                 for (int i = 0; i < lengthGet; i++) {
-                    albumName += ".";
+                    albumName.append(".");
                 }
             } else {
                 String textShowed = albumName.substring(0, lengthGet - 2);
                 textShowed += "...";
-                albumName = textShowed;
+                albumName = new StringBuilder(textShowed);
             }
         }
-        viewHolder.album_name.setText(albumName);
+        viewHolder.album_name.setText(albumName.toString());
         viewHolder.album_size.setText(albumSize);
     }
 

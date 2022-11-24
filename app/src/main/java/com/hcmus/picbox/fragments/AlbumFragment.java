@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,12 +23,13 @@ import java.util.List;
 
 public class AlbumFragment extends Fragment {
 
-    private final List<AlbumModel> itemsList = DataHolder.getDeviceAlbumList();
-    private CardView cv_favorite, cv_secret, cv_creativity, cv_trash;
     private Context context;
-    private AlbumAdapter albumAdapter;
-    private RecyclerView mAlbums, mAlbums_from_device;
-    private LinearLayoutManager linearManager;
+    private final List<AlbumModel> deviceAlbumList = DataHolder.getDeviceAlbumList();
+    private final List<AlbumModel> userAlbumList = DataHolder.getUserAlbumList();
+    private AlbumAdapter deviceAlbumAdapter;
+    private AlbumAdapter userAlbumAdapter;
+    private RecyclerView rcvUserAlbums;
+    private RecyclerView rcvDeviceAlbum;
 
     @Nullable
     @Override
@@ -39,31 +39,50 @@ public class AlbumFragment extends Fragment {
 
         initUI(view);
         prepareRecyclerView();
-        StorageUtils.setAlbumFragmentListener(this::onItemRangeInserted);
+        StorageUtils.setDeviceAlbumListener(this::onDeviceAlbumRangeInserted);
+        StorageUtils.setUserAlbumListener(this::onUserAlbumRangeInserted);
 
         return view;
     }
 
     private void initUI(View view) {
-        cv_favorite = view.findViewById(R.id.card_view_favorite);
-        cv_secret = view.findViewById(R.id.card_view_secret);
-        cv_creativity = view.findViewById(R.id.card_view_creativity);
-        cv_trash = view.findViewById(R.id.card_view_trash);
-        mAlbums = view.findViewById(R.id.rcv_album);
-        mAlbums_from_device = view.findViewById(R.id.rcv_album_from_device);
+        rcvUserAlbums = view.findViewById(R.id.rcv_user_album);
+        rcvDeviceAlbum = view.findViewById(R.id.rcv_device_album);
+
+        view.findViewById(R.id.card_view_favorite).setOnClickListener(v -> {
+            // TODO: open album
+        });
+
+        view.findViewById(R.id.card_view_secret).setOnClickListener(v -> {
+            // TODO: open album
+        });
+
+        view.findViewById(R.id.card_view_creativity).setOnClickListener(v -> {
+            // TODO: open album
+        });
+
+        view.findViewById(R.id.card_view_trash).setOnClickListener(v -> {
+            // TODO: open album
+        });
     }
 
     private void prepareRecyclerView() {
-        albumAdapter = new AlbumAdapter(context, itemsList);
+        deviceAlbumAdapter = new AlbumAdapter(context, deviceAlbumList);
+        rcvDeviceAlbum.setAdapter(deviceAlbumAdapter);
         GridLayoutManager manager = new GridLayoutManager(context, 3);
-        linearManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
-        mAlbums_from_device.setLayoutManager(manager);
-        mAlbums_from_device.setAdapter(albumAdapter);
-        mAlbums.setLayoutManager(linearManager);
-        mAlbums.setAdapter(albumAdapter);
+        rcvDeviceAlbum.setLayoutManager(manager);
+
+        userAlbumAdapter = new AlbumAdapter(context, userAlbumList);
+        rcvUserAlbums.setAdapter(userAlbumAdapter);
+        LinearLayoutManager linearManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
+        rcvUserAlbums.setLayoutManager(linearManager);
     }
 
-    public void onItemRangeInserted(int positionStart, int itemCount) {
-        albumAdapter.notifyItemRangeInserted(positionStart, itemCount);
+    public void onDeviceAlbumRangeInserted(int positionStart, int itemCount) {
+        deviceAlbumAdapter.notifyItemRangeInserted(positionStart, itemCount);
+    }
+
+    public void onUserAlbumRangeInserted(int positionStart, int itemCount) {
+        userAlbumAdapter.notifyItemRangeInserted(positionStart, itemCount);
     }
 }

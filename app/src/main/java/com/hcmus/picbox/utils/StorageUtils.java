@@ -19,7 +19,7 @@ public final class StorageUtils {
 
             Cursor cursor = context.getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, PhotoModel.sProjection,
-                    null, null, PhotoModel.sOrderBy);
+                    null, null, PhotoModel.sOrderBy + PhotoModel.sOrderDirection);
 
             if (cursor == null) return;
 

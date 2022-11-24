@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class AlbumFragment extends Fragment {
+
     private CardView cv_favorite, cv_secret, cv_creativity, cv_trash;
     private Context context;
     private AlbumAdapter albumAdapter;
@@ -40,9 +41,11 @@ public class AlbumFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_album, container, false);
         context = view.getContext();
+
         initUI(view);
         prepareRecyclerView();
-        getAlbumListFromDevice();
+        itemsList = DataHolder.getDeviceAlbumList();
+
         return view;
     }
 
@@ -63,24 +66,5 @@ public class AlbumFragment extends Fragment {
         mAlbums_from_device.setAdapter(albumAdapter);
         mAlbums.setLayoutManager(linearManager);
         mAlbums.setAdapter(albumAdapter);
-    }
-
-    private void getAlbumListFromDevice() {
-        List<PhotoModel> list = DataHolder.getAllMediaList();
-        Map<File, ArrayDeque<PhotoModel>> photoByFolder = new TreeMap<>();
-        for (PhotoModel photo : list) {
-            File folder = photo.getFile().getParentFile();
-            ArrayDeque<PhotoModel> groupList = photoByFolder.computeIfAbsent(folder, k -> new ArrayDeque<>());
-            groupList.addFirst(photo);
-        }
-        for (File folder : photoByFolder.keySet()) {
-            List<PhotoModel> photoList = new ArrayList<>(photoByFolder.get(folder));
-            AlbumModel album = new AlbumModel(folder.getName(), "1", folder.getPath());
-            for (PhotoModel photo : photoList) {
-                album.addMedia(photo);
-            }
-            itemsList.add(album);
-        }
-        albumAdapter.notifyDataSetChanged();
     }
 }

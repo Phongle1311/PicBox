@@ -14,21 +14,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
-import com.hcmus.picbox.models.DateModel;
-import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.adapters.PhotoAdapter;
+import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.DataHolder;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 
 public class PhotosFragment extends Fragment {
@@ -61,7 +58,7 @@ public class PhotosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        int newSpanCount = SharedPreferencesUtils.getIntData(context,"num_columns_of_row");
+        int newSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
         if (newSpanCount != mSpanCount) {
             mSpanCount = newSpanCount;
             photoAdapter.notifyDataSetChanged();
@@ -70,11 +67,12 @@ public class PhotosFragment extends Fragment {
 
     private void initUI(View v) {
         mGallery = v.findViewById(R.id.rcv_images);
-        fabMain = (FloatingActionButton) v.findViewById(R.id.fab_main);
-        fabSearch = (FloatingActionButton) v.findViewById(R.id.fab_search);
-        fabSecret = (FloatingActionButton) v.findViewById(R.id.fab_secret_media);
-        fabChangeLayout = (FloatingActionButton) v.findViewById(R.id.fab_change_layout);
-        fabSortBy = (FloatingActionButton) v.findViewById(R.id.fab_sort_by);
+        fabMain = v.findViewById(R.id.fab_main);
+        fabSearch = v.findViewById(R.id.fab_search);
+        fabSecret = v.findViewById(R.id.fab_secret_media);
+        fabChangeLayout = v.findViewById(R.id.fab_change_layout);
+        fabSortBy = v.findViewById(R.id.fab_sort_by);
+
         fabMain.setOnClickListener(view -> {
             if (fabClicked == 0) {
                 showMiniFABs();
@@ -101,7 +99,7 @@ public class PhotosFragment extends Fragment {
 
     private void prepareRecyclerView() {
         photoAdapter = new PhotoAdapter(context, itemsList);
-        mSpanCount = SharedPreferencesUtils.getIntData(context,"num_columns_of_row");
+        mSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -134,14 +132,12 @@ public class PhotosFragment extends Fragment {
                         fabMain.hide();
                         fabClicked = 0;
                     }
-                }
-                else if (dy < -50) {
+                } else if (dy < -50) {
                     if (!fabMain.isShown()) {
                         fabMain.show();
                         fabClicked = 0;
                     }
-                }
-                else if (!recyclerView.canScrollVertically(-1)) {
+                } else if (!recyclerView.canScrollVertically(-1)) {
                     if (!fabMain.isShown()) {
                         fabMain.show();
                         fabClicked = 0;
@@ -155,7 +151,7 @@ public class PhotosFragment extends Fragment {
         int oldSize = itemsList.size();
 
         // get photo from data holder
-        List<AbstractModel> list = DataHolder.getAllMediaList();
+        itemsList.addAll(DataHolder.getAllMediaList());
 
         // group photo by date - add date items
        /* for (AbstractModel photo : list) {
@@ -177,8 +173,8 @@ public class PhotosFragment extends Fragment {
         }
 */
         int newSize = itemsList.size();
-//        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
-        photoAdapter.notifyDataSetChanged();
+        photoAdapter.notifyItemRangeChanged(oldSize, newSize - oldSize);
+//        photoAdapter.notifyDataSetChanged();
     }
 
     public void onListChanged(int positionStart, int itemCount) {

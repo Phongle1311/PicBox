@@ -22,15 +22,15 @@ public class PhotoModel extends AbstractModel implements Serializable {
 //            MediaStore.Images.Media.ORIENTATION
     };
     public static String sOrderBy = MediaStore.Images.Media._ID;
+    public static String sOrderDirection = " DESC";
 
     private File mImageFile;
-    private LocalDate mLastModifiedDate;
     private String mName;
 
     public PhotoModel(File file) {
         this.mImageFile = file;
         long date = mImageFile.lastModified();
-        this.mLastModifiedDate = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate();
+        this.mLastModifiedTime = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate();
         this.mName = mImageFile.getName();
     }
 
@@ -38,14 +38,9 @@ public class PhotoModel extends AbstractModel implements Serializable {
         return mImageFile.exists();
     }
 
-    public LocalDate getLastModifiedDate() {
-        return mLastModifiedDate;
-    }
-
     public File getFile() {
         return mImageFile;
     }
-
 
     @Override
     public int getType() {

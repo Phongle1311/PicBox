@@ -51,7 +51,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (type == AbstractModel.TYPE_DATE) {
             DateModel date = (DateModel) items.get(position);
             DateViewHolder viewHolder = (DateViewHolder) holder;
-            viewHolder.txt_date.setText(date.getDate());
+            viewHolder.txt_date.setText(date.getStringLastModifiedTime());
         } else if (type == AbstractModel.TYPE_PHOTO) {
             PhotoModel photo = (PhotoModel) items.get(position);
             PhotoViewHolder viewHolder = (PhotoViewHolder) holder;

@@ -14,15 +14,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.hcmus.picbox.activities.DisplayMediaActivity;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.models.AbstractModel;
+import com.hcmus.picbox.models.DateModel;
+import com.hcmus.picbox.models.PhotoModel;
 
 import java.util.List;
 
 public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
-    private final List<GridItem> items;
+    private final List<AbstractModel> items;
 
-    public PhotoAdapter(Context context, List<GridItem> items) {
+    public PhotoAdapter(Context context, List<AbstractModel> items) {
         this.context = context;
         this.items = items;
     }
@@ -31,10 +34,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        if (viewType == GridItem.TYPE_DATE) {
+        if (viewType == AbstractModel.TYPE_DATE) {
             View view = inflater.inflate(R.layout.date_layout, parent, false);
             return new DateViewHolder(view);
-        } else if (viewType == GridItem.TYPE_PHOTO) {
+        } else if (viewType == AbstractModel.TYPE_PHOTO) {
             View view = inflater.inflate(R.layout.photo_card_layout, parent, false);
             return new PhotoViewHolder(view);
         } else {
@@ -45,23 +48,23 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         int type = getItemViewType(position);
-        if (type == GridItem.TYPE_DATE) {
-            DateItem date = (DateItem) items.get(position);
+        if (type == AbstractModel.TYPE_DATE) {
+            DateModel date = (DateModel) items.get(position);
             DateViewHolder viewHolder = (DateViewHolder) holder;
-            viewHolder.txt_date.setText(date.getDate());
-        } else if (type == GridItem.TYPE_PHOTO) {
-            PhotoItem photo = (PhotoItem) items.get(position);
+            viewHolder.txt_date.setText(date.getStringLastModifiedTime());
+        } else if (type == AbstractModel.TYPE_PHOTO) {
+            PhotoModel photo = (PhotoModel) items.get(position);
             PhotoViewHolder viewHolder = (PhotoViewHolder) holder;
 
             Glide.with(context)
-                    .load(photo.getPhoto().getFile())
+                    .load(photo.getFile())
                     .placeholder(R.drawable.placeholder_color)
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                     .into(viewHolder.imageView);
 
             ((PhotoViewHolder) holder).imageView.setOnClickListener(view -> {
                 Intent i = new Intent(context, DisplayMediaActivity.class);
-                i.putExtra("model", photo.getPhoto());
+                i.putExtra("model", photo);
                 context.startActivity(i);
             });
         } else {

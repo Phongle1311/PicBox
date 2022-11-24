@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-public class PhotoModel implements Serializable {
+public class PhotoModel extends AbstractModel implements Serializable {
 
     // what need to load from an image
     public static final String[] sProjection = {
@@ -22,15 +22,15 @@ public class PhotoModel implements Serializable {
 //            MediaStore.Images.Media.ORIENTATION
     };
     public static String sOrderBy = MediaStore.Images.Media._ID;
+    public static String sOrderDirection = " DESC";
 
     private File mImageFile;
-    private LocalDate mLastModifiedDate;
     private String mName;
 
     public PhotoModel(File file) {
         this.mImageFile = file;
         long date = mImageFile.lastModified();
-        this.mLastModifiedDate = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate();
+        this.mLastModifiedTime = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate();
         this.mName = mImageFile.getName();
     }
 
@@ -38,13 +38,12 @@ public class PhotoModel implements Serializable {
         return mImageFile.exists();
     }
 
-    public LocalDate getLastModifiedDate() {
-        return mLastModifiedDate;
-    }
-
     public File getFile() {
         return mImageFile;
     }
 
-
+    @Override
+    public int getType() {
+        return TYPE_PHOTO;
+    }
 }

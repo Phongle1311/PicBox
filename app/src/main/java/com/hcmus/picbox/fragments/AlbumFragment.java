@@ -5,11 +5,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,73 +15,74 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.AlbumAdapter;
-import com.hcmus.picbox.adapters.GridItem;
-import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.models.AlbumModel;
-import com.hcmus.picbox.models.DataHolder;
-import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.dataholder.AlbumHolder;
+import com.hcmus.picbox.utils.StorageUtils;
 
-import java.io.File;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class AlbumFragment extends Fragment {
-    private CardView cv_favorite, cv_secret, cv_creativity, cv_trash;
+
+    private final List<AlbumModel> deviceAlbumList = AlbumHolder.getDeviceAlbumList().getList();
+    private final List<AlbumModel> userAlbumList = AlbumHolder.getUserAlbumList().getList();
     private Context context;
-    private AlbumAdapter albumAdapter;
-    private List<AlbumModel> itemsList = new ArrayList<>();
-    private RecyclerView mAlbums, mAlbums_from_device;
-    private LinearLayoutManager linearManager;
+    private AlbumAdapter deviceAlbumAdapter;
+    private AlbumAdapter userAlbumAdapter;
+    private RecyclerView rcvUserAlbums;
+    private RecyclerView rcvDeviceAlbum;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_album, container, false);
         context = view.getContext();
+
         initUI(view);
         prepareRecyclerView();
-        getAlbumListFromDevice();
+        StorageUtils.setDeviceAlbumListener(this::onDeviceAlbumRangeInserted);
+        StorageUtils.setUserAlbumListener(this::onUserAlbumRangeInserted);
+
         return view;
     }
 
     private void initUI(View view) {
-        cv_favorite = view.findViewById(R.id.card_view_favorite);
-        cv_secret = view.findViewById(R.id.card_view_secret);
-        cv_creativity = view.findViewById(R.id.card_view_creativity);
-        cv_trash = view.findViewById(R.id.card_view_trash);
-        mAlbums = view.findViewById(R.id.rcv_album);
-        mAlbums_from_device = view.findViewById(R.id.rcv_album_from_device);
+        rcvUserAlbums = view.findViewById(R.id.rcv_user_album);
+        rcvDeviceAlbum = view.findViewById(R.id.rcv_device_album);
+
+        view.findViewById(R.id.card_view_favorite).setOnClickListener(v -> {
+            // TODO: open album
+        });
+
+        view.findViewById(R.id.card_view_secret).setOnClickListener(v -> {
+            // TODO: open album
+        });
+
+        view.findViewById(R.id.card_view_creativity).setOnClickListener(v -> {
+            // TODO: open album
+        });
+
+        view.findViewById(R.id.card_view_trash).setOnClickListener(v -> {
+            // TODO: open album
+        });
     }
 
     private void prepareRecyclerView() {
-        albumAdapter = new AlbumAdapter(context, itemsList);
+        deviceAlbumAdapter = new AlbumAdapter(context, deviceAlbumList);
+        rcvDeviceAlbum.setAdapter(deviceAlbumAdapter);
         GridLayoutManager manager = new GridLayoutManager(context, 3);
-        linearManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
-        mAlbums_from_device.setLayoutManager(manager);
-        mAlbums_from_device.setAdapter(albumAdapter);
-        mAlbums.setLayoutManager(linearManager);
-        mAlbums.setAdapter(albumAdapter);
+        rcvDeviceAlbum.setLayoutManager(manager);
+
+        userAlbumAdapter = new AlbumAdapter(context, userAlbumList);
+        rcvUserAlbums.setAdapter(userAlbumAdapter);
+        LinearLayoutManager linearManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
+        rcvUserAlbums.setLayoutManager(linearManager);
     }
 
-    private void getAlbumListFromDevice() {
-        List<PhotoModel> list = DataHolder.getAllMediaList();
-        Map<File, ArrayDeque<PhotoModel>> photoByFolder = new TreeMap<>();
-        for (PhotoModel photo : list) {
-            File folder = photo.getFile().getParentFile();
-            ArrayDeque<PhotoModel> groupList = photoByFolder.computeIfAbsent(folder, k -> new ArrayDeque<>());
-            groupList.addFirst(photo);
-        }
-        for (File folder : photoByFolder.keySet()) {
-            List<PhotoModel> photoList = new ArrayList<>(photoByFolder.get(folder));
-            AlbumModel album = new AlbumModel(folder.getName(), "1", folder.getPath());
-            for (PhotoModel photo : photoList) {
-                album.addMedia(photo);
-            }
-            itemsList.add(album);
-        }
-        albumAdapter.notifyDataSetChanged();
+    public void onDeviceAlbumRangeInserted(int positionStart, int itemCount) {
+        deviceAlbumAdapter.notifyItemRangeInserted(positionStart, itemCount);
+    }
+
+    public void onUserAlbumRangeInserted(int positionStart, int itemCount) {
+        userAlbumAdapter.notifyItemRangeInserted(positionStart, itemCount);
     }
 }

@@ -6,7 +6,8 @@ import android.provider.MediaStore;
 
 import com.hcmus.picbox.interfaces.IOnItemRangeInserted;
 import com.hcmus.picbox.models.AlbumModel;
-import com.hcmus.picbox.models.DataHolder;
+import com.hcmus.picbox.models.dataholder.AlbumHolder;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.models.PhotoModel;
 
 import java.io.File;
@@ -30,6 +31,10 @@ public final class StorageUtils {
     }
 
     public static void getAllPhotoPathFromStorage(Context context) {
+        MediaHolder totalAlbum = MediaHolder.getTotalAlbum();
+        AlbumHolder deviceAlbumList = AlbumHolder.getDeviceAlbumList();
+        AlbumHolder userAlbumList = AlbumHolder.getUserAlbumList(); // tạm thời để đây, cái này không xài ở đây
+
         // Check device has SDCard or not
         if (android.os.Environment.getExternalStorageState()
                 .equals(android.os.Environment.MEDIA_MOUNTED)) {
@@ -44,49 +49,48 @@ public final class StorageUtils {
             for (int i = 0; i < count; i++) {
                 cursor.moveToPosition(i);
 
-                // add to allMediaList
+                // add media to allMediaList
                 int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
                 String data = cursor.getString(dataColumnIndex);
                 File file = new File(data);
+
                 PhotoModel media = new PhotoModel(file);
-                DataHolder.addMedia(media);
+                totalAlbum.addMedia(media);
 
-                // add to album or add new album to albumList
-                dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-                String albumName = cursor.getString(dataColumnIndex);
-                dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-                String albumID = cursor.getString(dataColumnIndex);
-
+                // add media to album or add new album to albumList
                 // special case: all media in DCIM is belong to Camera album
                 // such as: .../DCIM/Facebook/... or .../DCIM/Camera/....
+                AlbumModel album;
+                String albumName, albumID;
+
                 if (data.contains("DCIM")) {
-                    if (DataHolder.containDeviceAlbumID(DataHolder.DCIM_ID)) {
-                        DataHolder.addMediaToDeviceAlbumById(media, DataHolder.DCIM_ID);
-                    }
-                    else {
-                        AlbumModel album = new AlbumModel(DataHolder.DCIM_DISPLAY_NAME, DataHolder.DCIM_ID, file.getParent());
-                        album.addMedia(media);
-                        DataHolder.addDeviceAlbum(album);
-                    }
-                }
-                else if (DataHolder.containDeviceAlbumID(albumID)) {
-                    DataHolder.addMediaToDeviceAlbumById(media, albumID);
+                    albumName = AlbumHolder.DCIM_DISPLAY_NAME;
+                    albumID = AlbumHolder.DCIM_ID;
                 }
                 else {
-                    AlbumModel album = new AlbumModel(albumName, albumID, file.getParent());
-                    album.addMedia(media);
-                    DataHolder.addDeviceAlbum(album);
+                    dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+                    albumName = cursor.getString(dataColumnIndex);
+                    dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
+                    albumID = cursor.getString(dataColumnIndex);
                 }
+
+                album = deviceAlbumList.getAlbumById(albumID);
+                if (album == null) {
+                    album = new AlbumModel(albumName, albumID, file.getParent());
+                    deviceAlbumList.addAlbum(album);
+                }
+
+                album.addMedia(media);
             }
 
             cursor.close();
         }
 
         if (allMediaListener != null)
-            allMediaListener.onItemRangeInserted(0, DataHolder.getAllMediaList().size());
+            allMediaListener.onItemRangeInserted(0, totalAlbum.size());
         if (deviceAlbumListener != null)
-            deviceAlbumListener.onItemRangeInserted(0, DataHolder.getDeviceAlbumList().size());
+            deviceAlbumListener.onItemRangeInserted(0, deviceAlbumList.size());
         if (userAlbumListener != null)
-            userAlbumListener.onItemRangeInserted(0, DataHolder.getDeviceAlbumList().size());
+            userAlbumListener.onItemRangeInserted(0, userAlbumList.size());
     }
 }

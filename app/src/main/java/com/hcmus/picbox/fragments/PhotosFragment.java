@@ -16,7 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.models.AbstractModel;
-import com.hcmus.picbox.models.DataHolder;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.utils.StorageUtils;
 
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class PhotosFragment extends Fragment {
 
-    private final List<AbstractModel> itemsList = DataHolder.getAllMediaList();
+    private final List<AbstractModel> itemsList = MediaHolder.getTotalAlbum().getList();
     private int mSpanCount;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;

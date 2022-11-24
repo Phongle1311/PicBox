@@ -16,16 +16,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.AlbumAdapter;
 import com.hcmus.picbox.models.AlbumModel;
-import com.hcmus.picbox.models.DataHolder;
+import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.StorageUtils;
 
 import java.util.List;
 
 public class AlbumFragment extends Fragment {
 
+    private final List<AlbumModel> deviceAlbumList = AlbumHolder.getDeviceAlbumList().getList();
+    private final List<AlbumModel> userAlbumList = AlbumHolder.getUserAlbumList().getList();
     private Context context;
-    private final List<AlbumModel> deviceAlbumList = DataHolder.getDeviceAlbumList();
-    private final List<AlbumModel> userAlbumList = DataHolder.getUserAlbumList();
     private AlbumAdapter deviceAlbumAdapter;
     private AlbumAdapter userAlbumAdapter;
     private RecyclerView rcvUserAlbums;

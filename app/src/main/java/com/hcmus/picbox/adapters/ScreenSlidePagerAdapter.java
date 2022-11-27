@@ -11,6 +11,10 @@ import com.hcmus.picbox.models.PhotoModel;
 
 import java.util.List;
 
+/**
+ * Use FragmentStateAdapter instead of FragmentStatePagerAdapter because of deprecation <br/>
+ * Created on 27/11/2022 by Phong Le
+ */
 public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
 
     private final List<PhotoModel> models;

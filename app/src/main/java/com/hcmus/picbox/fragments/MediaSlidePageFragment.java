@@ -16,6 +16,10 @@ import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.models.PhotoModel;
 
+/**
+ * This is fragment of showing detail of media <br/>
+ * Created on 27/11/2022 by Phong Le
+ */
 public class MediaSlidePageFragment extends Fragment {
 
     private Context context;
@@ -47,8 +51,9 @@ public class MediaSlidePageFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (model == null && savedInstanceState != null) {
-            model = (PhotoModel) savedInstanceState.getSerializable("model");
+            model = (PhotoModel) savedInstanceState.getParcelable("model");
         }
+
         mImageView = view.findViewById(R.id.image_view);
         mImageView.setOnTouchListener((v, motionEvent) -> {
             scaleGestureDetector.onTouchEvent(motionEvent);
@@ -67,11 +72,10 @@ public class MediaSlidePageFragment extends Fragment {
         scaleGestureDetector = new ScaleGestureDetector(context, new MediaSlidePageFragment.CustomizeScaleListener());
     }
 
+    // Need when change device configuration, such as when user rotates his phone
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("model", model);
-        outState.putAll(bundle);
+        outState.putParcelable("model", model);
         super.onSaveInstanceState(outState);
     }
 

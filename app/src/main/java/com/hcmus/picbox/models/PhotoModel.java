@@ -1,13 +1,14 @@
 package com.hcmus.picbox.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import java.io.File;
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 
-public class PhotoModel extends AbstractModel implements Serializable {
+public class PhotoModel extends AbstractModel implements Parcelable {
 
     // what need to load from an image
     public static final String[] sProjection = {
@@ -45,4 +46,30 @@ public class PhotoModel extends AbstractModel implements Serializable {
     public int getType() {
         return TYPE_PHOTO;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mName);
+    }
+
+    protected PhotoModel(Parcel in) {
+        mName = in.readString();
+    }
+
+    public static final Creator<PhotoModel> CREATOR = new Creator<PhotoModel>() {
+        @Override
+        public PhotoModel createFromParcel(Parcel in) {
+            return new PhotoModel(in);
+        }
+
+        @Override
+        public PhotoModel[] newArray(int size) {
+            return new PhotoModel[size];
+        }
+    };
 }

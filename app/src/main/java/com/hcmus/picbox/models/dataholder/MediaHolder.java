@@ -18,6 +18,7 @@ public class MediaHolder {
     private static final MediaHolder sFavouriteAlbum = new MediaHolder();   // the special album contains favourite medias
     private static final MediaHolder sDeletedAlbum = new MediaHolder();     // the special album contains deleted medias
     private static final MediaHolder sSecretAlbum = new MediaHolder();      // the special album contains secret medias
+
     // non-static
     private final ModelList album = new ModelList();
 
@@ -47,6 +48,10 @@ public class MediaHolder {
 
     public List<AbstractModel> getList() {
         return album.getList();
+    }
+
+    public List<PhotoModel> getDefaultList() {
+        return album.getDefaultList();
     }
 
     public int size() {

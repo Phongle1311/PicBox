@@ -5,7 +5,6 @@ import android.provider.MediaStore;
 import java.io.File;
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 
 public class PhotoModel extends AbstractModel implements Serializable {

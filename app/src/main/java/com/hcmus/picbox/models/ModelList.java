@@ -10,14 +10,20 @@ import java.util.List;
 public class ModelList {
 
     private final List<AbstractModel> mList;
+    private final List<PhotoModel> mDefaultList;
     private PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
 
     public ModelList() {
         mList = new ArrayList<>();
+        mDefaultList = new ArrayList<>();
     }
 
     public List<AbstractModel> getList() {
         return mList;
+    }
+
+    public List<PhotoModel> getDefaultList() {
+        return mDefaultList;
     }
 
     /**
@@ -29,6 +35,7 @@ public class ModelList {
         if (lastItem == null || !lastItem.isTimeEqual(model))
             mList.add(new DateModel(model.getLastModifiedTime()));
         mList.add(model);
+        mDefaultList.add(model);
         lastItem = model;
     }
 

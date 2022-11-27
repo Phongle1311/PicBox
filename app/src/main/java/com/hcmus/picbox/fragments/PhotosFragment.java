@@ -24,13 +24,13 @@ import java.util.List;
 
 public class PhotosFragment extends Fragment {
 
+    private Context context;
     private final List<AbstractModel> itemsList = MediaHolder.getTotalAlbum().getList();
     private int mSpanCount;
+    private int fabClicked = 0;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;
-    private Context context;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
-    private int fabClicked = 0;
 
 
     @Nullable
@@ -89,7 +89,7 @@ public class PhotosFragment extends Fragment {
     }
 
     private void prepareRecyclerView() {
-        photoAdapter = new PhotoAdapter(context, itemsList);
+        photoAdapter = new PhotoAdapter(context, itemsList, MediaHolder.KEY_TOTAL_ALBUM);
         mSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {

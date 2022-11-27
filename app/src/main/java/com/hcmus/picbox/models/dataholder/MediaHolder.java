@@ -14,6 +14,11 @@ import java.util.List;
 public class MediaHolder {
 
     // static
+    public static final String KEY_TOTAL_ALBUM = "total_album";
+    public static final String KEY_FAVOURITE_ALBUM = "favourite_album";
+    public static final String KEY_DELETED_ALBUM = "deleted_album";
+    public static final String KEY_SECRET_ALBUM = "secret_album";
+
     private static final MediaHolder sTotalAlbum = new MediaHolder();       // the special album contains all medias
     private static final MediaHolder sFavouriteAlbum = new MediaHolder();   // the special album contains favourite medias
     private static final MediaHolder sDeletedAlbum = new MediaHolder();     // the special album contains deleted medias

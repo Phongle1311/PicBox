@@ -2,7 +2,6 @@ package com.hcmus.picbox.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
@@ -10,8 +9,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
-import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
+import com.hcmus.picbox.transformers.ZoomOutPageTransformer;
 
 /**
  * Created on 16/11/2022 by Phong Le
@@ -49,7 +48,8 @@ public class DisplayMediaActivity extends AppCompatActivity {
                 break;
         }
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(position);
+        viewPager.setCurrentItem(position, false); // smoothScroll = false to immediately scroll to position
+        viewPager.setPageTransformer(new ZoomOutPageTransformer());
 
         MaterialToolbar topAppBar = findViewById(R.id.top_app_bar);
         topAppBar.setNavigationOnClickListener(view -> finish());

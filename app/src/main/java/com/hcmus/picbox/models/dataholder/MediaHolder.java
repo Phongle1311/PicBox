@@ -51,10 +51,12 @@ public class MediaHolder {
         album.addAll(list);
     }
 
+    // Get a list that has DateModel item
     public List<AbstractModel> getList() {
         return album.getList();
     }
 
+    // Get a list that doesn't have DateModel item, only MediaModel item
     public List<PhotoModel> getDefaultList() {
         return album.getDefaultList();
     }

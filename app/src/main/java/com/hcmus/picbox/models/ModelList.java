@@ -9,8 +9,8 @@ import java.util.List;
  */
 public class ModelList {
 
-    private final List<AbstractModel> mList;
-    private final List<PhotoModel> mDefaultList;
+    private final List<AbstractModel> mList;        // Have date time items
+    private final List<PhotoModel> mDefaultList;    // Don't have date time items
     private PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
 
     public ModelList() {

@@ -20,7 +20,7 @@ import com.hcmus.picbox.models.PhotoModel;
  * This is fragment of showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
-public class MediaSlidePageFragment extends Fragment {
+public class DisplayMediaFragment extends Fragment {
 
     private Context context;
     private PhotoModel model;
@@ -28,10 +28,10 @@ public class MediaSlidePageFragment extends Fragment {
     private ScaleGestureDetector scaleGestureDetector;
     private float mScaleFactor = 1.0f;
 
-    public MediaSlidePageFragment() {
+    public DisplayMediaFragment() {
     }
 
-    public MediaSlidePageFragment(PhotoModel model) {
+    public DisplayMediaFragment(PhotoModel model) {
         this.model = model;
     }
 
@@ -69,7 +69,7 @@ public class MediaSlidePageFragment extends Fragment {
                     .into(mImageView);
         }
 
-        scaleGestureDetector = new ScaleGestureDetector(context, new MediaSlidePageFragment.CustomizeScaleListener());
+        scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
     }
 
     // Need when change device configuration, such as when user rotates his phone

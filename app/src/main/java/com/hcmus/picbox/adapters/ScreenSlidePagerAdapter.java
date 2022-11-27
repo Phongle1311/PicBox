@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.hcmus.picbox.fragments.MediaSlidePageFragment;
+import com.hcmus.picbox.fragments.DisplayMediaFragment;
 import com.hcmus.picbox.models.PhotoModel;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return new MediaSlidePageFragment(models.get(position));
+        return new DisplayMediaFragment(models.get(position));
     }
 
     @Override

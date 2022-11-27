@@ -2,6 +2,7 @@ package com.hcmus.picbox.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +13,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.hcmus.picbox.activities.DisplayMediaActivity;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.DisplayMediaActivity;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.DateModel;
 import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 
 import java.util.List;
 
@@ -24,10 +26,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private final Context context;
     private final List<AbstractModel> items;
+    private final String category;
 
-    public PhotoAdapter(Context context, List<AbstractModel> items) {
+    public PhotoAdapter(Context context, List<AbstractModel> items, String category) {
         this.context = context;
         this.items = items;
+        this.category = category;
     }
 
     @NonNull
@@ -53,18 +57,39 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             DateViewHolder viewHolder = (DateViewHolder) holder;
             viewHolder.txt_date.setText(date.getStringLastModifiedTime());
         } else if (type == AbstractModel.TYPE_PHOTO) {
-            PhotoModel photo = (PhotoModel) items.get(position);
+            PhotoModel model = (PhotoModel) items.get(position);
             PhotoViewHolder viewHolder = (PhotoViewHolder) holder;
 
+            // Load image by glide library
             Glide.with(context)
-                    .load(photo.getFile())
+                    .load(model.getFile())
                     .placeholder(R.drawable.placeholder_color)
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                     .into(viewHolder.imageView);
 
+            // Set onClick Listener for show detail media
             ((PhotoViewHolder) holder).imageView.setOnClickListener(view -> {
                 Intent i = new Intent(context, DisplayMediaActivity.class);
-                i.putExtra("model", photo);
+                Bundle bundle = new Bundle();
+                // TODO: if you can, think other way to send index of model
+                int index;
+                switch (category) {
+                    case MediaHolder.KEY_DELETED_ALBUM:
+                        index = MediaHolder.getDeletedAlbum().getDefaultList().indexOf(model);
+                        break;
+                    case MediaHolder.KEY_FAVOURITE_ALBUM:
+                        index = MediaHolder.getFavouriteAlbum().getDefaultList().indexOf(model);
+                        break;
+                    case MediaHolder.KEY_SECRET_ALBUM:
+                        index = MediaHolder.getSecretAlbum().getDefaultList().indexOf(model);
+                        break;
+                    default:
+                        index = MediaHolder.getTotalAlbum().getDefaultList().indexOf(model);
+                        break;
+                }
+                bundle.putInt("position", index);
+                bundle.putString("category", category);
+                i.putExtra("model", bundle);
                 context.startActivity(i);
             });
         } else {

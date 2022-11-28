@@ -1,7 +1,9 @@
 package com.hcmus.picbox.fragments;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -9,9 +11,11 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -21,16 +25,21 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.PhotoModel;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * This is fragment for showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
 public class DisplayMediaFragment extends Fragment {
 
+    // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
     private PhotoModel model;
     private ImageView mImageView;
-    private BottomSheetBehavior bottomSheetBehavior;
+    private BottomSheetBehavior<View> bottomSheetBehavior;
     private IOnClickDetailBackButton backListener;
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
@@ -62,6 +71,8 @@ public class DisplayMediaFragment extends Fragment {
         if (model == null && savedInstanceState != null) {
             model = savedInstanceState.getParcelable("model");
         }
+
+        // TODO: if model is photomodel (not video), set gone action repeat video
 
         bottomSheetBehavior = BottomSheetBehavior.from(
                 view.findViewById(R.id.layout_detail_bottom_sheet));
@@ -99,6 +110,8 @@ public class DisplayMediaFragment extends Fragment {
             }
             return false;
         });
+
+        load(Uri.fromFile(model.getFile()), view);
     }
 
     // Need when change device configuration, such as when user rotates his phone
@@ -113,6 +126,73 @@ public class DisplayMediaFragment extends Fragment {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         else
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    // TODO: when and where should we load metadata? not here
+    private void load(Uri uri, View view) {
+        try {
+            InputStream in = context.getContentResolver().openInputStream(uri);
+            if (in == null)
+                return;
+
+            ExifInterface exif = new ExifInterface(in);
+            String datetime = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
+            String path = model.getFile().getPath();
+            String size;
+            float file_length = model.getFile().length();
+            if (file_length >= 1024f) {
+                file_length /= 1024f;
+                if (file_length >= 1024f) {
+                    file_length /= 1024f;
+                    size = Math.round(file_length) + " MB";
+                } else
+                    size = Math.round(file_length) + " kB";
+            } else
+                size = Math.round(file_length) + " B";
+            String dimensionX = exif.getAttribute(ExifInterface.TAG_PIXEL_X_DIMENSION);
+            String dimensionY = exif.getAttribute(ExifInterface.TAG_PIXEL_Y_DIMENSION);
+            String resolutionX = exif.getAttribute(ExifInterface.TAG_X_RESOLUTION);
+            String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
+            String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
+            String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
+            // TODO: get location -> map
+
+            if (datetime != null)
+                ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
+            ((TextView) view.findViewById(R.id.tv_media_path)).setText(path);
+            ((TextView) view.findViewById(R.id.tv_file_length)).setText(size);
+            if (dimensionX != null && dimensionY != null)
+                ((TextView) view.findViewById(R.id.tv_dimension)).setText(String.format("%s x %s",
+                        dimensionX, dimensionY));
+            if (resolutionX != null && resolutionY != null && resolutionUnit != null) {
+                resolutionUnit = resolutionUnit.equals("2") ? "inches" : "cm";
+                if (resolutionX.contains("/1"))
+                    resolutionX = resolutionX.substring(0, resolutionX.length() - 2);
+                if (resolutionY.contains("/1"))
+                    resolutionY = resolutionY.substring(0, resolutionY.length() - 2);
+                ((TextView) view.findViewById(R.id.tv_resolution)).setText(
+                        String.format("%s x %s %s", resolutionX, resolutionY, resolutionUnit));
+            }
+            if (deviceModel != null && !deviceModel.equals("")) {
+                String shutterSpeed = exif.getAttribute(ExifInterface.TAG_SHUTTER_SPEED_VALUE);
+                String fNumber = exif.getAttribute(ExifInterface.TAG_F_NUMBER);
+                String iso = exif.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY);
+
+                ((TextView) view.findViewById(R.id.tv_device_model)).setText(deviceModel);
+                if (shutterSpeed != null)
+                    ((TextView) view.findViewById(R.id.tv_shutter_speed)).setText(shutterSpeed);
+                if (fNumber != null)
+                    ((TextView) view.findViewById(R.id.tv_focal_distance)).setText(fNumber);
+                if (iso != null)
+                    ((TextView) view.findViewById(R.id.tv_iso)).setText(String.format("ISO%s", iso));
+            } else {
+                view.findViewById(R.id.device_detail).setVisibility(View.GONE);
+            }
+        } catch (FileNotFoundException e) {
+            Log.e("test", "loadMetadata -> file not found", e);
+        } catch (IOException e) {
+            Log.e("test", "loadMetadata -> IOException", e);
+        }
     }
 
     /**

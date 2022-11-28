@@ -17,7 +17,7 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.models.PhotoModel;
 
 /**
- * This is fragment of showing detail of media <br/>
+ * This is fragment for showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
 public class DisplayMediaFragment extends Fragment {

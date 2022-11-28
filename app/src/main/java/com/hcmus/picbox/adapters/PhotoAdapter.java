@@ -71,7 +71,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             ((PhotoViewHolder) holder).imageView.setOnClickListener(view -> {
                 Intent i = new Intent(context, DisplayMediaActivity.class);
                 Bundle bundle = new Bundle();
-                // TODO: if you can, think other way to send index of model
                 int index;
                 switch (category) {
                     case MediaHolder.KEY_DELETED_ALBUM:

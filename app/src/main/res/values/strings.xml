@@ -38,11 +38,22 @@
     <string name="language_default">English</string>
     <string name="select_number_column_per_row">Select number column per row</string>
     <string name="number_columns_in_each_row">Number columns in each row</string>
-    <string name="confirm">confirm</string>
-    <string name="cancel">cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
     <string name="favorite">Favorite</string>
     <string name="secret">Secret</string>
     <string name="Creativity">Creativity</string>
     <string name="trash">Trash</string>
     <string name="from_device">From device</string>
+    <string name="detail_action_add_to_album">Add to album</string>
+    <string name="detail_action_use_for">Use for</string>
+    <string name="detail_action_slide_show">Slide show</string>
+    <string name="detail_action_print">Print</string>
+    <string name="detail_action_help">Help</string>
+    <string name="detail_action_repeat_video">Repeat Video</string>
+    <string name="detail_add_note">Add note…</string>
+    <string name="detail">Detail</string>
+    <string name="location">Location</string>
+    <string name="detail_go_to_map">Go to map</string>
+    <string name="detail_desc_media_details">Media details</string>
 </resources>

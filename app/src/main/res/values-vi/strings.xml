@@ -45,4 +45,15 @@
     <string name="Creativity">Sáng tạo</string>
     <string name="trash">Thùng rác</string>
     <string name="from_device">Từ thiết bị</string>
+    <string name="detail_action_add_to_album">Thêm vào album</string>
+    <string name="detail_action_use_for">Dùng làm</string>
+    <string name="detail_action_slide_show">Trình chiếu</string>
+    <string name="detail_action_print">In</string>
+    <string name="detail_action_help">Trợ giúp</string>
+    <string name="detail_action_repeat_video">Bật phát lặp lại</string>
+    <string name="detail_add_note">Thêm ghi chú …</string>
+    <string name="detail">Chi tiết</string>
+    <string name="location">Vị trí</string>
+    <string name="detail_go_to_map">Xem ở bản đồ</string>
+    <string name="detail_desc_media_details">Chi tiết đa phương tiện</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.hcmus.picbox.fragments.DisplayMediaFragment;
+import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.PhotoModel;
 
 import java.util.List;
@@ -18,16 +19,18 @@ import java.util.List;
 public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
 
     private final List<PhotoModel> models;
+    private final IOnClickDetailBackButton backListener;
 
-    public ScreenSlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<PhotoModel> models) {
+    public ScreenSlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<PhotoModel> models, IOnClickDetailBackButton backListen) {
         super(fragmentManager, lifecycle);
         this.models = models;
+        this.backListener = backListen;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return new DisplayMediaFragment(models.get(position));
+        return new DisplayMediaFragment(models.get(position), backListener);
     }
 
     @Override

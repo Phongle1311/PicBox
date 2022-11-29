@@ -76,7 +76,7 @@
                 android:paddingHorizontal="4dp"
                 android:paddingVertical="2dp"
                 android:text="@string/detail_action_slide_show"
-                app:drawableTopCompat="@drawable/ic_baseline_playlist_add_24" />
+                app:drawableTopCompat="@drawable/ic_baseline_slideshow_24" />
 
             <TextView
                 android:id="@+id/action_print"
@@ -86,7 +86,7 @@
                 android:paddingHorizontal="4dp"
                 android:paddingVertical="2dp"
                 android:text="@string/detail_action_print"
-                app:drawableTopCompat="@drawable/ic_baseline_slideshow_24" />
+                app:drawableTopCompat="@drawable/ic_baseline_print_24" />
 
             <TextView
                 android:id="@+id/action_help"

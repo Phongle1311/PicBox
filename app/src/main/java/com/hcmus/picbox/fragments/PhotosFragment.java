@@ -16,7 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.models.AbstractModel;
-import com.hcmus.picbox.models.dataholder.MediaHolder;
+import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.utils.StorageUtils;
 
@@ -24,14 +24,20 @@ import java.util.List;
 
 public class PhotosFragment extends Fragment {
 
+    private final List<AbstractModel> itemsList;
+    private final String category;
     private Context context;
-    private final List<AbstractModel> itemsList = MediaHolder.sTotalAlbum.getModelList();
     private int mSpanCount;
     private int fabClicked = 0;
     private RecyclerView mGallery;
     private PhotoAdapter photoAdapter;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
 
+    public PhotosFragment(String category) {
+        this.category = category;
+        itemsList = AlbumHolder.sGetAlbumById(category).getModelList();
+        StorageUtils.setMediasListener(category, this::onItemRangeInserted);
+    }
 
     @Nullable
     @Override
@@ -41,7 +47,6 @@ public class PhotosFragment extends Fragment {
 
         initUI(view);
         prepareRecyclerView();
-        StorageUtils.setAllMediaListener(this::onItemRangeInserted);
 
         return view;
     }
@@ -89,7 +94,7 @@ public class PhotosFragment extends Fragment {
     }
 
     private void prepareRecyclerView() {
-        photoAdapter = new PhotoAdapter(context, itemsList, MediaHolder.KEY_TOTAL_ALBUM);
+        photoAdapter = new PhotoAdapter(context, itemsList, category);
         mSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {

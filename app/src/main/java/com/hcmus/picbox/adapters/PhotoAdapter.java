@@ -67,7 +67,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                     .into(viewHolder.imageView);
 
-            // Set onClick Listener for show detail media
+            // Set onClick Listener to show detail of media
             ((PhotoViewHolder) holder).imageView.setOnClickListener(view -> {
                 Intent i = new Intent(context, DisplayMediaActivity.class);
                 Bundle bundle = new Bundle();

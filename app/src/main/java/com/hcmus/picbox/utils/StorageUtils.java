@@ -6,9 +6,9 @@ import android.provider.MediaStore;
 
 import com.hcmus.picbox.interfaces.IOnItemRangeInserted;
 import com.hcmus.picbox.models.AlbumModel;
+import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
-import com.hcmus.picbox.models.PhotoModel;
 
 import java.io.File;
 
@@ -18,8 +18,14 @@ public final class StorageUtils {
     private static IOnItemRangeInserted deviceAlbumListener;
     private static IOnItemRangeInserted userAlbumListener;
 
-    public static void setAllMediaListener(IOnItemRangeInserted listener) {
-        allMediaListener = listener;
+    public static void setMediasListener(String category, IOnItemRangeInserted listener) {
+        switch (category) {
+            case MediaHolder.KEY_TOTAL_ALBUM:
+                allMediaListener = listener;
+                break;
+            default:
+                break;
+        }
     }
 
     public static void setDeviceAlbumListener(IOnItemRangeInserted listener) {
@@ -66,8 +72,7 @@ public final class StorageUtils {
                 if (data.contains("DCIM")) {
                     albumName = AlbumHolder.DCIM_DISPLAY_NAME;
                     albumID = AlbumHolder.DCIM_ID;
-                }
-                else {
+                } else {
                     dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
                     albumName = cursor.getString(dataColumnIndex);
                     dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);

@@ -18,6 +18,7 @@ import com.hcmus.picbox.models.AlbumModel;
 import java.util.List;
 
 public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     private final Context context;
     private final List<AlbumModel> items;
 
@@ -46,7 +47,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 .into(viewHolder.imageView);
 
         StringBuilder albumName = new StringBuilder(album.getDisplayName());
-        String albumSize = Integer.toString(album.getSize());
+        String albumSize = Integer.toString(album.getCount());
         if (albumName.length() + albumSize.length() > 14) {
             int lengthGet = 14 - albumSize.length();
             lengthGet--;

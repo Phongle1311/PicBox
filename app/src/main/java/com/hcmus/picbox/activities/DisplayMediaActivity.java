@@ -33,19 +33,19 @@ public class DisplayMediaActivity extends AppCompatActivity {
         switch (category) {
             case MediaHolder.KEY_DELETED_ALBUM:
                 adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
-                        MediaHolder.getDeletedAlbum().getDefaultList(), this::finish);
+                        MediaHolder.sDeletedAlbum.getMediaList(), this::finish);
                 break;
             case MediaHolder.KEY_FAVOURITE_ALBUM:
                 adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
-                        MediaHolder.getFavouriteAlbum().getDefaultList(), this::finish);
+                        MediaHolder.sFavouriteAlbum.getMediaList(), this::finish);
                 break;
             case MediaHolder.KEY_SECRET_ALBUM:
                 adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
-                        MediaHolder.getSecretAlbum().getDefaultList(), this::finish);
+                        MediaHolder.sSecretAlbum.getMediaList(), this::finish);
                 break;
             default:
                 adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
-                        MediaHolder.getTotalAlbum().getDefaultList(), this::finish);
+                        MediaHolder.sTotalAlbum.getMediaList(), this::finish);
                 break;
         }
         viewPager.setAdapter(adapter);

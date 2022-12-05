@@ -30,8 +30,8 @@ public final class StorageUtils {
         userAlbumListener = listener;
     }
 
-    public static void getAllPhotoPathFromStorage(Context context) {
-        MediaHolder totalAlbum = MediaHolder.getTotalAlbum();
+    public static void getAllPhotoFromStorage(Context context) {
+        AlbumModel totalAlbum = MediaHolder.sTotalAlbum;
         AlbumHolder deviceAlbumList = AlbumHolder.getDeviceAlbumList();
         AlbumHolder userAlbumList = AlbumHolder.getUserAlbumList(); // tạm thời để đây, cái này không xài ở đây
 
@@ -55,7 +55,7 @@ public final class StorageUtils {
                 File file = new File(data);
 
                 PhotoModel media = new PhotoModel(file);
-                totalAlbum.addMedia(media);
+                totalAlbum.add(media);
 
                 // add media to album or add new album to albumList
                 // special case: all media in DCIM is belong to Camera album
@@ -80,14 +80,14 @@ public final class StorageUtils {
                     deviceAlbumList.addAlbum(album);
                 }
 
-                album.addMedia(media);
+                album.add(media);
             }
 
             cursor.close();
         }
 
         if (allMediaListener != null)
-            allMediaListener.onItemRangeInserted(0, totalAlbum.size());
+            allMediaListener.onItemRangeInserted(0, totalAlbum.getCount());
         if (deviceAlbumListener != null)
             deviceAlbumListener.onItemRangeInserted(0, deviceAlbumList.size());
         if (userAlbumListener != null)

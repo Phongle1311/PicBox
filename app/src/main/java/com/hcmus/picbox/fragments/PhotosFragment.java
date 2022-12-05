@@ -25,7 +25,7 @@ import java.util.List;
 public class PhotosFragment extends Fragment {
 
     private Context context;
-    private final List<AbstractModel> itemsList = MediaHolder.getTotalAlbum().getList();
+    private final List<AbstractModel> itemsList = MediaHolder.sTotalAlbum.getModelList();
     private int mSpanCount;
     private int fabClicked = 0;
     private RecyclerView mGallery;

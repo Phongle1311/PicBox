@@ -27,6 +27,22 @@ public class AlbumHolder {
         return sUserAlbumList;
     }
 
+    public static AlbumModel sGetAlbumById(String albumId) {
+        switch (albumId) {
+            case MediaHolder.KEY_TOTAL_ALBUM:
+                return MediaHolder.sTotalAlbum;
+            case MediaHolder.KEY_FAVOURITE_ALBUM:
+                return MediaHolder.sFavouriteAlbum;
+            case MediaHolder.KEY_DELETED_ALBUM:
+                return MediaHolder.sDeletedAlbum;
+            case MediaHolder.KEY_SECRET_ALBUM:
+                return MediaHolder.sSecretAlbum;
+            default:
+                AlbumModel result = sDeviceAlbumList.getAlbumById(albumId);
+                return result != null ? result : sUserAlbumList.getAlbumById(albumId);
+        }
+    }
+
     // non-static
     private final List<AlbumModel> mAlbumList = new ArrayList<>();
 

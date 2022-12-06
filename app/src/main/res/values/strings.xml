@@ -27,7 +27,6 @@
     <string name="password_image">Password Image</string>
     <string name="select_number_of_column_in_each_row">Select number of column in each row</string>
     <string name="column_in_row">Column in row</string>
-    <string name="grid">Grid</string>
     <string name="select_app_grid_mode">Select app grid mode</string>
     <string name="grid_mode">Grid mode</string>
     <string name="floating_button">Floating button</string>
@@ -60,4 +59,10 @@
     <string name="detail_bottom_bar_edit">Edit</string>
     <string name="detail_bottom_bar_delete">Delete</string>
     <string name="detail_bottom_bar_secret">Secret</string>
+    <string name="select_image_group_mode">Select image group mode</string>
+    <string name="group_mode">Group mode</string>
+    <string name="month">Month</string>
+    <string name="day">Day</string>
+    <string name="year">Year</string>
+    <string name="group_mode_dialog_title">Select Group Mode</string>
 </resources>

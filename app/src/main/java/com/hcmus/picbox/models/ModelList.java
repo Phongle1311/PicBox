@@ -1,5 +1,7 @@
 package com.hcmus.picbox.models;
 
+import static com.hcmus.picbox.models.AbstractModel.GROUP_BY;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,9 +11,9 @@ import java.util.List;
  */
 public class ModelList {
 
-    private final List<AbstractModel> mModelList;   // Have date time items
     private final List<PhotoModel> mMediaList;      // Don't have date time items
     protected PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
+    private List<AbstractModel> mModelList;   // Have date time items
 
     public ModelList() {
         mModelList = new ArrayList<>();
@@ -32,7 +34,7 @@ public class ModelList {
      * @param model the media item want to add
      */
     public void add(PhotoModel model) {
-        if (lastItem == null || !lastItem.isTimeEqual(model))
+        if (AbstractModel.GROUP_BY != 0 && (lastItem == null || !lastItem.isTimeEqual(model)))
             mModelList.add(new DateModel(model.getLastModifiedTime()));
         mModelList.add(model);
         mMediaList.add(model);
@@ -58,10 +60,31 @@ public class ModelList {
      * @param model the media item want to add
      */
     public void insert(PhotoModel model) {
-
     }
 
-    public int getCount(){
+    /**
+     * @return the number of medias, not DateModel
+     */
+    public int getCount() {
         return mMediaList.size();
+    }
+
+    /**
+     * Update modelList after changing datetime-breaking type
+     */
+    public void updateModelList() {
+        if (GROUP_BY == 0) {
+            mModelList.addAll(mMediaList);
+            lastItem = mMediaList.get(mModelList.size() - 1);
+        } else {
+            mModelList = new ArrayList<>();
+            lastItem = null;
+            for (PhotoModel model : mMediaList) {
+                if (lastItem == null || !lastItem.isTimeEqual(model))
+                    mModelList.add(new DateModel(model.getLastModifiedTime()));
+                mModelList.add(model);
+                lastItem = model;
+            }
+        }
     }
 }

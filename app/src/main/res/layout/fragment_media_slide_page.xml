@@ -26,5 +26,29 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/desc_iv_display_media" />
 
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_app_bar_display_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:backgroundTint="@android:color/transparent"
+        app:elevation="0dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation_view_display_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:theme="@style/BottomNavigationTheme"
+            app:elevation="0dp"
+            app:itemIconTint="?attr/colorOnSurface"
+            app:itemTextColor="?attr/colorOnSurface"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_bar_display_image" />
+    </com.google.android.material.bottomappbar.BottomAppBar>
+
     <include layout="@layout/layout_detail_bottom_sheet" />
+
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

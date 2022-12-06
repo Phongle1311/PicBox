@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
@@ -41,6 +42,7 @@ public class DisplayMediaFragment extends Fragment {
     private ImageView mImageView;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private IOnClickDetailBackButton backListener;
+    private BottomNavigationView bottomBar;
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
     private float mScaleFactor = 1.0f;
@@ -83,7 +85,7 @@ public class DisplayMediaFragment extends Fragment {
             gestureDetector.onTouchEvent(motionEvent);
             return true;
         });
-
+        bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
         if (model.checkExists()) {
             Glide
                     .with(context)
@@ -111,6 +113,18 @@ public class DisplayMediaFragment extends Fragment {
             return false;
         });
 
+        bottomBar.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.favourite_display_image) {
+                return true;
+            } else if (item.getItemId() == R.id.edit_display_image) {
+                return true;
+            } else if (item.getItemId() == R.id.delete_display_image) {
+                return true;
+            } else if (item.getItemId() == R.id.secret_display_image) {
+                return true;
+            }
+            return false;
+        });
         load(Uri.fromFile(model.getFile()), view);
     }
 

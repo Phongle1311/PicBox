@@ -5,25 +5,25 @@
         android:id="@+id/favourite_display_image"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_share_24"
-        android:title="@string/share"
+        android:title="@string/detail_bottom_bar_share"
         app:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/edit_display_image"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_edit_24"
-        android:title="@string/edit"
+        android:title="@string/detail_bottom_bar_edit"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/delete_display_image"
         android:enabled="true"
         android:icon="@drawable/ic_trash"
-        android:title="@string/delete"
+        android:title="@string/detail_bottom_bar_delete"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/secret_display_image"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_lock_24"
-        android:title="@string/secret"
+        android:title="@string/detail_bottom_bar_secret"
         app:showAsAction="ifRoom|withText" />
 </menu>

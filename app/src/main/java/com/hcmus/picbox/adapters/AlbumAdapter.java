@@ -2,6 +2,7 @@ package com.hcmus.picbox.adapters;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.AlbumActivity;
 import com.hcmus.picbox.models.AlbumModel;
 
 import java.util.List;
 
 public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     private final Context context;
     private final List<AlbumModel> items;
 
@@ -46,7 +49,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 .into(viewHolder.imageView);
 
         StringBuilder albumName = new StringBuilder(album.getDisplayName());
-        String albumSize = Integer.toString(album.getSize());
+        String albumSize = Integer.toString(album.getCount());
         if (albumName.length() + albumSize.length() > 14) {
             int lengthGet = 14 - albumSize.length();
             lengthGet--;
@@ -63,6 +66,12 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
         viewHolder.album_name.setText(albumName.toString());
         viewHolder.album_size.setText(albumSize);
+
+        ((AlbumViewHolder) holder).imageView.setOnClickListener(view -> {
+            Intent intent = new Intent(context, AlbumActivity.class);
+            intent.putExtra("albumId", album.getId());
+            context.startActivity(intent);
+        });
     }
 
     @Override

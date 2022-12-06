@@ -4,26 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is custom list, used to stored grid item and having date time items <br/>
+ * This is custom list, used to stored grid-items and having datetime-items <br/>
  * Created on 23/11/2022 by Phong Le
  */
 public class ModelList {
 
-    private final List<AbstractModel> mList;        // Have date time items
-    private final List<PhotoModel> mDefaultList;    // Don't have date time items
-    private PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
+    private final List<AbstractModel> mModelList;   // Have date time items
+    private final List<PhotoModel> mMediaList;      // Don't have date time items
+    protected PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
 
     public ModelList() {
-        mList = new ArrayList<>();
-        mDefaultList = new ArrayList<>();
+        mModelList = new ArrayList<>();
+        mMediaList = new ArrayList<>();
     }
 
-    public List<AbstractModel> getList() {
-        return mList;
+    public List<AbstractModel> getModelList() {
+        return mModelList;
     }
 
-    public List<PhotoModel> getDefaultList() {
-        return mDefaultList;
+    public List<PhotoModel> getMediaList() {
+        return mMediaList;
     }
 
     /**
@@ -33,9 +33,9 @@ public class ModelList {
      */
     public void add(PhotoModel model) {
         if (lastItem == null || !lastItem.isTimeEqual(model))
-            mList.add(new DateModel(model.getLastModifiedTime()));
-        mList.add(model);
-        mDefaultList.add(model);
+            mModelList.add(new DateModel(model.getLastModifiedTime()));
+        mModelList.add(model);
+        mMediaList.add(model);
         lastItem = model;
     }
 
@@ -61,5 +61,7 @@ public class ModelList {
 
     }
 
-
+    public int getCount(){
+        return mMediaList.size();
+    }
 }

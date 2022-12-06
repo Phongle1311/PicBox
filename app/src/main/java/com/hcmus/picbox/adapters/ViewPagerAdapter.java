@@ -9,6 +9,7 @@ import com.hcmus.picbox.fragments.CreativityFragment;
 import com.hcmus.picbox.fragments.AlbumFragment;
 import com.hcmus.picbox.fragments.PhotosFragment;
 import com.hcmus.picbox.fragments.SettingFragment;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -33,7 +34,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             case SETTING:
                 return new SettingFragment();
             default:
-                return new PhotosFragment();
+                return new PhotosFragment(MediaHolder.KEY_TOTAL_ALBUM);
         }
     }
 

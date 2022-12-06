@@ -67,23 +67,23 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                     .into(viewHolder.imageView);
 
-            // Set onClick Listener for show detail media
+            // Set onClick Listener to show detail of media
             ((PhotoViewHolder) holder).imageView.setOnClickListener(view -> {
                 Intent i = new Intent(context, DisplayMediaActivity.class);
                 Bundle bundle = new Bundle();
                 int index;
                 switch (category) {
                     case MediaHolder.KEY_DELETED_ALBUM:
-                        index = MediaHolder.getDeletedAlbum().getDefaultList().indexOf(model);
+                        index = MediaHolder.sDeletedAlbum.getMediaList().indexOf(model);
                         break;
                     case MediaHolder.KEY_FAVOURITE_ALBUM:
-                        index = MediaHolder.getFavouriteAlbum().getDefaultList().indexOf(model);
+                        index = MediaHolder.sFavouriteAlbum.getMediaList().indexOf(model);
                         break;
                     case MediaHolder.KEY_SECRET_ALBUM:
-                        index = MediaHolder.getSecretAlbum().getDefaultList().indexOf(model);
+                        index = MediaHolder.sSecretAlbum.getMediaList().indexOf(model);
                         break;
                     default:
-                        index = MediaHolder.getTotalAlbum().getDefaultList().indexOf(model);
+                        index = MediaHolder.sTotalAlbum.getMediaList().indexOf(model);
                         break;
                 }
                 bundle.putInt("position", index);

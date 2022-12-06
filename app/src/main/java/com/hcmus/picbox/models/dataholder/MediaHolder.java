@@ -1,10 +1,6 @@
 package com.hcmus.picbox.models.dataholder;
 
-import com.hcmus.picbox.models.AbstractModel;
-import com.hcmus.picbox.models.ModelList;
-import com.hcmus.picbox.models.PhotoModel;
-
-import java.util.List;
+import com.hcmus.picbox.models.AlbumModel;
 
 /**
  * This class contains and holds albums (an album is a list of medias) of the app<br/>
@@ -13,55 +9,17 @@ import java.util.List;
  */
 public class MediaHolder {
 
-    // static
     public static final String KEY_TOTAL_ALBUM = "total_album";
     public static final String KEY_FAVOURITE_ALBUM = "favourite_album";
     public static final String KEY_DELETED_ALBUM = "deleted_album";
     public static final String KEY_SECRET_ALBUM = "secret_album";
 
-    private static final MediaHolder sTotalAlbum = new MediaHolder();       // the special album contains all medias
-    private static final MediaHolder sFavouriteAlbum = new MediaHolder();   // the special album contains favourite medias
-    private static final MediaHolder sDeletedAlbum = new MediaHolder();     // the special album contains deleted medias
-    private static final MediaHolder sSecretAlbum = new MediaHolder();      // the special album contains secret medias
-
-    // non-static
-    private final ModelList album = new ModelList();
-
-    public static MediaHolder getTotalAlbum() {
-        return sTotalAlbum;
-    }
-
-    public static MediaHolder getFavouriteAlbum() {
-        return sFavouriteAlbum;
-    }
-
-    public static MediaHolder getDeletedAlbum() {
-        return sDeletedAlbum;
-    }
-
-    public static MediaHolder getSecretAlbum() {
-        return sSecretAlbum;
-    }
-
-    public void addMedia(PhotoModel media) {
-        album.add(media);
-    }
-
-    public void addAllMedias(List<PhotoModel> list) {
-        album.addAll(list);
-    }
-
-    // Get a list that has DateModel item
-    public List<AbstractModel> getList() {
-        return album.getList();
-    }
-
-    // Get a list that doesn't have DateModel item, only MediaModel item
-    public List<PhotoModel> getDefaultList() {
-        return album.getDefaultList();
-    }
-
-    public int size() {
-        return album.getList().size();
-    }
+    // the special album contains all medias
+    public static final AlbumModel sTotalAlbum = new AlbumModel("Total", KEY_TOTAL_ALBUM);
+    // the special album contains favourite medias
+    public static final AlbumModel sFavouriteAlbum = new AlbumModel("Favourite", KEY_FAVOURITE_ALBUM);
+    // the special album contains deleted medias
+    public static final AlbumModel sDeletedAlbum = new AlbumModel("Trash", KEY_DELETED_ALBUM);
+    // the special album contains secret medias
+    public static final AlbumModel sSecretAlbum = new AlbumModel("Secret", KEY_SECRET_ALBUM);
 }

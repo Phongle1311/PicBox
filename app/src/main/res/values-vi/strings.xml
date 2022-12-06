@@ -56,4 +56,8 @@
     <string name="location">Vị trí</string>
     <string name="detail_go_to_map">Xem ở bản đồ</string>
     <string name="detail_desc_media_details">Chi tiết đa phương tiện</string>
+    <string name="detail_bottom_bar_share">Chia sẻ</string>
+    <string name="detail_bottom_bar_edit">Chỉnh sửa</string>
+    <string name="detail_bottom_bar_delete">Xóa</string>
+    <string name="detail_bottom_bar_secret">Bảo mật</string>
 </resources>

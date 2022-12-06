@@ -2,28 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/ic_favourite"
+        android:id="@+id/favourite_display_image"
+        android:enabled="true"
         android:icon="@drawable/ic_baseline_share_24"
         android:title="@string/share"
-        android:enabled="true"
         app:showAsAction="ifRoom|withText" />
 
     <item
-        android:id="@+id/ic_edit"
+        android:id="@+id/edit_display_image"
+        android:enabled="true"
         android:icon="@drawable/ic_baseline_edit_24"
         android:title="@string/edit"
-        android:enabled="true"
         app:showAsAction="ifRoom|withText" />
     <item
-        android:id="@+id/ic_delete"
+        android:id="@+id/delete_display_image"
+        android:enabled="true"
         android:icon="@drawable/ic_trash"
         android:title="@string/delete"
-        android:enabled="true"
         app:showAsAction="ifRoom|withText" />
     <item
-        android:id="@+id/ic_secret"
+        android:id="@+id/secret_display_image"
+        android:enabled="true"
         android:icon="@drawable/ic_baseline_lock_24"
         android:title="@string/secret"
-        android:enabled="true"
         app:showAsAction="ifRoom|withText" />
 </menu>

@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +22,9 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.navigation.NavigationBarView;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.PhotoModel;
@@ -41,6 +45,7 @@ public class DisplayMediaFragment extends Fragment {
     private ImageView mImageView;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private IOnClickDetailBackButton backListener;
+    private BottomNavigationView bottomBar;
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
     private float mScaleFactor = 1.0f;
@@ -83,7 +88,7 @@ public class DisplayMediaFragment extends Fragment {
             gestureDetector.onTouchEvent(motionEvent);
             return true;
         });
-
+        bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
         if (model.checkExists()) {
             Glide
                     .with(context)
@@ -111,6 +116,21 @@ public class DisplayMediaFragment extends Fragment {
             return false;
         });
 
+        bottomBar.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.favourite_display_image) {
+                    return true;
+                } else if (item.getItemId() == R.id.edit_display_image) {
+                    return true;
+                } else if (item.getItemId() == R.id.delete_display_image) {
+                    return true;
+                } else if (item.getItemId() == R.id.secret_display_image) {
+                    return true;
+                }
+                return false;
+            }
+        });
         load(Uri.fromFile(model.getFile()), view);
     }
 

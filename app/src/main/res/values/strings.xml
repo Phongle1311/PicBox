@@ -56,4 +56,7 @@
     <string name="location">Location</string>
     <string name="detail_go_to_map">Go to map</string>
     <string name="detail_desc_media_details">Media details</string>
+    <string name="share">Share</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>

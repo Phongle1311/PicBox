@@ -10,7 +10,7 @@ public abstract class AbstractModel {
     public static final int TYPE_DATE = 0;
     public static final int TYPE_PHOTO = 1;
 
-    public static int GROUP_BY = 1; // 0: day, 1: month, 2: year
+    public static int GROUP_BY = 2; // 0: none, 1: day, 2: month, 3: year
 
     protected LocalDate mLastModifiedTime;
 
@@ -20,7 +20,17 @@ public abstract class AbstractModel {
 
     @NonNull
     public String getStringLastModifiedTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'Tháng 'MM 'năm 'yyyy");
+        DateTimeFormatter formatter;
+        switch(GROUP_BY) {
+            case 1:
+                formatter = DateTimeFormatter.ofPattern("'Ngày 'dd' tháng 'MM' năm 'yyyy");
+                break;
+            case 3:
+                formatter = DateTimeFormatter.ofPattern("'Năm 'yyyy");
+                break;
+            default:
+                formatter = DateTimeFormatter.ofPattern("'Tháng 'MM' năm 'yyyy");
+        }
         return mLastModifiedTime.format(formatter);
     }
 
@@ -29,7 +39,7 @@ public abstract class AbstractModel {
     public boolean isTimeEqual(AbstractModel model) {
         LocalDate otherDate = model.getLastModifiedTime();
         return mLastModifiedTime.getYear() == otherDate.getYear() &&
-                (GROUP_BY == 2 || mLastModifiedTime.getMonth() == otherDate.getMonth()) &&
-                (GROUP_BY != 0 || mLastModifiedTime.getDayOfMonth() == otherDate.getDayOfMonth());
+                (GROUP_BY == 3 || mLastModifiedTime.getMonth() == otherDate.getMonth()) &&
+                (GROUP_BY != 1 || mLastModifiedTime.getDayOfMonth() == otherDate.getDayOfMonth());
     }
 }

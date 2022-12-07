@@ -60,4 +60,7 @@
     <string name="detail_bottom_bar_edit">Chỉnh sửa</string>
     <string name="detail_bottom_bar_delete">Xóa</string>
     <string name="detail_bottom_bar_secret">Bảo mật</string>
+    <string name="choose_language">Chọn ngôn ngữ</string>
+    <string name="english">Tiếng Anh</string>
+    <string name="vietnamese">Tiếng Việt</string>
 </resources>

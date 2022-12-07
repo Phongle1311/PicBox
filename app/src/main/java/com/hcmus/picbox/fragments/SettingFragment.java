@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,6 +27,8 @@ import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+
+import java.util.Objects;
 
 public class SettingFragment extends Fragment {
 
@@ -106,13 +110,38 @@ public class SettingFragment extends Fragment {
         });
 
         languageLayout.setOnClickListener(view12 -> {
-            //TODO: show dialog choose language
-            //setLanguageTextView.text(....);
-            final String[] language =
-                    {
-                            "English",
-                            "Vietnamese"
-                    };
+            Dialog languageSettingDialog = new Dialog(context);
+            languageSettingDialog.setContentView(R.layout.dialog_language_setting);
+
+            RadioButton englishRadioButton = languageSettingDialog.findViewById(R.id.englishRadioButton);
+            RadioButton vietnameseRadioButton = languageSettingDialog.findViewById(R.id.vietnamseRadioButton);
+            if (Objects.equals(SharedPreferencesUtils.getStringData(context, "language"), getResources().getString(R.string.english))) {
+                englishRadioButton.setChecked(true);
+            } else {
+                vietnameseRadioButton.setChecked(true);
+            }
+
+
+            String[] languageList = {getResources().getString(R.string.english), getResources().getString(R.string.vietnamese)};
+            RadioGroup languageSettingRadioGroup = languageSettingDialog.findViewById(R.id.languageSettingRadioGroup);
+            languageSettingRadioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+                SharedPreferencesUtils.saveData(context, "language_setting_choosing", languageList[i]);
+            });
+
+            MaterialButton confirmButton = languageSettingDialog.findViewById(R.id.confirmButton);
+            confirmButton.setOnClickListener(view17 -> {
+                final String languageChosen = SharedPreferencesUtils.getStringData(context, "language_setting_choosing");
+                SharedPreferencesUtils.saveData(context, "language", languageChosen);
+                languageSettingDialog.dismiss();
+            });
+
+            MaterialButton cancelButton = languageSettingDialog.findViewById(R.id.cancelButton);
+            cancelButton.setOnClickListener(view18 -> {
+                languageSettingDialog.dismiss();
+            });
+
+
+            languageSettingDialog.show();
         });
 
         gridModeLayout.setOnClickListener(view13 -> {

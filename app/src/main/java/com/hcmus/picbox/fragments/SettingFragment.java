@@ -126,7 +126,7 @@ public class SettingFragment extends Fragment {
         groupModeLayout.setOnClickListener(view17 -> {
             AlertDialog.Builder groupModeSettingDialogBuilder = new AlertDialog.Builder(context);
             groupModeSettingDialogBuilder.setTitle(R.string.group_mode_dialog_title);
-            String[] items = {getResources().getString(R.string.day), getResources().getString(R.string.month), getResources().getString(R.string.year)};
+            String[] items = {getResources().getString(R.string.day), getResources().getString(R.string.month), getResources().getString(R.string.year), getResources().getString(R.string.none)};
 
             int checkedItem = ArrayUtils.indexOf(items, SharedPreferencesUtils.getStringData(context, "group_mode"));
             groupModeSettingDialogBuilder.setSingleChoiceItems(items, checkedItem, (dialog, which) -> {

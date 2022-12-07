@@ -64,5 +64,6 @@
     <string name="month">Tháng</string>
     <string name="day">Ngày</string>
     <string name="year">Năm</string>
+    <string name="none">Không</string>
     <string name="group_mode_dialog_title">Chọn Kiểu Nhóm Ảnh</string>
 </resources>

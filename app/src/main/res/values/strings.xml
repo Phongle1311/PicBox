@@ -64,5 +64,6 @@
     <string name="month">Month</string>
     <string name="day">Day</string>
     <string name="year">Year</string>
+    <string name="none">None</string>
     <string name="group_mode_dialog_title">Select Group Mode</string>
 </resources>

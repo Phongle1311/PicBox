@@ -1,5 +1,6 @@
 package com.hcmus.picbox.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -102,5 +103,19 @@ public class SharedPreferencesUtils {
 
     static public void saveData(SharedPreferences.Editor editor) {
         editor.apply();
+    }
+
+    /**
+     * remove key and value.
+     *
+     * @param context the context
+     * @param key     the key
+     */
+    @SuppressLint("CommitPrefEdits")
+    static public void removeData(Context context, String key){
+        context.getSharedPreferences(PREF_APP, Context.MODE_PRIVATE)
+                .edit()
+                .remove(key)
+                .apply();
     }
 }

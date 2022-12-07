@@ -81,12 +81,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSharedPreferencesDefault() {
-        String[] SharedPreferencesKeys = {"num_columns_of_row"} ;
+        String[] SharedPreferencesKeys = {"num_columns_of_row", "group_mode"} ;
         for (String key : SharedPreferencesKeys){
             if (!SharedPreferencesUtils.checkKeyExist(this, key)){
                 switch (key){
                     case "num_columns_of_row":
                         SharedPreferencesUtils.saveData(this,"num_columns_of_row", 4);
+                        break;
+                    case "group_mode":
+                        SharedPreferencesUtils.saveData(this, "group_mode", getResources().getString(R.string.month));
                         break;
                 }
             }

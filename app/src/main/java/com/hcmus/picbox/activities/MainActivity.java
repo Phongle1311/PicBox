@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    StorageUtils.getAllPhotoFromStorage(this);
+                    StorageUtils.getAllMediaFromStorage(this);
                 } else {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         // check permission
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
-            StorageUtils.getAllPhotoFromStorage(this);
+            StorageUtils.getAllMediaFromStorage(this);
         else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
             // TODO: show dialog to educate user and persuade user to grant permission
             Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();

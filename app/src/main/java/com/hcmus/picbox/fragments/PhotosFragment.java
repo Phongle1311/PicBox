@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
-import com.hcmus.picbox.adapters.PhotoAdapter;
+import com.hcmus.picbox.adapters.MediaAdapter;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
@@ -30,7 +30,7 @@ public class PhotosFragment extends Fragment {
     private int mSpanCount;
     private int fabClicked = 0;
     private RecyclerView mGallery;
-    private PhotoAdapter photoAdapter;
+    private MediaAdapter photoAdapter;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
 
     public PhotosFragment(String category) {
@@ -94,7 +94,7 @@ public class PhotosFragment extends Fragment {
     }
 
     private void prepareRecyclerView() {
-        photoAdapter = new PhotoAdapter(context, itemsList, category);
+        photoAdapter = new MediaAdapter(context, itemsList, category);
         mSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -104,6 +104,7 @@ public class PhotosFragment extends Fragment {
                     case AbstractModel.TYPE_DATE:
                         return manager.getSpanCount();
                     case AbstractModel.TYPE_PHOTO:
+                    case AbstractModel.TYPE_VIDEO:
                         return 1;
                     default:
                         return -1;

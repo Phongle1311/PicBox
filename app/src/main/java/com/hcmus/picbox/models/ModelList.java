@@ -11,8 +11,8 @@ import java.util.List;
  */
 public class ModelList {
 
-    private final List<PhotoModel> mMediaList;      // Don't have date time items
-    protected PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
+    private final List<MediaModel> mMediaList;      // Don't have date time items
+    protected MediaModel lastItem; // used to optimize add method from O(n) to O(1)
     private List<AbstractModel> mModelList;   // Have date time items
 
     public ModelList() {
@@ -24,7 +24,7 @@ public class ModelList {
         return mModelList;
     }
 
-    public List<PhotoModel> getMediaList() {
+    public List<MediaModel> getMediaList() {
         return mMediaList;
     }
 
@@ -33,7 +33,7 @@ public class ModelList {
      *
      * @param model the media item want to add
      */
-    public void add(PhotoModel model) {
+    public void add(MediaModel model) {
         if (AbstractModel.GROUP_BY != 0 && (lastItem == null || !lastItem.isTimeEqual(model)))
             mModelList.add(new DateModel(model.getLastModifiedTime()));
         mModelList.add(model);
@@ -46,10 +46,10 @@ public class ModelList {
      *
      * @param list the list of media items want to add
      */
-    public void addAll(List<PhotoModel> list) {
+    public void addAll(List<MediaModel> list) {
         if (list == null || list.size() == 0)
             return;
-        for (PhotoModel model : list)
+        for (MediaModel model : list)
             add(model);
     }
 
@@ -59,7 +59,7 @@ public class ModelList {
      *
      * @param model the media item want to add
      */
-    public void insert(PhotoModel model) {
+    public void insert(MediaModel model) {
     }
 
     /**
@@ -79,7 +79,7 @@ public class ModelList {
         } else {
             mModelList = new ArrayList<>();
             lastItem = null;
-            for (PhotoModel model : mMediaList) {
+            for (MediaModel model : mMediaList) {
                 if (lastItem == null || !lastItem.isTimeEqual(model))
                     mModelList.add(new DateModel(model.getLastModifiedTime()));
                 mModelList.add(model);

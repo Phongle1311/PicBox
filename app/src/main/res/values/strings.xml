@@ -60,4 +60,5 @@
     <string name="detail_bottom_bar_edit">Edit</string>
     <string name="detail_bottom_bar_delete">Delete</string>
     <string name="detail_bottom_bar_secret">Secret</string>
+    <string name="video_btn_desc_video">Video</string>
 </resources>

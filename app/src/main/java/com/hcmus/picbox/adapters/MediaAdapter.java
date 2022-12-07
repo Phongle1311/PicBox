@@ -18,17 +18,18 @@ import com.hcmus.picbox.activities.DisplayMediaActivity;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.DateModel;
 import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 
 import java.util.List;
 
-public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
     private final List<AbstractModel> items;
     private final String category;
 
-    public PhotoAdapter(Context context, List<AbstractModel> items, String category) {
+    public MediaAdapter(Context context, List<AbstractModel> items, String category) {
         this.context = context;
         this.items = items;
         this.category = category;
@@ -44,6 +45,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         } else if (viewType == AbstractModel.TYPE_PHOTO) {
             View view = inflater.inflate(R.layout.photo_card_layout, parent, false);
             return new PhotoViewHolder(view);
+        } else if (viewType == AbstractModel.TYPE_VIDEO) {
+            View view = inflater.inflate(R.layout.video_card_layout, parent, false);
+            return new VideoViewHolder(view);
         } else {
             throw new IllegalStateException("unsupported type");
         }
@@ -56,7 +60,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             DateModel date = (DateModel) items.get(position);
             DateViewHolder viewHolder = (DateViewHolder) holder;
             viewHolder.txt_date.setText(date.getStringLastModifiedTime());
-        } else if (type == AbstractModel.TYPE_PHOTO) {
+        }
+        else if (type == AbstractModel.TYPE_PHOTO) {
             PhotoModel model = (PhotoModel) items.get(position);
             PhotoViewHolder viewHolder = (PhotoViewHolder) holder;
 
@@ -91,6 +96,22 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 i.putExtra("model", bundle);
                 context.startActivity(i);
             });
+        }
+        else if (type == AbstractModel.TYPE_VIDEO) {
+            VideoModel model = (VideoModel) items.get(position);
+            VideoViewHolder viewHolder = (VideoViewHolder) holder;
+
+            // Load image by glide library
+            Glide.with(context)
+                    .load(model.getFile())
+                    .placeholder(R.drawable.placeholder_color)
+                    .error(R.drawable.placeholder_color) // TODO: replace by other drawable
+                    .into(viewHolder.imageView);
+
+            // Set onClick Listener to show detail of media
+            ((VideoViewHolder) holder).imageView.setOnClickListener(view -> {
+                // todo
+            });
         } else {
             throw new IllegalStateException("Unsupported type");
         }
@@ -118,6 +139,15 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
+    public static class VideoViewHolder extends RecyclerView.ViewHolder {
+        private final ImageView imageView;
+
+        public VideoViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageView = itemView.findViewById(R.id.img_card);
+        }
+    }
+
     public static class DateViewHolder extends RecyclerView.ViewHolder {
         private final TextView txt_date;
 
@@ -126,4 +156,5 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             txt_date = itemView.findViewById(R.id.tv_date);
         }
     }
+
 }

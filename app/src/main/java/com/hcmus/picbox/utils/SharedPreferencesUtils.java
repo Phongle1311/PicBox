@@ -8,7 +8,13 @@ import android.content.SharedPreferences;
  * Created on 21/11/2022 by Minh Kha
  */
 public class SharedPreferencesUtils {
+
     private static final String PREF_APP = "pref_app";
+
+    public static final String KEY_SPAN_COUNT = "num_columns_of_row";
+    public static final String KEY_LANGUAGE = "language";
+    public static final String KEY_GROUP_MODE = "group_mode";
+    public static final String KEY_GRID_MODE = "grid_mode";
 
     private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(

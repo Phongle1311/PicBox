@@ -3,6 +3,10 @@ package com.hcmus.picbox.activities;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -86,13 +90,13 @@ public class MainActivity extends AppCompatActivity {
             if (!SharedPreferencesUtils.checkKeyExist(this, key)){
                 switch (key){
                     case "num_columns_of_row":
-                        SharedPreferencesUtils.saveData(this,"num_columns_of_row", 4);
+                        SharedPreferencesUtils.saveData(this,KEY_SPAN_COUNT, 4);
                         break;
                     case "group_mode":
-                        SharedPreferencesUtils.saveData(this, "group_mode", getResources().getString(R.string.month));
+                        SharedPreferencesUtils.saveData(this, KEY_GROUP_MODE, getResources().getString(R.string.month));
                         break;
                     case "language":
-                        SharedPreferencesUtils.saveData(this, "language", "vietnamese");
+                        SharedPreferencesUtils.saveData(this, KEY_LANGUAGE, "vietnamese");
                         break;
                 }
             }

@@ -3,16 +3,17 @@ package com.hcmus.picbox.fragments;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,6 @@ import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,11 +34,8 @@ import com.hcmus.picbox.utils.ArrayUtils;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
-import java.util.Arrays;
-
-import java.util.Objects;
-
 public class SettingFragment extends Fragment {
+
 
     private Context context;
 
@@ -69,6 +66,7 @@ public class SettingFragment extends Fragment {
         declareUI(view);
         initUI();
 
+        // Camera permission setting
         cameraPermissionButton.setOnClickListener(view15 -> {
             //go to app setting
             Intent appToSettingIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -78,6 +76,7 @@ public class SettingFragment extends Fragment {
             startActivity(appToSettingIntent);
         });
 
+        // Storage permission setting
         galleyPermissionButton.setOnClickListener(view16 -> {
             //go to app setting
             Intent appToSettingIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -87,14 +86,17 @@ public class SettingFragment extends Fragment {
             startActivity(appToSettingIntent);
         });
 
+        // Themes setting
         darkThemeSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-
+            // TODO: theme day - night
         });
 
+        // Floating button setting
         floatingButtonSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-
+            // TODO: hide FAB, show
         });
 
+        // Span count setting
         multiColumnLayout.setOnClickListener(view1 -> {
             Dialog multiColumnDialog = new Dialog(context);
 
@@ -113,78 +115,65 @@ public class SettingFragment extends Fragment {
             MaterialButton confirmButton = multiColumnDialog.findViewById(R.id.confirmButton);
             confirmButton.setOnClickListener(view22 -> {
                 multiColumnTextView.setText(String.valueOf(columnsPerRowNumberPicker.getValue()));
-                SharedPreferencesUtils.saveData(context, "num_columns_of_row", columnsPerRowNumberPicker.getValue());
+                SharedPreferencesUtils.saveData(context, KEY_SPAN_COUNT, columnsPerRowNumberPicker.getValue());
                 multiColumnDialog.dismiss();
             });
 
             multiColumnDialog.show();
         });
 
+        // Language setting
         languageLayout.setOnClickListener(view12 -> {
             Dialog languageSettingDialog = new Dialog(context);
             languageSettingDialog.setContentView(R.layout.dialog_language_setting);
 
+            // Set current value
             RadioButton englishRadioButton = languageSettingDialog.findViewById(R.id.englishRadioButton);
             RadioButton vietnameseRadioButton = languageSettingDialog.findViewById(R.id.vietnamseRadioButton);
-            switch (SharedPreferencesUtils.getStringData(context, "language")){
+            switch (SharedPreferencesUtils.getStringData(context, KEY_LANGUAGE)) {
                 case "english":
                     englishRadioButton.setChecked(true);
-                    SharedPreferencesUtils.saveData(context, "language_setting_choosing", "english");
                     break;
                 case "vietnamese":
                     vietnameseRadioButton.setChecked(true);
-                    SharedPreferencesUtils.saveData(context, "language_setting_choosing", "vietnamese");
+                    break;
+                default:
                     break;
             }
 
-            RadioGroup languageSettingRadioGroup = languageSettingDialog.findViewById(R.id.languageSettingRadioGroup);
-            languageSettingRadioGroup.setOnCheckedChangeListener((radioGroup, checkedId) -> {
-                switch (checkedId){
+            // Confirm button
+            languageSettingDialog.findViewById(R.id.confirmButton).setOnClickListener(view17 -> {
+                RadioGroup languageSettingRadioGroup = languageSettingDialog.findViewById(R.id.languageSettingRadioGroup);
+                int selectedId = languageSettingRadioGroup.getCheckedRadioButtonId();
+                switch (selectedId) {
                     case R.id.englishRadioButton:
-                        SharedPreferencesUtils.saveData(context, "language_setting_choosing", "english");
+                        languageTextView.setText(R.string.language_english);
+                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, "english");
                         break;
                     case R.id.vietnamseRadioButton:
-                        SharedPreferencesUtils.saveData(context, "language_setting_choosing", "vietnamese");
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + checkedId);
-                }
-            });
-
-            MaterialButton confirmButton = languageSettingDialog.findViewById(R.id.confirmButton);
-            confirmButton.setOnClickListener(view17 -> {
-                final String languageChosen = SharedPreferencesUtils.getStringData(context, "language_setting_choosing");
-                SharedPreferencesUtils.saveData(context, "language", languageChosen);
-                switch (languageChosen) {
-                    case "english":
-                        languageTextView.setText("English");
-                        break;
-                    case "vietnamese":
-                        languageTextView.setText("Tiếng Việt");
+                        languageTextView.setText(R.string.language_vietnamese);
+                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, "vietnamese");
                         break;
                 }
-                SharedPreferencesUtils.removeData(context, "language_setting_choosing");
                 languageSettingDialog.dismiss();
             });
 
-            MaterialButton cancelButton = languageSettingDialog.findViewById(R.id.cancelButton);
-            cancelButton.setOnClickListener(view18 -> {
-                SharedPreferencesUtils.removeData(context, "language_setting_choosing");
-                languageSettingDialog.dismiss();
-            });
+            // Cancel button
+            languageSettingDialog.findViewById(R.id.cancelButton).setOnClickListener(view18 ->
+                    languageSettingDialog.dismiss());
 
             languageSettingDialog.show();
         });
 
+        // Group mode setting
         groupModeLayout.setOnClickListener(view17 -> {
             AlertDialog.Builder groupModeSettingDialogBuilder = new AlertDialog.Builder(context);
             groupModeSettingDialogBuilder.setTitle(R.string.group_mode_dialog_title);
             String[] items = {getResources().getString(R.string.day), getResources().getString(R.string.month), getResources().getString(R.string.year), getResources().getString(R.string.none)};
 
             int checkedItem = ArrayUtils.indexOf(items, SharedPreferencesUtils.getStringData(context, "group_mode"));
-            groupModeSettingDialogBuilder.setSingleChoiceItems(items, checkedItem, (dialog, which) -> {
-                SharedPreferencesUtils.saveData(context, "group_mode_choosing", items[which]);
-            });
+            groupModeSettingDialogBuilder.setSingleChoiceItems(items, checkedItem, (dialog, which)
+                    -> SharedPreferencesUtils.saveData(context, "group_mode_choosing", items[which]));
 
             groupModeSettingDialogBuilder.setPositiveButton(R.string.confirm, (dialog, id) -> {
                         final String groupModeChosen = SharedPreferencesUtils.getStringData(context, "group_mode_choosing");
@@ -203,21 +192,21 @@ public class SettingFragment extends Fragment {
             groupModeSettingDialog.show();
         });
 
+        // Grid mode setting
         gridModeLayout.setOnClickListener(view13 ->
-
         {
             //TODO: show dialog choose grid mode
             //setGridModeTextView.text(....);
         });
 
+        // Lock rotation setting
         rotationSwitch.setOnCheckedChangeListener((compoundButton, b) ->
-
         {
 
         });
 
+        // Secret setting
         passwordImageLayout.setOnClickListener(view14 ->
-
         {
             //TODO: show dialog edit password image
         });
@@ -275,14 +264,14 @@ public class SettingFragment extends Fragment {
             galleyPermissionButton.setIconTintResource(R.color.green);
         }
 
-        multiColumnTextView.setText(String.valueOf(SharedPreferencesUtils.getIntData(context, "num_columns_of_row")));
+        multiColumnTextView.setText(String.valueOf(SharedPreferencesUtils.getIntData(context, KEY_SPAN_COUNT)));
 
         switch (String.valueOf(SharedPreferencesUtils.getStringData(context, "language"))) {
             case "english":
-                languageTextView.setText("English");
+                languageTextView.setText(R.string.language_english);
                 break;
             case "vietnamese":
-                languageTextView.setText("Tiếng Việt");
+                languageTextView.setText(R.string.language_vietnamese);
                 break;
         }
 

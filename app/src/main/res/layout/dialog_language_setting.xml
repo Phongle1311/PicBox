@@ -4,62 +4,69 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:scaleType="centerCrop"
         android:adjustViewBounds="true"
-        android:src="@drawable/language_dialog_header_background"/>
+        android:contentDescription="@string/setting_ic_desc_setting_language"
+        android:scaleType="centerCrop"
+        android:src="@drawable/language_dialog_header_background" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/choose_language"
             android:textSize="28sp"
-            android:textStyle="bold"
-            android:gravity="center"/>
+            android:textStyle="bold" />
 
 
         <RadioGroup
             android:id="@+id/languageSettingRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <RadioButton
                 android:id="@+id/englishRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/english"/>
+                android:text="@string/language_english" />
+
             <RadioButton
                 android:id="@+id/vietnamseRadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/vietnamese"/>
+                android:text="@string/language_vietnamese" />
         </RadioGroup>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="20dp"
+            android:gravity="end">
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancelButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
                 android:backgroundTint="@color/grey"
                 android:text="@string/cancel"
-                android:layout_marginEnd="12dp"
-                app:cornerRadius="8dp"/>
+                app:cornerRadius="8dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/confirmButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/confirm"
-                app:cornerRadius="8dp"/>
+                app:cornerRadius="8dp" />
 
         </LinearLayout>
     </LinearLayout>

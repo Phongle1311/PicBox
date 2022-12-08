@@ -67,6 +67,7 @@
     <string name="none">Không</string>
     <string name="group_mode_dialog_title">Chọn Kiểu Nhóm Ảnh</string>
     <string name="choose_language">Chọn ngôn ngữ</string>
-    <string name="english">Tiếng Anh</string>
-    <string name="vietnamese">Tiếng Việt</string>
+    <string name="language_english">English</string>
+    <string name="language_vietnamese">Tiếng Việt</string>
+    <string name="setting_ic_desc_setting_language">Cài đặt ngôn ngữ</string>
 </resources>

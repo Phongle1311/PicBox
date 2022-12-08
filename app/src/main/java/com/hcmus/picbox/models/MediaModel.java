@@ -1,5 +1,8 @@
 package com.hcmus.picbox.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.File;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -7,7 +10,7 @@ import java.time.ZoneId;
 /**
  * Created by Phong Le on 7/12/2022
  */
-public abstract class MediaModel extends AbstractModel{
+public abstract class MediaModel extends AbstractModel implements Parcelable {
 
     protected File mFile;
     protected String mName;
@@ -43,5 +46,25 @@ public abstract class MediaModel extends AbstractModel{
 
     public void setAlbumName(String albumName) {
         this.albumName = albumName;
+    }
+
+    protected MediaModel(Parcel in) {
+        mFile = new File(in.readString());
+        mName = in.readString();
+        albumId = in.readString();
+        albumName = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mFile.getPath());
+        parcel.writeString(mName);
+        parcel.writeString(albumId);
+        parcel.writeString(albumName);
     }
 }

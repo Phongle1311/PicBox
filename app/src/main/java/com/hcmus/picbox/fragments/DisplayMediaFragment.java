@@ -19,12 +19,16 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
-import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.AbstractModel;
+import com.hcmus.picbox.models.MediaModel;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,10 +42,13 @@ public class DisplayMediaFragment extends Fragment {
 
     // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
-    private PhotoModel model;
-    private ImageView mImageView;
+    private MediaModel model;
+    private ImageView imageView;
+    private StyledPlayerView playerView;
+    private ExoPlayer player;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private IOnClickDetailBackButton backListener;
+    private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
@@ -50,7 +57,7 @@ public class DisplayMediaFragment extends Fragment {
     public DisplayMediaFragment() {
     }
 
-    public DisplayMediaFragment(PhotoModel model, IOnClickDetailBackButton backListener) {
+    public DisplayMediaFragment(MediaModel model, IOnClickDetailBackButton backListener) {
         this.model = model;
         this.backListener = backListener;
     }
@@ -75,57 +82,22 @@ public class DisplayMediaFragment extends Fragment {
         }
 
         // TODO: if model is photomodel (not video), set gone action repeat video
+        initAttrs(view);
+        if (model.getType() == AbstractModel.TYPE_PHOTO) {
+            playerView.setVisibility(View.GONE);
+            displayImage();
+            Log.d("test", "photo");
 
-        bottomSheetBehavior = BottomSheetBehavior.from(
-                view.findViewById(R.id.layout_detail_bottom_sheet));
-
-        mImageView = view.findViewById(R.id.image_view);
-        mImageView.setOnTouchListener((v, motionEvent) -> {
-            scaleGestureDetector.onTouchEvent(motionEvent);
-            gestureDetector.onTouchEvent(motionEvent);
-            return true;
-        });
-        bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
-        if (model.checkExists()) {
-            Glide
-                    .with(context)
-                    .load(model.getFile())
-                    .placeholder(R.drawable.placeholder_color)
-                    .error(R.drawable.placeholder_color) // TODO: replace by other drawable
-                    .into(mImageView);
+        } else if (model.getType() == AbstractModel.TYPE_VIDEO) {
+            imageView.setVisibility(View.GONE);
+            view.findViewById(R.id.action_repeat_video).setVisibility(View.GONE);
+            displayVideo();
+            Log.d("test", "video");
         }
 
-        scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
-        gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
-
-        // Top app bar listener
-        MaterialToolbar topAppBar = view.findViewById(R.id.top_app_bar);
-        topAppBar.setNavigationOnClickListener(v -> backListener.onClickDetailBackButton());
-        topAppBar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.ic_favourite) {
-                // TODO: add/remove image to/from favourite album
-                return true;
-            } else if (item.getItemId() == R.id.ic_more) {
-                // Show/hide bottom sheet
-                toggleBottomSheet();
-                return true;
-            }
-            return false;
-        });
-
-        bottomBar.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.favourite_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.edit_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.delete_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.secret_display_image) {
-                return true;
-            }
-            return false;
-        });
-        load(Uri.fromFile(model.getFile()), view);
+        setTopAppBarListener();
+        setBottomAppBarListener();
+        loadExif(view);
     }
 
     // Need when change device configuration, such as when user rotates his phone
@@ -142,8 +114,76 @@ public class DisplayMediaFragment extends Fragment {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
+    private void initAttrs(View view) {
+        topAppBar = view.findViewById(R.id.top_app_bar);
+        bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
+        imageView = view.findViewById(R.id.image_view);
+        playerView = view.findViewById(R.id.exoplayer2_view);
+
+        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
+        scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
+        gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
+    }
+
+    private void setTopAppBarListener() {
+        topAppBar.setNavigationOnClickListener(v -> backListener.onClickDetailBackButton());
+        topAppBar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.ic_favourite) {
+                // TODO: add/remove image to/from favourite album
+                return true;
+            } else if (item.getItemId() == R.id.ic_more) {
+                // Show/hide bottom sheet
+                toggleBottomSheet();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void setBottomAppBarListener() {
+        bottomBar.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.favourite_display_image) {
+                return true;
+            } else if (item.getItemId() == R.id.edit_display_image) {
+                return true;
+            } else if (item.getItemId() == R.id.delete_display_image) {
+                return true;
+            } else if (item.getItemId() == R.id.secret_display_image) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void displayImage() {
+        imageView.setOnTouchListener((v, motionEvent) -> {
+            scaleGestureDetector.onTouchEvent(motionEvent);
+            gestureDetector.onTouchEvent(motionEvent);
+            return true;
+        });
+        if (model.checkExists()) {
+            Glide
+                    .with(context)
+                    .load(model.getFile())
+                    .placeholder(R.drawable.placeholder_color)
+                    .error(R.drawable.placeholder_color) // TODO: replace by other drawable
+                    .into(imageView);
+        }
+    }
+
+    private void displayVideo() {
+        player = new ExoPlayer.Builder(context).build();
+        playerView.setPlayer(player);
+        MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(model.getFile()));
+        player.setMediaItem(mediaItem);
+        player.prepare();
+        player.play();
+    }
+
     // TODO: when and where should we load metadata? not here
-    private void load(Uri uri, View view) {
+    private void loadExif(View view) {
+        Uri uri = Uri.fromFile(model.getFile());
+
         try {
             InputStream in = context.getContentResolver().openInputStream(uri);
             if (in == null)
@@ -219,8 +259,8 @@ public class DisplayMediaFragment extends Fragment {
             mScaleFactor *= scaleGestureDetector.getScaleFactor();
             mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
 
-            mImageView.setScaleX(mScaleFactor);
-            mImageView.setScaleY(mScaleFactor);
+            imageView.setScaleX(mScaleFactor);
+            imageView.setScaleY(mScaleFactor);
 //            return true;
             return super.onScale(scaleGestureDetector);
         }

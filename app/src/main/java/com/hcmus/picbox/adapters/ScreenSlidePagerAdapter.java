@@ -9,7 +9,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.hcmus.picbox.fragments.DisplayMediaFragment;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.MediaModel;
-import com.hcmus.picbox.models.PhotoModel;
 
 import java.util.List;
 
@@ -32,9 +31,7 @@ public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         MediaModel model = models.get(position);
-        if (model instanceof PhotoModel)
-            return new DisplayMediaFragment((PhotoModel) model, backListener);
-        return new Fragment(); // todo for VideoModel
+        return new DisplayMediaFragment(model, backListener);
     }
 
     @Override

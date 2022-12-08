@@ -3,7 +3,6 @@ package com.hcmus.picbox.utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.hcmus.picbox.interfaces.IOnItemRangeInserted;
 import com.hcmus.picbox.models.AlbumModel;
@@ -58,8 +57,6 @@ public final class StorageUtils {
             int videoIndex = 0;
             while (photoIndex < photoList.size() || videoIndex < videoList.size()) {
                 MediaModel media;
-                Log.d("test", "photo i " + photoIndex);
-                Log.d("test", "video i " + videoIndex);
                 if (photoIndex == photoList.size() || (videoIndex < videoList.size() &&
                         photoList.get(photoIndex).getLastModifiedTime().isBefore(
                                 videoList.get(videoIndex).getLastModifiedTime()))) {
@@ -134,10 +131,10 @@ public final class StorageUtils {
         if (cursor == null) return result;
 
         int count = cursor.getCount();
-//            int dataColumn =
-//                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-        int dataColumn =
-                cursor.getColumnIndexOrThrow(MediaStore.Video.Thumbnails.DATA); // Todo: tạm thời
+            int dataColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+//        int dataColumn =
+//                cursor.getColumnIndexOrThrow(MediaStore.Video.Thumbnails.DATA); // Todo: tạm thời
         int bucketDisplayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
         int bucketIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID);
         int durationColumn =

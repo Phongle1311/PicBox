@@ -2,12 +2,11 @@ package com.hcmus.picbox.models;
 
 import android.net.Uri;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 
 import java.io.File;
 
-public class PhotoModel extends MediaModel implements Parcelable {
+public class PhotoModel extends MediaModel {
 
     // static
     public static final Uri sCollection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -20,6 +19,9 @@ public class PhotoModel extends MediaModel implements Parcelable {
 //            MediaStore.Images.Media.SIZE,
 //            MediaStore.Images.Media.ORIENTATION
     }; // what need to load from an image
+    public static String sOrderBy = MediaStore.Images.Media._ID;
+    public static String sOrderDirection = " DESC";
+
     public static final Creator<PhotoModel> CREATOR = new Creator<PhotoModel>() {
         @Override
         public PhotoModel createFromParcel(Parcel in) {
@@ -31,8 +33,6 @@ public class PhotoModel extends MediaModel implements Parcelable {
             return new PhotoModel[size];
         }
     };
-    public static String sOrderBy = MediaStore.Images.Media._ID;
-    public static String sOrderDirection = " DESC";
 
     // non-static
     public PhotoModel(File file) {
@@ -46,15 +46,5 @@ public class PhotoModel extends MediaModel implements Parcelable {
     @Override
     public int getType() {
         return TYPE_PHOTO;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(mFile.getPath());
     }
 }

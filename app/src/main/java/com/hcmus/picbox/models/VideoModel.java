@@ -1,6 +1,7 @@
 package com.hcmus.picbox.models;
 
 import android.net.Uri;
+import android.os.Parcel;
 import android.provider.MediaStore;
 
 import java.io.File;
@@ -24,6 +25,18 @@ public class VideoModel extends MediaModel {
     public static String sOrderBy = MediaStore.Video.Media._ID;
     public static String sOrderDirection = " DESC";
 
+    public static final Creator<VideoModel> CREATOR = new Creator<VideoModel>() {
+        @Override
+        public VideoModel createFromParcel(Parcel in) {
+            return new VideoModel(in);
+        }
+
+        @Override
+        public VideoModel[] newArray(int size) {
+            return new VideoModel[size];
+        }
+    };
+
     // non-static
     private String thumbnail;
     private int duration = 0;
@@ -46,6 +59,24 @@ public class VideoModel extends MediaModel {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    protected VideoModel(Parcel in) {
+        super(in);
+        thumbnail = in.readString();
+        duration = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        super.writeToParcel(parcel, i);
+        parcel.writeString(thumbnail);
+        parcel.writeInt(duration);
     }
 
     @Override

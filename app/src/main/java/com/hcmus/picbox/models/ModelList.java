@@ -12,7 +12,7 @@ import java.util.List;
 public class ModelList {
 
     private static List<PhotoModel> mMediaList;      // Don't have date time items
-    private static PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
+    public static PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
     private static List<AbstractModel> mModelList;   // Have date time items
 
     public ModelList() {

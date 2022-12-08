@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -38,14 +40,16 @@ import java.io.InputStream;
  * This is fragment for showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
-public class DisplayMediaFragment extends Fragment {
+public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener {
 
     // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
+
     private MediaModel model;
     private ImageView imageView;
     private StyledPlayerView playerView;
     private ExoPlayer player;
+    private long playbackPosition = 0;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private IOnClickDetailBackButton backListener;
     private MaterialToolbar topAppBar;
@@ -86,13 +90,10 @@ public class DisplayMediaFragment extends Fragment {
         if (model.getType() == AbstractModel.TYPE_PHOTO) {
             playerView.setVisibility(View.GONE);
             displayImage();
-            Log.d("test", "photo");
-
         } else if (model.getType() == AbstractModel.TYPE_VIDEO) {
             imageView.setVisibility(View.GONE);
             view.findViewById(R.id.action_repeat_video).setVisibility(View.GONE);
             displayVideo();
-            Log.d("test", "video");
         }
 
         setTopAppBarListener();
@@ -107,6 +108,37 @@ public class DisplayMediaFragment extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (player != null) {
+            player.stop();
+//            player.setPlayWhenReady(false);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (player != null) {
+            playbackPosition = player.getCurrentPosition();
+            player.release();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (player != null){
+            player.stop();
+            player.release();
+            player = null;
+        }
+
+        super.onDestroy();
+    }
+
     public void toggleBottomSheet() {
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED)
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -114,7 +146,7 @@ public class DisplayMediaFragment extends Fragment {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
-    private void initAttrs(View view) {
+    private void initAttrs(@NonNull View view) {
         topAppBar = view.findViewById(R.id.top_app_bar);
         bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
         imageView = view.findViewById(R.id.image_view);
@@ -141,18 +173,11 @@ public class DisplayMediaFragment extends Fragment {
     }
 
     private void setBottomAppBarListener() {
-        bottomBar.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.favourite_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.edit_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.delete_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.secret_display_image) {
-                return true;
-            }
-            return false;
-        });
+        bottomBar.setOnItemSelectedListener(item ->
+                item.getItemId() == R.id.favourite_display_image ||
+                        item.getItemId() == R.id.edit_display_image ||
+                        item.getItemId() == R.id.delete_display_image ||
+                        item.getItemId() == R.id.secret_display_image);
     }
 
     private void displayImage() {
@@ -161,6 +186,7 @@ public class DisplayMediaFragment extends Fragment {
             gestureDetector.onTouchEvent(motionEvent);
             return true;
         });
+
         if (model.checkExists()) {
             Glide
                     .with(context)
@@ -173,9 +199,12 @@ public class DisplayMediaFragment extends Fragment {
 
     private void displayVideo() {
         player = new ExoPlayer.Builder(context).build();
-        playerView.setPlayer(player);
         MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(model.getFile()));
         player.setMediaItem(mediaItem);
+        player.addListener(this);
+        player.setPlayWhenReady(true);
+        playerView.setPlayer(player);
+        player.seekTo(playbackPosition);
         player.prepare();
         player.play();
     }
@@ -247,6 +276,12 @@ public class DisplayMediaFragment extends Fragment {
         } catch (IOException e) {
             Log.e("test", "loadMetadata -> IOException", e);
         }
+    }
+
+    // Player listener
+    @Override
+    public void onPlayerError(@NonNull PlaybackException error) {
+        Player.Listener.super.onPlayerError(error);
     }
 
     /**

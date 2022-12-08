@@ -3,12 +3,16 @@ package com.hcmus.picbox.fragments;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +21,7 @@ import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,8 +30,11 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.utils.ArrayUtils;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+
+import java.util.Arrays;
 
 import java.util.Objects;
 
@@ -43,6 +51,8 @@ public class SettingFragment extends Fragment {
     private TextView multiColumnTextView;
     private LinearLayout languageLayout;
     private TextView languageTextView;
+    private LinearLayout groupModeLayout;
+    private TextView groupModeTextView;
     private LinearLayout gridModeLayout;
     private TextView gridModeTextView;
 
@@ -50,6 +60,7 @@ public class SettingFragment extends Fragment {
     private LinearLayout passwordImageLayout;
     private SwitchCompat passwordImageSwitch;
 
+    @SuppressLint("NonConstantResourceId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -115,49 +126,105 @@ public class SettingFragment extends Fragment {
 
             RadioButton englishRadioButton = languageSettingDialog.findViewById(R.id.englishRadioButton);
             RadioButton vietnameseRadioButton = languageSettingDialog.findViewById(R.id.vietnamseRadioButton);
-            if (Objects.equals(SharedPreferencesUtils.getStringData(context, "language"), getResources().getString(R.string.english))) {
-                englishRadioButton.setChecked(true);
-            } else {
-                vietnameseRadioButton.setChecked(true);
+            switch (SharedPreferencesUtils.getStringData(context, "language")){
+                case "english":
+                    englishRadioButton.setChecked(true);
+                    SharedPreferencesUtils.saveData(context, "language_setting_choosing", "english");
+                    break;
+                case "vietnamese":
+                    vietnameseRadioButton.setChecked(true);
+                    SharedPreferencesUtils.saveData(context, "language_setting_choosing", "vietnamese");
+                    break;
             }
 
-
-            String[] languageList = {getResources().getString(R.string.english), getResources().getString(R.string.vietnamese)};
             RadioGroup languageSettingRadioGroup = languageSettingDialog.findViewById(R.id.languageSettingRadioGroup);
-            languageSettingRadioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
-                SharedPreferencesUtils.saveData(context, "language_setting_choosing", languageList[i]);
+            languageSettingRadioGroup.setOnCheckedChangeListener((radioGroup, checkedId) -> {
+                switch (checkedId){
+                    case R.id.englishRadioButton:
+                        SharedPreferencesUtils.saveData(context, "language_setting_choosing", "english");
+                        break;
+                    case R.id.vietnamseRadioButton:
+                        SharedPreferencesUtils.saveData(context, "language_setting_choosing", "vietnamese");
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + checkedId);
+                }
             });
 
             MaterialButton confirmButton = languageSettingDialog.findViewById(R.id.confirmButton);
             confirmButton.setOnClickListener(view17 -> {
                 final String languageChosen = SharedPreferencesUtils.getStringData(context, "language_setting_choosing");
                 SharedPreferencesUtils.saveData(context, "language", languageChosen);
+                switch (languageChosen) {
+                    case "english":
+                        languageTextView.setText("English");
+                        break;
+                    case "vietnamese":
+                        languageTextView.setText("Tiếng Việt");
+                        break;
+                }
+                SharedPreferencesUtils.removeData(context, "language_setting_choosing");
                 languageSettingDialog.dismiss();
             });
 
             MaterialButton cancelButton = languageSettingDialog.findViewById(R.id.cancelButton);
             cancelButton.setOnClickListener(view18 -> {
+                SharedPreferencesUtils.removeData(context, "language_setting_choosing");
                 languageSettingDialog.dismiss();
             });
-
 
             languageSettingDialog.show();
         });
 
-        gridModeLayout.setOnClickListener(view13 -> {
+        groupModeLayout.setOnClickListener(view17 -> {
+            AlertDialog.Builder groupModeSettingDialogBuilder = new AlertDialog.Builder(context);
+            groupModeSettingDialogBuilder.setTitle(R.string.group_mode_dialog_title);
+            String[] items = {getResources().getString(R.string.day), getResources().getString(R.string.month), getResources().getString(R.string.year), getResources().getString(R.string.none)};
+
+            int checkedItem = ArrayUtils.indexOf(items, SharedPreferencesUtils.getStringData(context, "group_mode"));
+            groupModeSettingDialogBuilder.setSingleChoiceItems(items, checkedItem, (dialog, which) -> {
+                SharedPreferencesUtils.saveData(context, "group_mode_choosing", items[which]);
+            });
+
+            groupModeSettingDialogBuilder.setPositiveButton(R.string.confirm, (dialog, id) -> {
+                        final String groupModeChosen = SharedPreferencesUtils.getStringData(context, "group_mode_choosing");
+                        SharedPreferencesUtils.saveData(context, "group_mode", groupModeChosen);
+                        groupModeTextView.setText(groupModeChosen);
+                        SharedPreferencesUtils.removeData(context, "group_mode_choosing");
+                        dialog.cancel();
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, id) -> {
+                        SharedPreferencesUtils.removeData(context, "group_mode_choosing");
+                        dialog.cancel();
+                    });
+
+            AlertDialog groupModeSettingDialog = groupModeSettingDialogBuilder.create();
+            groupModeSettingDialog.setCanceledOnTouchOutside(true);
+            groupModeSettingDialog.show();
+        });
+
+        gridModeLayout.setOnClickListener(view13 ->
+
+        {
             //TODO: show dialog choose grid mode
             //setGridModeTextView.text(....);
         });
 
-        rotationSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+        rotationSwitch.setOnCheckedChangeListener((compoundButton, b) ->
+
+        {
 
         });
 
-        passwordImageLayout.setOnClickListener(view14 -> {
+        passwordImageLayout.setOnClickListener(view14 ->
+
+        {
             //TODO: show dialog edit password image
         });
 
-        passwordImageSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+        passwordImageSwitch.setOnCheckedChangeListener((compoundButton, b) ->
+
+        {
             //TODO: enable password for image
 
         });
@@ -185,6 +252,9 @@ public class SettingFragment extends Fragment {
         languageLayout = view.findViewById(R.id.languageLayout);
         languageTextView = view.findViewById(R.id.languageTextView);
 
+        groupModeLayout = view.findViewById(R.id.groupModeLayout);
+        groupModeTextView = view.findViewById(R.id.groupModeTextView);
+
         gridModeLayout = view.findViewById(R.id.gridModeLayout);
         gridModeTextView = view.findViewById(R.id.gridModeTextView);
 
@@ -206,5 +276,16 @@ public class SettingFragment extends Fragment {
         }
 
         multiColumnTextView.setText(String.valueOf(SharedPreferencesUtils.getIntData(context, "num_columns_of_row")));
+
+        switch (String.valueOf(SharedPreferencesUtils.getStringData(context, "language"))) {
+            case "english":
+                languageTextView.setText("English");
+                break;
+            case "vietnamese":
+                languageTextView.setText("Tiếng Việt");
+                break;
+        }
+
+        groupModeTextView.setText(String.valueOf(SharedPreferencesUtils.getStringData(context, "group_mode")));
     }
 }

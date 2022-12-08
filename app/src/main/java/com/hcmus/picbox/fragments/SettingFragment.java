@@ -3,6 +3,7 @@ package com.hcmus.picbox.fragments;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 
@@ -10,10 +11,12 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -171,21 +174,17 @@ public class SettingFragment extends Fragment {
             groupModeSettingDialogBuilder.setTitle(R.string.group_mode_dialog_title);
             String[] items = {getResources().getString(R.string.day), getResources().getString(R.string.month), getResources().getString(R.string.year), getResources().getString(R.string.none)};
 
-            int checkedItem = ArrayUtils.indexOf(items, SharedPreferencesUtils.getStringData(context, "group_mode"));
-            groupModeSettingDialogBuilder.setSingleChoiceItems(items, checkedItem, (dialog, which)
-                    -> SharedPreferencesUtils.saveData(context, "group_mode_choosing", items[which]));
-
-            groupModeSettingDialogBuilder.setPositiveButton(R.string.confirm, (dialog, id) -> {
-                        final String groupModeChosen = SharedPreferencesUtils.getStringData(context, "group_mode_choosing");
-                        SharedPreferencesUtils.saveData(context, "group_mode", groupModeChosen);
-                        groupModeTextView.setText(groupModeChosen);
-                        SharedPreferencesUtils.removeData(context, "group_mode_choosing");
+            int checkedItem = ArrayUtils.indexOf(items, SharedPreferencesUtils.getStringData(context, KEY_GROUP_MODE));
+            groupModeSettingDialogBuilder
+                    .setSingleChoiceItems(items, checkedItem, null)
+                    .setPositiveButton(R.string.confirm, (dialog, which) -> {
+                        int groupModeChosenIndex = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                        Log.e("index====", String.valueOf(groupModeChosenIndex));
+                        SharedPreferencesUtils.saveData(context, KEY_GROUP_MODE, items[groupModeChosenIndex]);
+                        groupModeTextView.setText(items[groupModeChosenIndex]);
                         dialog.cancel();
                     })
-                    .setNegativeButton(R.string.cancel, (dialog, id) -> {
-                        SharedPreferencesUtils.removeData(context, "group_mode_choosing");
-                        dialog.cancel();
-                    });
+                    .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.cancel());
 
             AlertDialog groupModeSettingDialog = groupModeSettingDialogBuilder.create();
             groupModeSettingDialog.setCanceledOnTouchOutside(true);

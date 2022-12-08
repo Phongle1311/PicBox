@@ -133,8 +133,6 @@ public final class StorageUtils {
         int count = cursor.getCount();
             int dataColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-//        int dataColumn =
-//                cursor.getColumnIndexOrThrow(MediaStore.Video.Thumbnails.DATA); // Todo: tạm thời
         int bucketDisplayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
         int bucketIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID);
         int durationColumn =

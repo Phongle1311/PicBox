@@ -11,6 +11,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,19 +45,20 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
     // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
-
     private MediaModel model;
+    private long playbackPosition = 0;
+    private float mScaleFactor = 1.0f;
+    private GestureDetector gestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
+    private IOnClickDetailBackButton backListener;
+
     private ImageView imageView;
     private StyledPlayerView playerView;
     private ExoPlayer player;
-    private long playbackPosition = 0;
-    private BottomSheetBehavior<View> bottomSheetBehavior;
-    private IOnClickDetailBackButton backListener;
+    private ProgressBar pbPlayer;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
-    private ScaleGestureDetector scaleGestureDetector;
-    private GestureDetector gestureDetector;
-    private float mScaleFactor = 1.0f;
+    private BottomSheetBehavior<View> bottomSheetBehavior;
 
     public DisplayMediaFragment() {
     }
@@ -85,8 +87,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             model = savedInstanceState.getParcelable("model");
         }
 
-        // TODO: if model is photomodel (not video), set gone action repeat video
         initAttrs(view);
+
         if (model.getType() == AbstractModel.TYPE_PHOTO) {
             playerView.setVisibility(View.GONE);
             displayImage();
@@ -109,13 +111,29 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        if (playerView != null)
+            playerView.onResume();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (playerView != null)
+            playerView.onResume();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
 
-        if (player != null) {
+        if (player != null)
             player.stop();
-//            player.setPlayWhenReady(false);
-        }
+        if (playerView != null)
+            playerView.onPause();
     }
 
     @Override
@@ -130,20 +148,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
     @Override
     public void onDestroy() {
-        if (player != null){
+        // release player
+        if (player != null) {
             player.stop();
             player.release();
             player = null;
         }
+        if (playerView != null) {
+            playerView.setPlayer(null);
+        }
 
         super.onDestroy();
-    }
-
-    public void toggleBottomSheet() {
-        if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED)
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        else
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     private void initAttrs(@NonNull View view) {
@@ -151,10 +166,45 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
         imageView = view.findViewById(R.id.image_view);
         playerView = view.findViewById(R.id.exoplayer2_view);
+        pbPlayer = view.findViewById(R.id.pb_player);
 
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
+    }
+
+    private void displayImage() {
+        imageView.setOnTouchListener((v, motionEvent) -> {
+            scaleGestureDetector.onTouchEvent(motionEvent);
+            gestureDetector.onTouchEvent(motionEvent);
+            return true;
+        });
+
+        if (model.checkExists()) {
+            Glide
+                    .with(context)
+                    .load(model.getFile())
+                    .placeholder(R.drawable.placeholder_color)
+                    .error(R.drawable.placeholder_color) // TODO: replace by other drawable
+                    .into(imageView);
+        }
+    }
+
+    private void displayVideo() {
+        player = new ExoPlayer.Builder(context)
+                .setSeekBackIncrementMs(5000)
+                .setSeekForwardIncrementMs(5000)
+                .build();
+        MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(model.getFile()));
+        player.setMediaItem(mediaItem);
+        player.addListener(this);
+        player.setPlayWhenReady(true);
+        playerView.setPlayer(player);
+        playerView.setShowPreviousButton(false);
+        playerView.setShowNextButton(false);
+        player.seekTo(playbackPosition);
+        player.prepare();
+        player.play();
     }
 
     private void setTopAppBarListener() {
@@ -180,33 +230,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                         item.getItemId() == R.id.secret_display_image);
     }
 
-    private void displayImage() {
-        imageView.setOnTouchListener((v, motionEvent) -> {
-            scaleGestureDetector.onTouchEvent(motionEvent);
-            gestureDetector.onTouchEvent(motionEvent);
-            return true;
-        });
-
-        if (model.checkExists()) {
-            Glide
-                    .with(context)
-                    .load(model.getFile())
-                    .placeholder(R.drawable.placeholder_color)
-                    .error(R.drawable.placeholder_color) // TODO: replace by other drawable
-                    .into(imageView);
-        }
-    }
-
-    private void displayVideo() {
-        player = new ExoPlayer.Builder(context).build();
-        MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(model.getFile()));
-        player.setMediaItem(mediaItem);
-        player.addListener(this);
-        player.setPlayWhenReady(true);
-        playerView.setPlayer(player);
-        player.seekTo(playbackPosition);
-        player.prepare();
-        player.play();
+    public void toggleBottomSheet() {
+        if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED)
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        else
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     // TODO: when and where should we load metadata? not here
@@ -282,6 +310,19 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     @Override
     public void onPlayerError(@NonNull PlaybackException error) {
         Player.Listener.super.onPlayerError(error);
+    }
+
+    @Override
+    public void onPlaybackStateChanged(int playbackState) {
+        Player.Listener.super.onPlaybackStateChanged(playbackState);
+        if (playbackState == Player.STATE_BUFFERING) {
+            pbPlayer.setVisibility(View.VISIBLE);
+            playerView.hideController();
+        } else if (playbackState == Player.STATE_READY || playbackState == Player.STATE_ENDED) {
+            pbPlayer.setVisibility(View.INVISIBLE);
+            playerView.showController();
+        }
+
     }
 
     /**

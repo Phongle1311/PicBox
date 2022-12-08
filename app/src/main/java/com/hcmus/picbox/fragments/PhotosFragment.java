@@ -16,7 +16,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.PhotoAdapter;
 import com.hcmus.picbox.models.AbstractModel;
+import com.hcmus.picbox.models.ModelList;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
+import com.hcmus.picbox.utils.ArrayUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.utils.StorageUtils;
 
@@ -58,6 +60,19 @@ public class PhotosFragment extends Fragment {
         if (newSpanCount != mSpanCount) {
             mSpanCount = newSpanCount;
             photoAdapter.notifyAll();
+        }
+
+        String[] groupModeList = {
+                getResources().getString(R.string.none),
+                getResources().getString(R.string.day),
+                getResources().getString(R.string.month),
+                getResources().getString(R.string.year)
+        };
+        String newGroupModeString = SharedPreferencesUtils.getStringData(context, "group_mode");
+        int newGroupModeValue = ArrayUtils.indexOf(groupModeList, newGroupModeString);
+        if (newGroupModeValue != AbstractModel.GROUP_BY){
+            AbstractModel.GROUP_BY = newGroupModeValue;
+            ModelList.updateModelList();
         }
     }
 

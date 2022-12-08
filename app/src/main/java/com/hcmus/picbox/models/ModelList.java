@@ -11,9 +11,9 @@ import java.util.List;
  */
 public class ModelList {
 
-    private final List<PhotoModel> mMediaList;      // Don't have date time items
-    protected PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
-    private List<AbstractModel> mModelList;   // Have date time items
+    public static List<PhotoModel> mMediaList;      // Don't have date time items
+    public static PhotoModel lastItem; // used to optimize add method from O(n) to O(1)
+    public static List<AbstractModel> mModelList;   // Have date time items
 
     public ModelList() {
         mModelList = new ArrayList<>();
@@ -72,7 +72,7 @@ public class ModelList {
     /**
      * Update modelList after changing datetime-breaking type
      */
-    public void updateModelList() {
+    public static void updateModelList() {
         if (GROUP_BY == 0) {
             mModelList.addAll(mMediaList);
             lastItem = mMediaList.get(mModelList.size() - 1);

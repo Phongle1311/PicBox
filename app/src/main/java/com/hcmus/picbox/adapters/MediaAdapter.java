@@ -17,18 +17,18 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.DisplayMediaActivity;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.DateModel;
-import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 
 import java.util.List;
 
-public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
     private final List<AbstractModel> items;
     private final String category;
 
-    public PhotoAdapter(Context context, List<AbstractModel> items, String category) {
+    public MediaAdapter(Context context, List<AbstractModel> items, String category) {
         this.context = context;
         this.items = items;
         this.category = category;
@@ -43,7 +43,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             return new DateViewHolder(view);
         } else if (viewType == AbstractModel.TYPE_PHOTO) {
             View view = inflater.inflate(R.layout.photo_card_layout, parent, false);
-            return new PhotoViewHolder(view);
+            return new MediaViewHolder(view);
+        } else if (viewType == AbstractModel.TYPE_VIDEO) {
+            View view = inflater.inflate(R.layout.video_card_layout, parent, false);
+            return new MediaViewHolder(view);
         } else {
             throw new IllegalStateException("unsupported type");
         }
@@ -56,21 +59,19 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             DateModel date = (DateModel) items.get(position);
             DateViewHolder viewHolder = (DateViewHolder) holder;
             viewHolder.txt_date.setText(date.getStringLastModifiedTime());
-        } else if (type == AbstractModel.TYPE_PHOTO) {
-            PhotoModel model = (PhotoModel) items.get(position);
-            PhotoViewHolder viewHolder = (PhotoViewHolder) holder;
+        } else if (type == AbstractModel.TYPE_PHOTO || type == AbstractModel.TYPE_VIDEO) {
+            MediaModel model = (MediaModel) items.get(position);
+            MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
             // Load image by glide library
             Glide.with(context)
-                    .load(model.getFile())
+                    .load(model.getFile()) // todo: model.getThumbnail() in mediamodel
                     .placeholder(R.drawable.placeholder_color)
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                     .into(viewHolder.imageView);
 
-            // Set onClick Listener to show detail of media
-            ((PhotoViewHolder) holder).imageView.setOnClickListener(view -> {
-                Intent i = new Intent(context, DisplayMediaActivity.class);
-                Bundle bundle = new Bundle();
+            // Set onClick Listener to display media
+            viewHolder.imageView.setOnClickListener(view -> {
                 int index;
                 switch (category) {
                     case MediaHolder.KEY_DELETED_ALBUM:
@@ -86,6 +87,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         index = MediaHolder.sTotalAlbum.getMediaList().indexOf(model);
                         break;
                 }
+
+                Intent i = new Intent(context, DisplayMediaActivity.class);
+                Bundle bundle = new Bundle();
                 bundle.putInt("position", index);
                 bundle.putString("category", category);
                 i.putExtra("model", bundle);
@@ -109,16 +113,18 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         return items.get(position).getType();
     }
 
-    public static class PhotoViewHolder extends RecyclerView.ViewHolder {
+    public static class MediaViewHolder extends RecyclerView.ViewHolder {
+
         private final ImageView imageView;
 
-        public PhotoViewHolder(@NonNull View itemView) {
+        public MediaViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.img_card);
         }
     }
 
     public static class DateViewHolder extends RecyclerView.ViewHolder {
+
         private final TextView txt_date;
 
         public DateViewHolder(@NonNull View itemView) {
@@ -126,4 +132,5 @@ public class PhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             txt_date = itemView.findViewById(R.id.tv_date);
         }
     }
+
 }

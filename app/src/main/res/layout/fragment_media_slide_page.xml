@@ -26,6 +26,25 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/desc_iv_display_media" />
 
+    <com.google.android.exoplayer2.ui.StyledPlayerView
+        android:id="@+id/exoplayer2_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:hide_on_touch="true"
+        app:player_layout_id="@layout/exo_player_view"
+        app:resize_mode="fit"
+        app:show_timeout="5000"
+        app:shutter_background_color="#000"
+        app:use_controller="true">
+
+        <ProgressBar
+            android:id="@+id/pb_player"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="invisible" />
+    </com.google.android.exoplayer2.ui.StyledPlayerView>
+
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar_display_image"
         android:layout_width="match_parent"
@@ -49,6 +68,5 @@
     </com.google.android.material.bottomappbar.BottomAppBar>
 
     <include layout="@layout/layout_detail_bottom_sheet" />
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

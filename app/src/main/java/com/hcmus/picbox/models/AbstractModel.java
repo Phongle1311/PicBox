@@ -9,6 +9,7 @@ public abstract class AbstractModel {
 
     public static final int TYPE_DATE = 0;
     public static final int TYPE_PHOTO = 1;
+    public static final int TYPE_VIDEO = 2;
 
     public static int GROUP_BY = 2; // 0: none, 1: day, 2: month, 3: year
 

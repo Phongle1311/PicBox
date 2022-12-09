@@ -26,6 +26,7 @@
         </activity>
         <activity
             android:name=".activities.DisplayMediaActivity"
+            android:configChanges="orientation|screenSize|layoutDirection"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

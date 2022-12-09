@@ -11,6 +11,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,12 +20,18 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
-import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.AbstractModel;
+import com.hcmus.picbox.models.MediaModel;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,23 +41,29 @@ import java.io.InputStream;
  * This is fragment for showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
-public class DisplayMediaFragment extends Fragment {
+public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener {
 
     // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
-    private PhotoModel model;
-    private ImageView mImageView;
-    private BottomSheetBehavior<View> bottomSheetBehavior;
-    private IOnClickDetailBackButton backListener;
-    private BottomNavigationView bottomBar;
-    private ScaleGestureDetector scaleGestureDetector;
-    private GestureDetector gestureDetector;
+    private MediaModel model;
+    private long playbackPosition = 0;
     private float mScaleFactor = 1.0f;
+    private GestureDetector gestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
+    private IOnClickDetailBackButton backListener;
+
+    private ImageView imageView;
+    private StyledPlayerView playerView;
+    private ExoPlayer player;
+    private ProgressBar pbPlayer;
+    private MaterialToolbar topAppBar;
+    private BottomNavigationView bottomBar;
+    private BottomSheetBehavior<View> bottomSheetBehavior;
 
     public DisplayMediaFragment() {
     }
 
-    public DisplayMediaFragment(PhotoModel model, IOnClickDetailBackButton backListener) {
+    public DisplayMediaFragment(MediaModel model, IOnClickDetailBackButton backListener) {
         this.model = model;
         this.backListener = backListener;
     }
@@ -74,32 +87,127 @@ public class DisplayMediaFragment extends Fragment {
             model = savedInstanceState.getParcelable("model");
         }
 
-        // TODO: if model is photomodel (not video), set gone action repeat video
+        initAttrs(view);
 
-        bottomSheetBehavior = BottomSheetBehavior.from(
-                view.findViewById(R.id.layout_detail_bottom_sheet));
+        if (model.getType() == AbstractModel.TYPE_PHOTO) {
+            playerView.setVisibility(View.GONE);
+            displayImage();
+        } else if (model.getType() == AbstractModel.TYPE_VIDEO) {
+            imageView.setVisibility(View.GONE);
+            view.findViewById(R.id.action_repeat_video).setVisibility(View.GONE);
+            displayVideo();
+        }
 
-        mImageView = view.findViewById(R.id.image_view);
-        mImageView.setOnTouchListener((v, motionEvent) -> {
+        setTopAppBarListener();
+        setBottomAppBarListener();
+        loadExif(view);
+    }
+
+    // Need when change device configuration, such as when user rotates his phone
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable("model", model);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (playerView != null)
+            playerView.onResume();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (playerView != null)
+            playerView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (player != null)
+            player.stop();
+        if (playerView != null)
+            playerView.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (player != null) {
+            playbackPosition = player.getCurrentPosition();
+            player.release();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        // release player
+        if (player != null) {
+            player.stop();
+            player.release();
+            player = null;
+        }
+        if (playerView != null) {
+            playerView.setPlayer(null);
+        }
+
+        super.onDestroy();
+    }
+
+    private void initAttrs(@NonNull View view) {
+        topAppBar = view.findViewById(R.id.top_app_bar);
+        bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
+        imageView = view.findViewById(R.id.image_view);
+        playerView = view.findViewById(R.id.exoplayer2_view);
+        pbPlayer = view.findViewById(R.id.pb_player);
+
+        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
+        scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
+        gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
+    }
+
+    private void displayImage() {
+        imageView.setOnTouchListener((v, motionEvent) -> {
             scaleGestureDetector.onTouchEvent(motionEvent);
             gestureDetector.onTouchEvent(motionEvent);
             return true;
         });
-        bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
+
         if (model.checkExists()) {
             Glide
                     .with(context)
                     .load(model.getFile())
                     .placeholder(R.drawable.placeholder_color)
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
-                    .into(mImageView);
+                    .into(imageView);
         }
+    }
 
-        scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
-        gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
+    private void displayVideo() {
+        player = new ExoPlayer.Builder(context)
+                .setSeekBackIncrementMs(5000)
+                .setSeekForwardIncrementMs(5000)
+                .build();
+        MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(model.getFile()));
+        player.setMediaItem(mediaItem);
+        player.addListener(this);
+        player.setPlayWhenReady(true);
+        playerView.setPlayer(player);
+        playerView.setShowPreviousButton(false);
+        playerView.setShowNextButton(false);
+        player.seekTo(playbackPosition);
+        player.prepare();
+        player.play();
+    }
 
-        // Top app bar listener
-        MaterialToolbar topAppBar = view.findViewById(R.id.top_app_bar);
+    private void setTopAppBarListener() {
         topAppBar.setNavigationOnClickListener(v -> backListener.onClickDetailBackButton());
         topAppBar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.ic_favourite) {
@@ -112,27 +220,14 @@ public class DisplayMediaFragment extends Fragment {
             }
             return false;
         });
-
-        bottomBar.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.favourite_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.edit_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.delete_display_image) {
-                return true;
-            } else if (item.getItemId() == R.id.secret_display_image) {
-                return true;
-            }
-            return false;
-        });
-        load(Uri.fromFile(model.getFile()), view);
     }
 
-    // Need when change device configuration, such as when user rotates his phone
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putParcelable("model", model);
-        super.onSaveInstanceState(outState);
+    private void setBottomAppBarListener() {
+        bottomBar.setOnItemSelectedListener(item ->
+                item.getItemId() == R.id.favourite_display_image ||
+                        item.getItemId() == R.id.edit_display_image ||
+                        item.getItemId() == R.id.delete_display_image ||
+                        item.getItemId() == R.id.secret_display_image);
     }
 
     public void toggleBottomSheet() {
@@ -143,7 +238,9 @@ public class DisplayMediaFragment extends Fragment {
     }
 
     // TODO: when and where should we load metadata? not here
-    private void load(Uri uri, View view) {
+    private void loadExif(View view) {
+        Uri uri = Uri.fromFile(model.getFile());
+
         try {
             InputStream in = context.getContentResolver().openInputStream(uri);
             if (in == null)
@@ -209,6 +306,25 @@ public class DisplayMediaFragment extends Fragment {
         }
     }
 
+    // Player listener
+    @Override
+    public void onPlayerError(@NonNull PlaybackException error) {
+        Player.Listener.super.onPlayerError(error);
+    }
+
+    @Override
+    public void onPlaybackStateChanged(int playbackState) {
+        Player.Listener.super.onPlaybackStateChanged(playbackState);
+        if (playbackState == Player.STATE_BUFFERING) {
+            pbPlayer.setVisibility(View.VISIBLE);
+            playerView.hideController();
+        } else if (playbackState == Player.STATE_READY || playbackState == Player.STATE_ENDED) {
+            pbPlayer.setVisibility(View.INVISIBLE);
+            playerView.showController();
+        }
+
+    }
+
     /**
      * Listen and handle scale event
      */
@@ -219,8 +335,8 @@ public class DisplayMediaFragment extends Fragment {
             mScaleFactor *= scaleGestureDetector.getScaleFactor();
             mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
 
-            mImageView.setScaleX(mScaleFactor);
-            mImageView.setScaleY(mScaleFactor);
+            imageView.setScaleX(mScaleFactor);
+            imageView.setScaleY(mScaleFactor);
 //            return true;
             return super.onScale(scaleGestureDetector);
         }

@@ -11,12 +11,10 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,9 +31,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
-import com.hcmus.picbox.utils.ArrayUtils;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+
+import java.util.Arrays;
 
 public class SettingFragment extends Fragment {
 
@@ -174,12 +173,11 @@ public class SettingFragment extends Fragment {
             groupModeSettingDialogBuilder.setTitle(R.string.group_mode_dialog_title);
             String[] items = {getResources().getString(R.string.day), getResources().getString(R.string.month), getResources().getString(R.string.year), getResources().getString(R.string.none)};
 
-            int checkedItem = ArrayUtils.indexOf(items, SharedPreferencesUtils.getStringData(context, KEY_GROUP_MODE));
+            int checkedItem = Arrays.asList(items).indexOf(SharedPreferencesUtils.getStringData(context, KEY_GROUP_MODE));
             groupModeSettingDialogBuilder
                     .setSingleChoiceItems(items, checkedItem, null)
                     .setPositiveButton(R.string.confirm, (dialog, which) -> {
                         int groupModeChosenIndex = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                        Log.e("index====", String.valueOf(groupModeChosenIndex));
                         SharedPreferencesUtils.saveData(context, KEY_GROUP_MODE, items[groupModeChosenIndex]);
                         groupModeTextView.setText(items[groupModeChosenIndex]);
                         dialog.cancel();

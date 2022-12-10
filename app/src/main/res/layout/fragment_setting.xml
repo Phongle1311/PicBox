@@ -9,7 +9,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -113,7 +114,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_baseline_dark_mode_24" />
+                            android:src="@drawable/ic_baseline_dark_mode_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -153,7 +155,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_baseline_radio_button_checked_24" />
+                            android:src="@drawable/ic_baseline_radio_button_checked_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -183,7 +186,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp">
+                    android:padding="8dp"
+                    android:baselineAligned="false">
 
                     <LinearLayout
                         android:layout_width="40dp"
@@ -193,7 +197,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_baseline_grid_view_24" />
+                            android:src="@drawable/ic_baseline_grid_view_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -220,7 +225,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_weight="4"
-                        android:gravity="end|center">
+                        android:gravity="end|center"
+                        tools:ignore="UseCompoundDrawables">
 
                         <TextView
                             android:id="@+id/multi_column_textview"
@@ -233,14 +239,16 @@
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_baseline_arrow_forward_ios_24" />
+                            android:src="@drawable/ic_baseline_arrow_forward_ios_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp">
+                    android:padding="8dp"
+                    android:baselineAligned="false">
 
                     <LinearLayout
                         android:layout_width="40dp"
@@ -250,7 +258,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/language_icon" />
+                            android:src="@drawable/language_icon"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -276,7 +285,8 @@
                         android:id="@+id/languageLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="end|center">
+                        android:gravity="end|center"
+                        tools:ignore="UseCompoundDrawables">
 
                         <TextView
                             android:id="@+id/languageTextView"
@@ -289,14 +299,16 @@
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_baseline_arrow_forward_ios_24" />
+                            android:src="@drawable/ic_baseline_arrow_forward_ios_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp">
+                    android:padding="8dp"
+                    android:baselineAligned="false">
 
                     <LinearLayout
                         android:layout_width="40dp"
@@ -306,7 +318,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/group_mode_icon" />
+                            android:src="@drawable/group_mode_icon"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -332,27 +345,29 @@
                         android:id="@+id/groupModeLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="end|center">
+                        android:gravity="end|center"
+                        tools:ignore="UseCompoundDrawables">
 
                         <TextView
                             android:id="@+id/groupModeTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
-                            android:text="Month"
                             android:textSize="16sp" />
 
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_baseline_arrow_forward_ios_24" />
+                            android:src="@drawable/ic_baseline_arrow_forward_ios_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp">
+                    android:padding="8dp"
+                    android:baselineAligned="false">
 
                     <LinearLayout
                         android:layout_width="40dp"
@@ -362,7 +377,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/gridmode_icon" />
+                            android:src="@drawable/gridmode_icon"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -388,20 +404,21 @@
                         android:id="@+id/gridModeLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:gravity="end|center">
+                        android:gravity="end|center"
+                        tools:ignore="UseCompoundDrawables">
 
                         <TextView
                             android:id="@+id/gridModeTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
-                            android:text="Grid"
                             android:textSize="16sp" />
 
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_baseline_arrow_forward_ios_24" />
+                            android:src="@drawable/ic_baseline_arrow_forward_ios_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -435,7 +452,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_baseline_screen_lock_rotation_24" />
+                            android:src="@drawable/ic_baseline_screen_lock_rotation_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -492,7 +510,8 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_baseline_security_24" />
+                            android:src="@drawable/ic_baseline_security_24"
+                            tools:ignore="ContentDescription" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -517,7 +536,8 @@
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/passwordImageSwitch"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        tools:ignore="TooManyViews" />
                 </LinearLayout>
             </LinearLayout>
 

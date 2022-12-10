@@ -68,4 +68,8 @@
     <string name="year">Year</string>
     <string name="none">None</string>
     <string name="group_mode_dialog_title">Select Group Mode</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="language_english">English</string>
+    <string name="language_vietnamese">Vietnamese</string>
+    <string name="setting_ic_desc_setting_language">Setting language</string>
 </resources>

@@ -3,6 +3,7 @@ package com.hcmus.picbox.fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -13,11 +14,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -25,6 +29,13 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -41,7 +52,7 @@ import java.io.InputStream;
  * This is fragment for showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
-public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener {
+public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener, OnMapReadyCallback {
 
     // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
@@ -59,7 +70,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
-
+    private double[] latLong;
+    private SupportMapFragment map;
+    private LatLng position;
     public DisplayMediaFragment() {
     }
 
@@ -108,6 +121,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelable("model", model);
         super.onSaveInstanceState(outState);
+        map.onSaveInstanceState(outState);
     }
 
     @Override
@@ -124,6 +138,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
         if (playerView != null)
             playerView.onResume();
+        if(latLong!=null){
+            position=new LatLng(latLong[0],latLong[1]);
+            map=(SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.map);
+            map.getMapAsync(this);
+        }
     }
 
     @Override
@@ -236,11 +255,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         else
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
-
     // TODO: when and where should we load metadata? not here
     private void loadExif(View view) {
         Uri uri = Uri.fromFile(model.getFile());
-
         try {
             InputStream in = context.getContentResolver().openInputStream(uri);
             if (in == null)
@@ -266,8 +283,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
+            latLong=exif.getLatLong();
             // TODO: get location -> map
-
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
             ((TextView) view.findViewById(R.id.tv_media_path)).setText(path);
@@ -299,6 +316,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             } else {
                 view.findViewById(R.id.device_detail).setVisibility(View.GONE);
             }
+            if(latLong!=null){
+                position=new LatLng(latLong[0],latLong[1]);
+                map=(SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.map);
+                map.getMapAsync(this);
+            }
+            else{
+                System.out.println("HUUHJ");
+                view.findViewById(R.id.map).setVisibility(View.GONE);
+            }
         } catch (FileNotFoundException e) {
             Log.e("test", "loadMetadata -> file not found", e);
         } catch (IOException e) {
@@ -323,6 +349,19 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             playerView.showController();
         }
 
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        googleMap.getUiSettings().setZoomControlsEnabled(false);
+        googleMap.getUiSettings().setZoomGesturesEnabled(false);
+        googleMap.getUiSettings().setScrollGesturesEnabled(false);
+        googleMap.getUiSettings().setTiltGesturesEnabled(false);
+        googleMap.getUiSettings().setRotateGesturesEnabled(false);
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.addMarker(new MarkerOptions().position(this.position));
+        CameraPosition cp = new CameraPosition.Builder().target(this.position).zoom(14).build();
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cp));
     }
 
     /**

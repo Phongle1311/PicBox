@@ -1,5 +1,6 @@
 package com.hcmus.picbox.activities;
 
+import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
@@ -62,7 +63,9 @@ public class MainActivity extends AppCompatActivity {
         initSharedPreferencesDefault();
         initUI();
         initViewPager();
-
+        if(!PermissionUtils.checkPermissions(this,ACCESS_MEDIA_LOCATION)){
+            PermissionUtils.requestPermissions(this,123,ACCESS_MEDIA_LOCATION);
+        }
         // check permission
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
             StorageUtils.getAllMediaFromStorage(this);

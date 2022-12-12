@@ -9,7 +9,9 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -44,7 +46,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
-
+    private final ActivityResultLauncher<String> requestLocationMediaPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (!isGranted) {
+                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
+                }
+            });
     private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -63,18 +70,20 @@ public class MainActivity extends AppCompatActivity {
         initSharedPreferencesDefault();
         initUI();
         initViewPager();
-        if(!PermissionUtils.checkPermissions(this,ACCESS_MEDIA_LOCATION)){
-            PermissionUtils.requestPermissions(this,123,ACCESS_MEDIA_LOCATION);
-        }
         // check permission
+        if(Build.VERSION.SDK_INT>=29) {
+            if (!PermissionUtils.checkPermissions(this, ACCESS_MEDIA_LOCATION)) {
+                PermissionUtils.requestPermissions(this, 123, ACCESS_MEDIA_LOCATION);
+            }
+        }
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
             StorageUtils.getAllMediaFromStorage(this);
         else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
             // TODO: show dialog to educate user and persuade user to grant permission
             Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
-        } else
+        } else {
             requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
-
+        }
         cameraButton.setOnClickListener(view -> {
             if (PermissionUtils.checkPermissions(this, CAMERA)) {
                 Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");

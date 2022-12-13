@@ -4,6 +4,7 @@ import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -60,7 +61,6 @@ import java.io.InputStream;
  * Created on 27/11/2022 by Phong Le
  */
 public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener, OnMapReadyCallback {
-
     // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
     private MediaModel model;
@@ -69,7 +69,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private IOnClickDetailBackButton backListener;
-
+    private MediaMetadataRetriever retriever;
     private ImageView imageView;
     private StyledPlayerView playerView;
     private ExoPlayer player;
@@ -81,7 +81,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private double[] latLong;
     private SupportMapFragment map;
     private LatLng position;
-
     public DisplayMediaFragment() {
     }
 
@@ -89,12 +88,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         this.model = model;
         this.backListener = backListener;
     }
-    private final ActivityResultLauncher<String> requestLocationMediaPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (!isGranted) {
-                    Toast.makeText(context, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
-                }
-            });
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -262,17 +255,31 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     }
 
     public void toggleBottomSheet() {
-        if(Build.VERSION.SDK_INT>=29) {
-            if (!PermissionUtils.checkPermissions(context, ACCESS_MEDIA_LOCATION)) {
-                PermissionUtils.requestPermissions(context, 123, ACCESS_MEDIA_LOCATION);
-            }
-        }
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED)
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         else
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
-
+    @Nullable
+    private double[] extractVideoLocation(Uri videoUri) {
+        try {
+            retriever.setDataSource(context, videoUri);
+        } catch (RuntimeException e) {
+            Log.e("ERROR", "Cannot retrieve video file", e);
+        }
+        String locationString = retriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_LOCATION);
+        if(locationString==null){
+           return null;
+        }
+        else {
+            String[] parts = locationString.split("\\+", -1);
+            Log.d("HELLO", parts[1]);
+            Log.d("HELLO", parts[2]);
+            parts[2]=parts[2].substring(0,parts[2].length()-1);
+            return new double[]{Double.parseDouble(parts[1]),Double.parseDouble(parts[2])};
+        }
+    }
     // TODO: when and where should we load metadata? not here
     private void loadExif(View view) {
         Uri uri = Uri.fromFile(model.getFile());
@@ -301,7 +308,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
-            latLong = exif.getLatLong(); // bấm vô hình dùm
             // TODO: get location -> map
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
@@ -335,6 +341,13 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 view.findViewById(R.id.device_detail).setVisibility(View.GONE);
             }
             map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+            retriever = new MediaMetadataRetriever();
+            if(model.getType() == AbstractModel.TYPE_VIDEO){
+                latLong=extractVideoLocation(uri);
+            }
+            else{
+                latLong = exif.getLatLong();
+            }
             if (latLong != null&&map!=null) {
                 position = new LatLng(latLong[0], latLong[1]);
                 map.getMapAsync(this);

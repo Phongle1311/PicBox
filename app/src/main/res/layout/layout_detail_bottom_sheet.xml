@@ -151,15 +151,14 @@
             android:text="@string/location"
             android:textStyle="bold" />
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="140dp"
             android:background="#EEEEEE"
             app:liteMode="true"
-            app:cameraZoom="13"
-            app:mapType="normal"/>
+            app:mapType="normal" />
 
         <TextView
             android:id="@+id/tv_location"

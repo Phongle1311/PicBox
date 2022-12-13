@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -74,6 +75,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private StyledPlayerView playerView;
     private ExoPlayer player;
     private TextView goToMap;
+    private TextView showLocation;
     private ProgressBar pbPlayer;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
@@ -81,6 +83,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private double[] latLong;
     private SupportMapFragment map;
     private LatLng position;
+
     public DisplayMediaFragment() {
     }
 
@@ -88,6 +91,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         this.model = model;
         this.backListener = backListener;
     }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,11 +147,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
         if (playerView != null)
             playerView.onResume();
-        if (latLong != null) {
-            position = new LatLng(latLong[0], latLong[1]);
-            map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-            map.getMapAsync(this);
-        }
     }
 
     @Override
@@ -190,11 +189,14 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
         imageView = view.findViewById(R.id.image_view);
         playerView = view.findViewById(R.id.exoplayer2_view);
+        showLocation = view.findViewById(R.id.tv_location);
         pbPlayer = view.findViewById(R.id.pb_player);
         goToMap = view.findViewById(R.id.tv_go_to_map);
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
+        map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        retriever = new MediaMetadataRetriever();
     }
 
     private void displayImage() {
@@ -260,6 +262,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         else
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
+
     @Nullable
     private double[] extractVideoLocation(Uri videoUri) {
         try {
@@ -269,17 +272,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         }
         String locationString = retriever.extractMetadata(
                 MediaMetadataRetriever.METADATA_KEY_LOCATION);
-        if(locationString==null){
-           return null;
-        }
-        else {
+        if (locationString == null) {
+            return null;
+        } else {
             String[] parts = locationString.split("\\+", -1);
-            Log.d("HELLO", parts[1]);
-            Log.d("HELLO", parts[2]);
-            parts[2]=parts[2].substring(0,parts[2].length()-1);
-            return new double[]{Double.parseDouble(parts[1]),Double.parseDouble(parts[2])};
+            parts[2] = parts[2].substring(0, parts[2].length() - 1);
+            return new double[]{Double.parseDouble(parts[1]), Double.parseDouble(parts[2])};
         }
     }
+
     // TODO: when and where should we load metadata? not here
     private void loadExif(View view) {
         Uri uri = Uri.fromFile(model.getFile());
@@ -340,28 +341,21 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             } else {
                 view.findViewById(R.id.device_detail).setVisibility(View.GONE);
             }
-            map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-            retriever = new MediaMetadataRetriever();
-            if(model.getType() == AbstractModel.TYPE_VIDEO){
-                latLong=extractVideoLocation(uri);
-            }
-            else{
+            if (model.getType() == AbstractModel.TYPE_VIDEO) {
+                latLong = extractVideoLocation(uri);
+            } else {
                 latLong = exif.getLatLong();
             }
-            if (latLong != null&&map!=null) {
+            if (latLong != null && map != null) {
                 position = new LatLng(latLong[0], latLong[1]);
                 map.getMapAsync(this);
-                goToMap.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        callGoogleMap(position);
-                    }
-                });
-
+                goToMap.setOnClickListener(v -> callGoogleMap(position));
+                showLocation.setText(getStringFromPosition(position));
             } else {
                 view.findViewById(R.id.map).setVisibility(View.GONE);
-                view.findViewById(R.id.tv_go_to_map).setVisibility(View.GONE);
+                goToMap.setVisibility(View.GONE);
                 view.findViewById(R.id.txt_location).setVisibility(View.GONE);
+                showLocation.setVisibility(View.GONE);
             }
         } catch (FileNotFoundException e) {
             Log.e("test", "loadMetadata -> file not found", e);
@@ -389,11 +383,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
     }
 
+    private String getStringFromPosition(LatLng position) {
+        String latitude = Double.toString(position.latitude);
+        String longtitude = Double.toString(position.longitude);
+        return latitude.substring(0, Math.min(latitude.length(), 9)) + ", " + longtitude.substring(0, Math.min(latitude.length(), 9));
+    }
+
     public void callGoogleMap(LatLng position) {
         String latitude = Double.toString(position.latitude);
         String longtitude = Double.toString(position.longitude);
         Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longtitude + "?q=" + latitude + "," + longtitude + "(" +
-                latitude.substring(0, Math.min(latitude.length(), 9)) + ", " + longtitude.substring(0, Math.min(latitude.length(), 9)) + ")" + "?z=17");
+                getStringFromPosition(position) + ")" + "?z=17");
         Uri gmmIntentUriWeb = Uri.parse("http://maps.google.com/maps?q=" + latitude + "," + longtitude);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         Intent webIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUriWeb);
@@ -415,7 +415,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         googleMap.getUiSettings().setMapToolbarEnabled(false);
         googleMap.getUiSettings().setAllGesturesEnabled(false);
         googleMap.addMarker(new MarkerOptions().position(this.position));
-        CameraPosition cp = new CameraPosition.Builder().target(this.position).zoom(14).build();
+        CameraPosition cp = new CameraPosition.Builder().target(this.position).zoom(12).build();
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cp));
     }
 

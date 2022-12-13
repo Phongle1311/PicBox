@@ -28,11 +28,12 @@ public class DisplayMediaActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_media);
-        if(Build.VERSION.SDK_INT>=29) {
+        if (Build.VERSION.SDK_INT >= 29) {
             if (!PermissionUtils.checkPermissions(this, ACCESS_MEDIA_LOCATION)) {
                 PermissionUtils.requestPermissions(this, 123, ACCESS_MEDIA_LOCATION);
             }

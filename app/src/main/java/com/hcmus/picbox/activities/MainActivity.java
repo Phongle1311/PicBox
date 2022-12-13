@@ -46,12 +46,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
-    private final ActivityResultLauncher<String> requestLocationMediaPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (!isGranted) {
-                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
-                }
-            });
     private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -71,11 +65,6 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         initViewPager();
         // check permission
-        if(Build.VERSION.SDK_INT>=29) {
-            if (!PermissionUtils.checkPermissions(this, ACCESS_MEDIA_LOCATION)) {
-                PermissionUtils.requestPermissions(this, 123, ACCESS_MEDIA_LOCATION);
-            }
-        }
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
             StorageUtils.getAllMediaFromStorage(this);
         else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {

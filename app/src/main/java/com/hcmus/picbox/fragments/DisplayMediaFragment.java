@@ -1,8 +1,11 @@
 package com.hcmus.picbox.fragments;
 
+import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -16,7 +19,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
@@ -44,6 +48,8 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
+import com.hcmus.picbox.utils.PermissionUtils;
+import com.hcmus.picbox.utils.PermissionUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -83,7 +89,12 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         this.model = model;
         this.backListener = backListener;
     }
-
+    private final ActivityResultLauncher<String> requestLocationMediaPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (!isGranted) {
+                    Toast.makeText(context, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
+                }
+            });
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,7 +124,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             view.findViewById(R.id.action_repeat_video).setVisibility(View.GONE);
             displayVideo();
         }
-
         setTopAppBarListener();
         setBottomAppBarListener();
         loadExif(view);
@@ -252,6 +262,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     }
 
     public void toggleBottomSheet() {
+        if(Build.VERSION.SDK_INT>=29) {
+            if (!PermissionUtils.checkPermissions(context, ACCESS_MEDIA_LOCATION)) {
+                PermissionUtils.requestPermissions(context, 123, ACCESS_MEDIA_LOCATION);
+            }
+        }
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED)
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         else
@@ -286,7 +301,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
-            latLong = exif.getLatLong();
+            latLong = exif.getLatLong(); // bấm vô hình dùm
             // TODO: get location -> map
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
@@ -385,6 +400,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         googleMap.getUiSettings().setTiltGesturesEnabled(false);
         googleMap.getUiSettings().setRotateGesturesEnabled(false);
         googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setAllGesturesEnabled(false);
         googleMap.addMarker(new MarkerOptions().position(this.position));
         CameraPosition cp = new CameraPosition.Builder().target(this.position).zoom(14).build();
         googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cp));

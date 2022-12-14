@@ -49,10 +49,7 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
     }
 
     protected MediaModel(Parcel in) {
-        mFile = new File(in.readString());
-        mName = in.readString();
-        albumId = in.readString();
-        albumName = in.readString();
+        this(new File(in.readString()));
     }
 
     @Override
@@ -63,8 +60,5 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mFile.getPath());
-        parcel.writeString(mName);
-        parcel.writeString(albumId);
-        parcel.writeString(albumName);
     }
 }

@@ -16,16 +16,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.MediaAdapter;
 import com.hcmus.picbox.models.AbstractModel;
+import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.utils.StorageUtils;
 
-import java.util.List;
-
 public class PhotosFragment extends Fragment {
 
-    private final List<AbstractModel> itemsList;
-    private final String category;
+    private final AlbumModel album;
     private Context context;
     private int mSpanCount;
     private int fabClicked = 0;
@@ -33,15 +31,15 @@ public class PhotosFragment extends Fragment {
     private MediaAdapter photoAdapter;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
 
-    public PhotosFragment(String category) {
-        this.category = category;
-        itemsList = AlbumHolder.sGetAlbumById(category).getModelList();
-        StorageUtils.setMediasListener(category, this::onItemRangeInserted);
+    public PhotosFragment(String albumId) {
+        album = AlbumHolder.sGetAlbumById(albumId);
+        StorageUtils.setMediasListener(albumId, this::onItemRangeInserted);
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_photos, container, false);
         context = view.getContext();
 
@@ -94,7 +92,7 @@ public class PhotosFragment extends Fragment {
     }
 
     private void prepareRecyclerView() {
-        photoAdapter = new MediaAdapter(context, itemsList, category);
+        photoAdapter = new MediaAdapter(context, album);
         mSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {

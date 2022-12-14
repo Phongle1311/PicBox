@@ -23,9 +23,9 @@ import java.util.List;
 
 public class AlbumFragment extends Fragment {
 
+    private Context context;
     private final List<AlbumModel> deviceAlbumList = AlbumHolder.getDeviceAlbumList().getList();
     private final List<AlbumModel> userAlbumList = AlbumHolder.getUserAlbumList().getList();
-    private Context context;
     private AlbumAdapter deviceAlbumAdapter;
     private AlbumAdapter userAlbumAdapter;
     private RecyclerView rcvUserAlbums;

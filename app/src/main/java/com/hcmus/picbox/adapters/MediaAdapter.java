@@ -16,22 +16,18 @@ import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.DisplayMediaActivity;
 import com.hcmus.picbox.models.AbstractModel;
+import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DateModel;
 import com.hcmus.picbox.models.MediaModel;
-import com.hcmus.picbox.models.dataholder.MediaHolder;
-
-import java.util.List;
 
 public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
-    private final List<AbstractModel> items;
-    private final String category;
+    private final AlbumModel album;
 
-    public MediaAdapter(Context context, List<AbstractModel> items, String category) {
+    public MediaAdapter(Context context, AlbumModel album) {
         this.context = context;
-        this.items = items;
-        this.category = category;
+        this.album = album;
     }
 
     @NonNull
@@ -56,42 +52,26 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         int type = getItemViewType(position);
         if (type == AbstractModel.TYPE_DATE) {
-            DateModel date = (DateModel) items.get(position);
+            DateModel date = (DateModel) album.getModelList().get(position);
             DateViewHolder viewHolder = (DateViewHolder) holder;
             viewHolder.txt_date.setText(date.getStringLastModifiedTime());
         } else if (type == AbstractModel.TYPE_PHOTO || type == AbstractModel.TYPE_VIDEO) {
-            MediaModel model = (MediaModel) items.get(position);
+            MediaModel model = (MediaModel) album.getModelList().get(position);
             MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
             // Load image by glide library
             Glide.with(context)
-                    .load(model.getFile()) // todo: model.getThumbnail() in mediamodel
+                    .load(model.getFile()) // todo: model.getThumbnail() in mediaModel
                     .placeholder(R.drawable.placeholder_color)
                     .error(R.drawable.placeholder_color) // TODO: replace by other drawable
                     .into(viewHolder.imageView);
 
             // Set onClick Listener to display media
             viewHolder.imageView.setOnClickListener(view -> {
-                int index;
-                switch (category) {
-                    case MediaHolder.KEY_DELETED_ALBUM:
-                        index = MediaHolder.sDeletedAlbum.getMediaList().indexOf(model);
-                        break;
-                    case MediaHolder.KEY_FAVOURITE_ALBUM:
-                        index = MediaHolder.sFavouriteAlbum.getMediaList().indexOf(model);
-                        break;
-                    case MediaHolder.KEY_SECRET_ALBUM:
-                        index = MediaHolder.sSecretAlbum.getMediaList().indexOf(model);
-                        break;
-                    default:
-                        index = MediaHolder.sTotalAlbum.getMediaList().indexOf(model);
-                        break;
-                }
-
                 Intent i = new Intent(context, DisplayMediaActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putInt("position", index);
-                bundle.putString("category", category);
+                bundle.putInt("position", album.getMediaList().indexOf(model));
+                bundle.putString("category", album.getId());
                 i.putExtra("model", bundle);
                 context.startActivity(i);
             });
@@ -102,15 +82,15 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return items == null ? 0 : items.size();
+        return album == null ? 0 : album.getModelList().size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position < 0 || items == null || position >= items.size()) {
+        if (position < 0 || album == null || position >= album.getModelList().size()) {
             throw new IllegalStateException("the position is invalid");
         }
-        return items.get(position).getType();
+        return album.getModelList().get(position).getType();
     }
 
     public static class MediaViewHolder extends RecyclerView.ViewHolder {

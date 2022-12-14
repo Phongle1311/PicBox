@@ -147,9 +147,21 @@
             android:id="@+id/txt_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="2dp"
             android:text="@string/location"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_go_to_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginBottom="4dp"
+            android:drawablePadding="4dp"
+            android:gravity="center"
+            android:text="@string/detail_go_to_map"
+            android:textSize="12sp"
+            app:drawableRightCompat="@drawable/ic_baseline_map_24" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map"
@@ -164,19 +176,8 @@
             android:id="@+id/tv_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/tv_go_to_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="4dp"
-            android:drawablePadding="4dp"
-            android:gravity="center"
-            android:text="@string/detail_go_to_map"
-            android:textSize="12sp"
-            app:drawableRightCompat="@drawable/ic_baseline_map_24" />
+            android:layout_marginTop="8dp"
+            android:textIsSelectable="true" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.Barrier

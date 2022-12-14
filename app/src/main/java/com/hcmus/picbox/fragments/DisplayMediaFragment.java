@@ -1,14 +1,12 @@
 package com.hcmus.picbox.fragments;
 
-import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
-
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -19,16 +17,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -50,19 +43,19 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
-import com.hcmus.picbox.utils.PermissionUtils;
-import com.hcmus.picbox.utils.PermissionUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This is fragment for showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
 public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener, OnMapReadyCallback {
-    // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
+
     private Context context;
     private MediaModel model;
     private long playbackPosition = 0;
@@ -80,7 +73,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
-    private double[] latLong;
     private SupportMapFragment map;
     private LatLng position;
 
@@ -192,6 +184,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         showLocation = view.findViewById(R.id.tv_location);
         pbPlayer = view.findViewById(R.id.pb_player);
         goToMap = view.findViewById(R.id.tv_go_to_map);
+
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
@@ -221,6 +214,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 .setSeekBackIncrementMs(5000)
                 .setSeekForwardIncrementMs(5000)
                 .build();
+
         MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(model.getFile()));
         player.setMediaItem(mediaItem);
         player.addListener(this);
@@ -309,7 +303,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
-            // TODO: get location -> map
+
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
             ((TextView) view.findViewById(R.id.tv_media_path)).setText(path);
@@ -341,6 +335,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             } else {
                 view.findViewById(R.id.device_detail).setVisibility(View.GONE);
             }
+
+            double[] latLong;
             if (model.getType() == AbstractModel.TYPE_VIDEO) {
                 latLong = extractVideoLocation(uri);
             } else {
@@ -361,6 +357,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             Log.e("test", "loadMetadata -> file not found", e);
         } catch (IOException e) {
             Log.e("test", "loadMetadata -> IOException", e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -383,18 +381,41 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
     }
 
-    private String getStringFromPosition(LatLng position) {
-        String latitude = Double.toString(position.latitude);
-        String longtitude = Double.toString(position.longitude);
-        return latitude.substring(0, Math.min(latitude.length(), 9)) + ", " + longtitude.substring(0, Math.min(latitude.length(), 9));
+    // Google map method
+    @NonNull
+    private String getStringFromPosition(@NonNull LatLng position) {
+        String latitude = Double.toString((double) Math.round(position.latitude * 100d) / 100d);
+        String longitude = Double.toString((double) Math.round(position.longitude * 100d) / 100d);
+        String result = latitude + ", " + longitude;
+
+        try {
+            Geocoder geocoder;
+            List<Address> addresses;
+            geocoder = new Geocoder(context, Locale.getDefault());
+            addresses = geocoder.getFromLocation(position.latitude, position.longitude, 1);
+
+            String address = addresses.get(0).getAddressLine(0);
+            if (address != null)
+                result = result + "\n" + address;
+            else {
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                if (state != null && country != null)
+                    result = result + "\n" + state + " " + country;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     public void callGoogleMap(LatLng position) {
         String latitude = Double.toString(position.latitude);
-        String longtitude = Double.toString(position.longitude);
-        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longtitude + "?q=" + latitude + "," + longtitude + "(" +
+        String longitude = Double.toString(position.longitude);
+        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude + "(" +
                 getStringFromPosition(position) + ")" + "?z=17");
-        Uri gmmIntentUriWeb = Uri.parse("http://maps.google.com/maps?q=" + latitude + "," + longtitude);
+        Uri gmmIntentUriWeb = Uri.parse("http://maps.google.com/maps?q=" + latitude + "," + longitude);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         Intent webIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUriWeb);
         mapIntent.setPackage("com.google.android.apps.maps");

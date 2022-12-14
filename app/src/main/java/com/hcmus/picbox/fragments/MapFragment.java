@@ -9,27 +9,27 @@ import androidx.lifecycle.viewmodel.CreationExtras;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.Map;
-
 public class MapFragment extends SupportMapFragment implements OnMapReadyCallback {
+
     GoogleMap map;
     LatLng position;
+
     public MapFragment(LatLng position){
         this.position=position;
         getMapAsync(this);
     }
+
     @Override
     public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
     }
+
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -45,6 +45,7 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
         googleMap.getUiSettings().setTiltGesturesEnabled(false);
         googleMap.getUiSettings().setRotateGesturesEnabled(false);
         googleMap.getUiSettings().setMapToolbarEnabled(false);
+
         map.addMarker(new MarkerOptions().position(this.position));
         CameraPosition cp = new CameraPosition.Builder().target(this.position).zoom(14).build();
         map.moveCamera(CameraUpdateFactory.newCameraPosition(cp));

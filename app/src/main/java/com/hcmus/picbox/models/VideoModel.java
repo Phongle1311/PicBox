@@ -16,8 +16,6 @@ public class VideoModel extends MediaModel {
     public static final String[] sProjection = {
             MediaStore.Video.Media._ID,
             MediaStore.Video.Media.DISPLAY_NAME,
-            MediaStore.Video.Media.DURATION,
-            MediaStore.Video.Media.SIZE,
             MediaStore.Video.Thumbnails.DATA,
             MediaStore.Video.Media.BUCKET_DISPLAY_NAME,
             MediaStore.Video.Media.BUCKET_ID
@@ -38,45 +36,12 @@ public class VideoModel extends MediaModel {
     };
 
     // non-static
-    private String thumbnail;
-    private int duration = 0;
-
     public VideoModel(File file) {
         super(file);
     }
 
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
     protected VideoModel(Parcel in) {
         super(in);
-        thumbnail = in.readString();
-        duration = in.readInt();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        super.writeToParcel(parcel, i);
-        parcel.writeString(thumbnail);
-        parcel.writeInt(duration);
     }
 
     @Override

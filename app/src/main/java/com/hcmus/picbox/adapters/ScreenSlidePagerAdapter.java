@@ -1,5 +1,9 @@
 package com.hcmus.picbox.adapters;
 
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -20,7 +24,6 @@ public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
 
     private final List<MediaModel> models;
     private final IOnClickDetailBackButton backListener;
-
     public ScreenSlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<MediaModel> models, IOnClickDetailBackButton backListen) {
         super(fragmentManager, lifecycle);
         this.models = models;

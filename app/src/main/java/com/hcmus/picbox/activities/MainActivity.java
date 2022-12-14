@@ -1,5 +1,6 @@
 package com.hcmus.picbox.activities;
 
+import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
@@ -8,7 +9,9 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -43,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
-
     private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -62,16 +64,15 @@ public class MainActivity extends AppCompatActivity {
         initSharedPreferencesDefault();
         initUI();
         initViewPager();
-
         // check permission
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
             StorageUtils.getAllMediaFromStorage(this);
         else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
             // TODO: show dialog to educate user and persuade user to grant permission
             Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
-        } else
+        } else {
             requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
-
+        }
         cameraButton.setOnClickListener(view -> {
             if (PermissionUtils.checkPermissions(this, CAMERA)) {
                 Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");

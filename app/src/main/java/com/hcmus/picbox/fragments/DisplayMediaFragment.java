@@ -1,6 +1,10 @@
 package com.hcmus.picbox.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +29,13 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -36,14 +47,15 @@ import com.hcmus.picbox.models.MediaModel;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This is fragment for showing detail of media <br/>
  * Created on 27/11/2022 by Phong Le
  */
-public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener {
+public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener, OnMapReadyCallback {
 
-    // TODO hiện tại file này còn đang dang dở, sẽ thay đổi nhiều, nếu có làm liên quan đến file này thì nhớ hỏi
     private Context context;
     private MediaModel model;
     private long playbackPosition = 0;
@@ -51,14 +63,18 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private IOnClickDetailBackButton backListener;
-
+    private MediaMetadataRetriever retriever;
     private ImageView imageView;
     private StyledPlayerView playerView;
     private ExoPlayer player;
+    private TextView goToMap;
+    private TextView showLocation;
     private ProgressBar pbPlayer;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
+    private SupportMapFragment map;
+    private LatLng position;
 
     public DisplayMediaFragment() {
     }
@@ -97,7 +113,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             view.findViewById(R.id.action_repeat_video).setVisibility(View.GONE);
             displayVideo();
         }
-
         setTopAppBarListener();
         setBottomAppBarListener();
         loadExif(view);
@@ -166,11 +181,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         bottomBar = view.findViewById(R.id.bottom_navigation_view_display_image);
         imageView = view.findViewById(R.id.image_view);
         playerView = view.findViewById(R.id.exoplayer2_view);
+        showLocation = view.findViewById(R.id.tv_location);
         pbPlayer = view.findViewById(R.id.pb_player);
+        goToMap = view.findViewById(R.id.tv_go_to_map);
 
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
+        map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        retriever = new MediaMetadataRetriever();
     }
 
     private void displayImage() {
@@ -195,6 +214,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 .setSeekBackIncrementMs(5000)
                 .setSeekForwardIncrementMs(5000)
                 .build();
+
         MediaItem mediaItem = MediaItem.fromUri(Uri.fromFile(model.getFile()));
         player.setMediaItem(mediaItem);
         player.addListener(this);
@@ -237,10 +257,27 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
+    @Nullable
+    private double[] extractVideoLocation(Uri videoUri) {
+        try {
+            retriever.setDataSource(context, videoUri);
+        } catch (RuntimeException e) {
+            Log.e("ERROR", "Cannot retrieve video file", e);
+        }
+        String locationString = retriever.extractMetadata(
+                MediaMetadataRetriever.METADATA_KEY_LOCATION);
+        if (locationString == null) {
+            return null;
+        } else {
+            String[] parts = locationString.split("\\+", -1);
+            parts[2] = parts[2].substring(0, parts[2].length() - 1);
+            return new double[]{Double.parseDouble(parts[1]), Double.parseDouble(parts[2])};
+        }
+    }
+
     // TODO: when and where should we load metadata? not here
     private void loadExif(View view) {
         Uri uri = Uri.fromFile(model.getFile());
-
         try {
             InputStream in = context.getContentResolver().openInputStream(uri);
             if (in == null)
@@ -266,7 +303,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
-            // TODO: get location -> map
 
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
@@ -299,10 +335,30 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             } else {
                 view.findViewById(R.id.device_detail).setVisibility(View.GONE);
             }
+
+            double[] latLong;
+            if (model.getType() == AbstractModel.TYPE_VIDEO) {
+                latLong = extractVideoLocation(uri);
+            } else {
+                latLong = exif.getLatLong();
+            }
+            if (latLong != null && map != null) {
+                position = new LatLng(latLong[0], latLong[1]);
+                map.getMapAsync(this);
+                goToMap.setOnClickListener(v -> callGoogleMap(position));
+                showLocation.setText(getStringFromPosition(position));
+            } else {
+                view.findViewById(R.id.map).setVisibility(View.GONE);
+                goToMap.setVisibility(View.GONE);
+                view.findViewById(R.id.txt_location).setVisibility(View.GONE);
+                showLocation.setVisibility(View.GONE);
+            }
         } catch (FileNotFoundException e) {
             Log.e("test", "loadMetadata -> file not found", e);
         } catch (IOException e) {
             Log.e("test", "loadMetadata -> IOException", e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -323,6 +379,65 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             playerView.showController();
         }
 
+    }
+
+    // Google map method
+    @NonNull
+    private String getStringFromPosition(@NonNull LatLng position) {
+        String latitude = Double.toString((double) Math.round(position.latitude * 100d) / 100d);
+        String longitude = Double.toString((double) Math.round(position.longitude * 100d) / 100d);
+        String result = latitude + ", " + longitude;
+
+        try {
+            Geocoder geocoder;
+            List<Address> addresses;
+            geocoder = new Geocoder(context, Locale.getDefault());
+            addresses = geocoder.getFromLocation(position.latitude, position.longitude, 1);
+
+            String address = addresses.get(0).getAddressLine(0);
+            if (address != null)
+                result = result + "\n" + address;
+            else {
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                if (state != null && country != null)
+                    result = result + "\n" + state + " " + country;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public void callGoogleMap(LatLng position) {
+        String latitude = Double.toString(position.latitude);
+        String longitude = Double.toString(position.longitude);
+        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude + "(" +
+                getStringFromPosition(position) + ")" + "?z=17");
+        Uri gmmIntentUriWeb = Uri.parse("http://maps.google.com/maps?q=" + latitude + "," + longitude);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUriWeb);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            startActivity(webIntent);
+        }
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        googleMap.getUiSettings().setZoomControlsEnabled(false);
+        googleMap.getUiSettings().setZoomGesturesEnabled(false);
+        googleMap.getUiSettings().setScrollGesturesEnabled(false);
+        googleMap.getUiSettings().setTiltGesturesEnabled(false);
+        googleMap.getUiSettings().setRotateGesturesEnabled(false);
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setAllGesturesEnabled(false);
+        googleMap.addMarker(new MarkerOptions().position(this.position));
+        CameraPosition cp = new CameraPosition.Builder().target(this.position).zoom(12).build();
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cp));
     }
 
     /**

@@ -105,14 +105,22 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
         initAttrs(view);
 
-        if (model.getType() == AbstractModel.TYPE_PHOTO) {
-            playerView.setVisibility(View.GONE);
-            displayImage();
-        } else if (model.getType() == AbstractModel.TYPE_VIDEO) {
-            imageView.setVisibility(View.GONE);
-            view.findViewById(R.id.action_repeat_video).setVisibility(View.GONE);
-            displayVideo();
+        int type = model.getType();
+        switch (type) {
+            case AbstractModel.TYPE_PHOTO:
+            case AbstractModel.TYPE_GIF:
+                playerView.setVisibility(View.GONE);
+                displayImage();
+                break;
+            case AbstractModel.TYPE_VIDEO:
+                imageView.setVisibility(View.GONE);
+                view.findViewById(R.id.action_repeat_video).setVisibility(View.GONE);
+                displayVideo();
+                break;
+            default:
+                throw new IllegalStateException("Unsupported type");
         }
+
         setTopAppBarListener();
         setBottomAppBarListener();
         loadExif(view);

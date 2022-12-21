@@ -59,6 +59,8 @@
     <string name="detail_bottom_bar_edit">Chỉnh sửa</string>
     <string name="detail_bottom_bar_delete">Xóa</string>
     <string name="detail_bottom_bar_secret">Bảo mật</string>
+    <string name="video_btn_desc_video">Video</string>
+    <string name="gif_btn_desc_gif">GIF</string>
     <string name="select_image_group_mode">Chọn chế độ nhóm ảnh</string>
     <string name="group_mode">Nhóm ảnh</string>
     <string name="month">Tháng</string>

@@ -19,9 +19,6 @@ public class PhotoModel extends MediaModel {
 //            MediaStore.Images.Media.SIZE,
 //            MediaStore.Images.Media.ORIENTATION
     }; // what need to load from an image
-    public static String sOrderBy = MediaStore.Images.Media._ID;
-    public static String sOrderDirection = " DESC";
-
     public static final Creator<PhotoModel> CREATOR = new Creator<PhotoModel>() {
         @Override
         public PhotoModel createFromParcel(Parcel in) {
@@ -33,6 +30,8 @@ public class PhotoModel extends MediaModel {
             return new PhotoModel[size];
         }
     };
+    public static String sOrderBy = MediaStore.Images.Media._ID;
+    public static String sOrderDirection = " DESC";
 
     // non-static
     public PhotoModel(File file) {
@@ -43,8 +42,12 @@ public class PhotoModel extends MediaModel {
         super(new File(in.readString()));
     }
 
+    private boolean isGif() {
+        return mFile.getPath().endsWith(".gif");
+    }
+
     @Override
     public int getType() {
-        return TYPE_PHOTO;
+        return isGif() ? TYPE_GIF : TYPE_PHOTO;
     }
 }

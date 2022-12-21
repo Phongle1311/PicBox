@@ -102,6 +102,7 @@ public class PhotosFragment extends Fragment {
                     case AbstractModel.TYPE_DATE:
                         return manager.getSpanCount();
                     case AbstractModel.TYPE_PHOTO:
+                    case AbstractModel.TYPE_GIF:
                     case AbstractModel.TYPE_VIDEO:
                         return 1;
                     default:

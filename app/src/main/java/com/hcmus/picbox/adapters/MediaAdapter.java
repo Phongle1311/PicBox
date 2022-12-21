@@ -34,49 +34,64 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        if (viewType == AbstractModel.TYPE_DATE) {
-            View view = inflater.inflate(R.layout.date_layout, parent, false);
-            return new DateViewHolder(view);
-        } else if (viewType == AbstractModel.TYPE_PHOTO) {
-            View view = inflater.inflate(R.layout.photo_card_layout, parent, false);
-            return new MediaViewHolder(view);
-        } else if (viewType == AbstractModel.TYPE_VIDEO) {
-            View view = inflater.inflate(R.layout.video_card_layout, parent, false);
-            return new MediaViewHolder(view);
-        } else {
-            throw new IllegalStateException("unsupported type");
+        switch (viewType) {
+            case AbstractModel.TYPE_DATE: {
+                View view = inflater.inflate(R.layout.date_layout, parent, false);
+                return new DateViewHolder(view);
+            }
+            case AbstractModel.TYPE_PHOTO: {
+                View view = inflater.inflate(R.layout.photo_card_layout, parent, false);
+                return new MediaViewHolder(view);
+            }
+            case AbstractModel.TYPE_VIDEO: {
+                View view = inflater.inflate(R.layout.video_card_layout, parent, false);
+                return new MediaViewHolder(view);
+            }
+            case AbstractModel.TYPE_GIF: {
+                View view = inflater.inflate(R.layout.gif_card_layout, parent, false);
+                return new MediaViewHolder(view);
+            }
+            default:
+                throw new IllegalStateException("unsupported type");
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         int type = getItemViewType(position);
-        if (type == AbstractModel.TYPE_DATE) {
-            DateModel date = (DateModel) album.getModelList().get(position);
-            DateViewHolder viewHolder = (DateViewHolder) holder;
-            viewHolder.txt_date.setText(date.getStringLastModifiedTime());
-        } else if (type == AbstractModel.TYPE_PHOTO || type == AbstractModel.TYPE_VIDEO) {
-            MediaModel model = (MediaModel) album.getModelList().get(position);
-            MediaViewHolder viewHolder = (MediaViewHolder) holder;
+        switch (type) {
+            case AbstractModel.TYPE_DATE: {
+                DateModel date = (DateModel) album.getModelList().get(position);
+                DateViewHolder viewHolder = (DateViewHolder) holder;
+                viewHolder.txt_date.setText(date.getStringLastModifiedTime());
+                break;
+            }
+            case AbstractModel.TYPE_GIF:
+            case AbstractModel.TYPE_PHOTO:
+            case AbstractModel.TYPE_VIDEO: {
+                MediaModel model = (MediaModel) album.getModelList().get(position);
+                MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
-            // Load image by glide library
-            Glide.with(context)
-                    .load(model.getFile()) // todo: model.getThumbnail() in mediaModel
-                    .placeholder(R.drawable.placeholder_color)
-                    .error(R.drawable.placeholder_color) // TODO: replace by other drawable
-                    .into(viewHolder.imageView);
+                // Load image by glide library
+                Glide.with(context)
+                        .load(model.getFile())
+                        .placeholder(R.drawable.placeholder_color)
+                        .error(R.drawable.placeholder_color) // TODO: replace by other drawable
+                        .into(viewHolder.imageView);
 
-            // Set onClick Listener to display media
-            viewHolder.imageView.setOnClickListener(view -> {
-                Intent i = new Intent(context, DisplayMediaActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("position", album.getMediaList().indexOf(model));
-                bundle.putString("category", album.getId());
-                i.putExtra("model", bundle);
-                context.startActivity(i);
-            });
-        } else {
-            throw new IllegalStateException("Unsupported type");
+                // Set onClick Listener to display media
+                viewHolder.imageView.setOnClickListener(view -> {
+                    Intent i = new Intent(context, DisplayMediaActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("position", album.getMediaList().indexOf(model));
+                    bundle.putString("category", album.getId());
+                    i.putExtra("model", bundle);
+                    context.startActivity(i);
+                });
+                break;
+            }
+            default:
+                throw new IllegalStateException("Unsupported type");
         }
     }
 
@@ -112,5 +127,4 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             txt_date = itemView.findViewById(R.id.tv_date);
         }
     }
-
 }

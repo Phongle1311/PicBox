@@ -1,4 +1,4 @@
-package com.hcmus.picbox.utils;
+package com.hcmus.picbox.processes;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class StorageUtils {
+public final class LoadStorageHelper {
 
     private static IOnItemRangeInserted allMediaListener;
     private static IOnItemRangeInserted deviceAlbumListener;

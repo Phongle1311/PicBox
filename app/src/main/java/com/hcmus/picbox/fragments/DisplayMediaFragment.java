@@ -43,10 +43,12 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
+import com.hcmus.picbox.processes.DeleteHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -251,11 +253,26 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     }
 
     private void setBottomAppBarListener() {
-        bottomBar.setOnItemSelectedListener(item ->
-                item.getItemId() == R.id.favourite_display_image ||
-                        item.getItemId() == R.id.edit_display_image ||
-                        item.getItemId() == R.id.delete_display_image ||
-                        item.getItemId() == R.id.secret_display_image);
+        bottomBar.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.share_display_image:
+                    return true;
+
+                case R.id.edit_display_image:
+                    return true;
+
+                case R.id.delete_display_image: {
+                    List<MediaModel> modelList = new ArrayList<>();
+                    modelList.add(model);
+                    DeleteHelper.delete(modelList, context);
+                    return true;
+
+                }
+                case R.id.secret_display_image:
+                    return true;
+            }
+            return false;
+        });
     }
 
     public void toggleBottomSheet() {

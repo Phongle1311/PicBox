@@ -17,7 +17,7 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.AlbumAdapter;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
-import com.hcmus.picbox.utils.StorageUtils;
+import com.hcmus.picbox.processes.LoadStorageHelper;
 
 import java.util.List;
 
@@ -39,8 +39,8 @@ public class AlbumFragment extends Fragment {
 
         initUI(view);
         prepareRecyclerView();
-        StorageUtils.setDeviceAlbumListener(this::onDeviceAlbumRangeInserted);
-        StorageUtils.setUserAlbumListener(this::onUserAlbumRangeInserted);
+        LoadStorageHelper.setDeviceAlbumListener(this::onDeviceAlbumRangeInserted);
+        LoadStorageHelper.setUserAlbumListener(this::onUserAlbumRangeInserted);
 
         return view;
     }

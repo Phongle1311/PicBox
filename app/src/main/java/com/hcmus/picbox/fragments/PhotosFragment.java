@@ -19,7 +19,7 @@ import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
-import com.hcmus.picbox.utils.StorageUtils;
+import com.hcmus.picbox.processes.LoadStorageHelper;
 
 public class PhotosFragment extends Fragment {
 
@@ -33,7 +33,7 @@ public class PhotosFragment extends Fragment {
 
     public PhotosFragment(String albumId) {
         album = AlbumHolder.sGetAlbumById(albumId);
-        StorageUtils.setMediasListener(albumId, this::onItemRangeInserted);
+        LoadStorageHelper.setMediasListener(albumId, this::onItemRangeInserted);
     }
 
     @Nullable

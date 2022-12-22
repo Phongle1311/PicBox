@@ -73,4 +73,9 @@
     <string name="language_english">English</string>
     <string name="language_vietnamese">Vietnamese</string>
     <string name="setting_ic_desc_setting_language">Setting language</string>
+    <string name="desc_image_delete">Image(s) to be deleted</string>
+    <string name="desc_icon_delete_image">Desc icon delete image</string>
+    <string name="move_to_trash_bin">Move to trash bin</string>
+    <string name="delete_permanently">Delete permanently</string>
+    <string name="delete_deeply">Delete deeply</string>
 </resources>

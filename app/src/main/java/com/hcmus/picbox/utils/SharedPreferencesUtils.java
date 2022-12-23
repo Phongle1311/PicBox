@@ -3,21 +3,18 @@ package com.hcmus.picbox.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 
 /**
  * Created on 21/11/2022 by Minh Kha
  */
 public class SharedPreferencesUtils {
 
-    private static final String PREF_APP = "pref_app";
-
     public static final String KEY_SPAN_COUNT = "num_columns_of_row";
     public static final String KEY_LANGUAGE = "language";
     public static final String KEY_GROUP_MODE = "group_mode";
     public static final String KEY_GRID_MODE = "grid_mode";
     public static final String KEY_BACKGROUND_IMAGE = "background_image";
+    private static final String PREF_APP = "pref_app";
 
     private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(

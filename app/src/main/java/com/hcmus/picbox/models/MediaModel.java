@@ -1,6 +1,5 @@
 package com.hcmus.picbox.models;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -25,6 +24,10 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
         this.mName = mFile.getName();
     }
 
+    protected MediaModel(Parcel in) {
+        this(new File(in.readString()));
+    }
+
     public boolean checkExists() {
         return mFile.exists();
     }
@@ -47,10 +50,6 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
 
     public void setAlbumName(String albumName) {
         this.albumName = albumName;
-    }
-
-    protected MediaModel(Parcel in) {
-        this(new File(in.readString()));
     }
 
     @Override

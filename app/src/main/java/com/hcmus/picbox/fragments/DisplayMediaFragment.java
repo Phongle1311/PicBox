@@ -1,21 +1,14 @@
 package com.hcmus.picbox.fragments;
 
-import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -23,16 +16,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 
@@ -60,11 +49,6 @@ import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
-import org.w3c.dom.Text;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -291,12 +275,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                         item.getItemId() == R.id.edit_display_image ||
                         item.getItemId() == R.id.delete_display_image ||
                         item.getItemId() == R.id.secret_display_image);
-        btnUseFor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogActionuseFor.show();
-            }
-        });
+        btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
     }
 
 
@@ -316,12 +295,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 e.printStackTrace();
             }
         });
-        set_background.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE, model.getFile().getAbsolutePath());
-                dialogActionuseFor.hide();
-            }
+        set_background.setOnClickListener(v -> {
+            SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE, model.getFile().getAbsolutePath());
+            dialogActionuseFor.hide();
         });
         dialogActionuseFor.setContentView(view);
     }

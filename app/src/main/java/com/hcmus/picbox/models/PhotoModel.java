@@ -10,6 +10,7 @@ import android.os.Parcel;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 
@@ -51,17 +52,8 @@ public class PhotoModel extends MediaModel {
         super(new File(in.readString()));
     }
 
-    private boolean isGif() {
-        return mFile.getPath().endsWith(".gif");
-    }
-
-    @Override
-    public int getType() {
-        return isGif() ? TYPE_GIF : TYPE_PHOTO;
-    }
-
     private static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+            @NonNull BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
@@ -70,7 +62,7 @@ public class PhotoModel extends MediaModel {
 
             final int heightRatio = Math.round((float) height / (float) reqHeight);
             final int widthRatio = Math.round((float) width / (float) reqWidth);
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+            inSampleSize = Math.min(heightRatio, widthRatio);
         }
 
         return inSampleSize;
@@ -107,5 +99,14 @@ public class PhotoModel extends MediaModel {
             e.printStackTrace();
         }
         return decodedBitmap;
+    }
+
+    private boolean isGif() {
+        return mFile.getPath().endsWith(".gif");
+    }
+
+    @Override
+    public int getType() {
+        return isGif() ? TYPE_GIF : TYPE_PHOTO;
     }
 }

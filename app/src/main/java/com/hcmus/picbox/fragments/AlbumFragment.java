@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,9 +30,9 @@ import java.util.Objects;
 
 public class AlbumFragment extends Fragment {
 
-    private Context context;
     private final List<AlbumModel> deviceAlbumList = AlbumHolder.getDeviceAlbumList().getList();
     private final List<AlbumModel> userAlbumList = AlbumHolder.getUserAlbumList().getList();
+    private Context context;
     private AlbumAdapter deviceAlbumAdapter;
     private AlbumAdapter userAlbumAdapter;
     private ImageView albumBackground;

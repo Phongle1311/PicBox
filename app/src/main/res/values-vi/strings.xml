@@ -72,4 +72,6 @@
     <string name="language_english">English</string>
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="setting_ic_desc_setting_language">Cài đặt ngôn ngữ</string>
+    <string name="set_as_wallpaper">Cài làm hình nền điện thoại</string>
+    <string name="set_as_background">Cài làm hình nền ứng dụng</string>
 </resources>

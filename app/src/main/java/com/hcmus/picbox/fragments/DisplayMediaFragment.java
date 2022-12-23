@@ -87,89 +87,14 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
-    private BottomSheetBehavior<View> useForBehavior;
+    private BottomSheetDialog dialogActionuseFor;
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
+
     public DisplayMediaFragment() {
     }
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
 
-        if (height > reqHeight || width > reqWidth) {
-
-            // Calculate ratios of height and width to requested height and width
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-
-            // Choose the smallest ratio as inSampleSize value, this will guarantee
-            // a final image with both dimensions larger than or equal to the
-            // requested height and width.
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-
-        return inSampleSize;
-    }
-
-    public void showBottomSheetDialog() {
-        View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
-        TextView set_wallpaper=view.findViewById(R.id.txt_set_as_wallpaper);
-        BottomSheetDialog dialog = new BottomSheetDialog(context);
-        set_wallpaper.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(model.getFile()!=null) {
-                    DisplayMetrics displayMetrics = new DisplayMetrics();
-                    ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-                    int width=displayMetrics.widthPixels<<1;
-                    int height=displayMetrics.heightPixels;
-                    final BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(model.getFile().getAbsolutePath(), options);
-                    options.inSampleSize = calculateInSampleSize(options, width, height);
-                    options.inJustDecodeBounds = false;
-                    Bitmap decodedSampleBitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath(), options);
-                    try
-                    {
-                        ExifInterface exif = new ExifInterface(model.getFile().getAbsolutePath());
-                        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-                        int rotation = 0;
-                        if      (orientation == 6)      rotation = 90;
-                        else if (orientation == 3)      rotation = 180;
-                        else if (orientation == 8)      rotation = 270;
-                        if (rotation != 0)
-                        {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(rotation);
-                            Bitmap rotated = Bitmap.createBitmap(decodedSampleBitmap, 0, 0, decodedSampleBitmap.getWidth(), decodedSampleBitmap.getHeight(), matrix, true);
-                            decodedSampleBitmap.recycle();
-                            decodedSampleBitmap = rotated;
-                            rotated = null;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                    if (!("").equals(model.getFile().getAbsolutePath())) {
-                        WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
-                        try {
-                            wallpaperManager.setBitmap(decodedSampleBitmap);
-                            dialog.hide();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-        dialog.setContentView(view);
-        dialog.show();
-    }
     public DisplayMediaFragment(MediaModel model, IOnClickDetailBackButton backListener) {
         this.model = model;
         this.backListener = backListener;
@@ -213,6 +138,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         }
         setTopAppBarListener();
         setBottomAppBarListener();
+        setActionUseForListener();
         loadExif(view);
     }
 
@@ -287,13 +213,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         showLocation = view.findViewById(R.id.tv_location);
         pbPlayer = view.findViewById(R.id.pb_player);
         goToMap = view.findViewById(R.id.tv_go_to_map);
-        btnUseFor=view.findViewById(R.id.action_use_for);
+        btnUseFor = view.findViewById(R.id.action_use_for);
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
-        useForBehavior=BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        dialogActionuseFor = new BottomSheetDialog(context);
         retriever = new MediaMetadataRetriever();
+        int type = model.getType();
+        if(type!=AbstractModel.TYPE_PHOTO){
+            btnUseFor.setVisibility(View.GONE);
+        }
     }
 
     private void displayImage() {
@@ -355,9 +285,75 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         btnUseFor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showBottomSheetDialog();
+                dialogActionuseFor.show();
             }
         });
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+
+        return inSampleSize;
+    }
+
+    public void setActionUseForListener() {
+        View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
+        TextView set_wallpaper = view.findViewById(R.id.txt_set_as_wallpaper);
+        ;
+        set_wallpaper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (model.getFile() != null) {
+                    DisplayMetrics displayMetrics = new DisplayMetrics();
+                    ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                    int width = displayMetrics.widthPixels << 1;
+                    int height = displayMetrics.heightPixels;
+                    final BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(model.getFile().getAbsolutePath(), options);
+                    options.inSampleSize = calculateInSampleSize(options, width, height);
+                    options.inJustDecodeBounds = false;
+                    Bitmap decodedSampleBitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath(), options);
+                    try {
+                        ExifInterface exif = new ExifInterface(model.getFile().getAbsolutePath());
+                        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                        int rotation = 0;
+                        if (orientation == 6) rotation = 90;
+                        else if (orientation == 3) rotation = 180;
+                        else if (orientation == 8) rotation = 270;
+                        if (rotation != 0) {
+                            Matrix matrix = new Matrix();
+                            matrix.postRotate(rotation);
+                            Bitmap rotated = Bitmap.createBitmap(decodedSampleBitmap, 0, 0, decodedSampleBitmap.getWidth(), decodedSampleBitmap.getHeight(), matrix, true);
+                            decodedSampleBitmap.recycle();
+                            decodedSampleBitmap = rotated;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if (!("").equals(model.getFile().getAbsolutePath())) {
+                        WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+                        try {
+                            wallpaperManager.setBitmap(decodedSampleBitmap);
+                            dialogActionuseFor.hide();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        dialogActionuseFor.setContentView(view);
     }
 
     public void toggleBottomSheet() {
@@ -366,12 +362,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         else
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
-    public void toggleActionuseFor(){
-        if (useForBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED)
-            useForBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        else
-            useForBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-    }
+
     @Nullable
     private double[] extractVideoLocation(Uri videoUri) {
         try {

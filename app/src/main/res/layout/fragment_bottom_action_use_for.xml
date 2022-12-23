@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:id="@+id/txt_set_as_wallpaper"
-        android:paddingVertical="16dp"
-        android:paddingHorizontal="8dp"
-        android:text="Set as background image"/>
-    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="16dp"
-        android:id="@+id/txt_set_as_contact_wallpaper"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
         android:paddingHorizontal="8dp"
-        android:text="Set as background contact"/>
+        android:paddingVertical="16dp"
+        android:text="@string/set_as_wallpaper" />
+
+    <TextView
+        android:id="@+id/txt_set_as_contact_wallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="16dp"
+        android:text="Set as background contact" />
 </LinearLayout>

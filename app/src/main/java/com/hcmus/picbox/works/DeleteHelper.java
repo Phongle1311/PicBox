@@ -53,21 +53,11 @@ public class DeleteHelper {
     }
 
     public static void delete(Context context, List<MediaModel> mediaList) {
-        // Declare work request
         String[] paths = new String[mediaList.size()];
         int index = 0;
         for (MediaModel media : mediaList) {
             paths[index++] = Uri.fromFile(media.getFile()).getPath();
         }
-
-        OneTimeWorkRequest getContentUriIdWorkRequest =
-                new OneTimeWorkRequest.Builder(GetContentUriIdWorker.class)
-                        .setInputData(
-                                new Data.Builder()
-                                        .putStringArray(GetContentUriIdWorker.KEY_PATHS, paths)
-                                        .build()
-                        )
-                        .build();
 
         // UI
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(context);
@@ -88,14 +78,11 @@ public class DeleteHelper {
             rgTypeOfDelete.check(R.id.rb_delete_permanently);
         }
 
+        TextView tvHelper = dialogLayout.findViewById(R.id.tv_helper_text);
+        setHintText(rgTypeOfDelete, tvHelper);
+
         rgTypeOfDelete.setOnCheckedChangeListener((radioGroup, i) -> {
-            TextView tvHelper = dialogLayout.findViewById(R.id.tv_helper_text);
-            if (i == R.id.rb_move_to_trash_bin)
-                tvHelper.setText(R.string.helper_text_move_to_trash_bin);
-            else if (i == R.id.rb_delete_permanently)
-                tvHelper.setText(R.string.helper_text_delete_permanently);
-            else
-                tvHelper.setText(R.string.helper_text_delete_deeply);
+            setHintText(radioGroup, tvHelper);
         });
 
         ((TextView) dialogLayout.findViewById(R.id.tv_header))
@@ -104,6 +91,14 @@ public class DeleteHelper {
         dialogLayout.findViewById(R.id.btn_cancel).setOnClickListener(view -> alertDialog.dismiss());
         dialogLayout.findViewById(R.id.btn_confirm).setOnClickListener(v -> {
             int selectedId = rgTypeOfDelete.getCheckedRadioButtonId();
+            OneTimeWorkRequest getContentUriIdWorkRequest =
+                    new OneTimeWorkRequest.Builder(GetContentUriIdWorker.class)
+                            .setInputData(
+                                    new Data.Builder()
+                                            .putStringArray(GetContentUriIdWorker.KEY_PATHS, paths)
+                                            .build()
+                            )
+                            .build();
             WorkManager.getInstance(context).enqueue(getContentUriIdWorkRequest);
 
             if (selectedId == R.id.rb_move_to_trash_bin) {
@@ -125,21 +120,26 @@ public class DeleteHelper {
                                 try {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                                         deleteAPI30(uriList, context);
+                                        alertDialog.dismiss();
                                     } else {
                                         deleteAPI28(uriList, context);
+                                        alertDialog.dismiss();
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Log.d("test", e.getMessage());
+                                    alertDialog.dismiss();
                                 }
                             }
-                        });
+                            if (info != null && info.getState() == WorkInfo.State.FAILED) {
+                                alertDialog.dismiss();
+                            }
+                            });
 
 
             } else if (selectedId == R.id.rb_deeply_delete) {
 //                deleteDeeply(uriList, context);
             }
-            alertDialog.dismiss();
         });
     }
 
@@ -167,5 +167,16 @@ public class DeleteHelper {
         ContentResolver resolver = context.getContentResolver();
         for (Uri uri : uriList)
             resolver.delete(uri, null, null);
+    }
+
+    // for radio group
+    private static void setHintText(RadioGroup rg, TextView tv) {
+        int i = rg.getCheckedRadioButtonId();
+        if (i == R.id.rb_move_to_trash_bin)
+            tv.setText(R.string.helper_text_move_to_trash_bin);
+        else if (i == R.id.rb_delete_permanently)
+            tv.setText(R.string.helper_text_delete_permanently);
+        else
+            tv.setText(R.string.helper_text_delete_deeply);
     }
 }

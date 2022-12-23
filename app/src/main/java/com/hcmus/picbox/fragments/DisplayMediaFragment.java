@@ -290,6 +290,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
+        btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
     }
 
 

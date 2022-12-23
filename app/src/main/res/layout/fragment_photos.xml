@@ -1,89 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <ImageView
+        android:id="@+id/fragment_photo_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        tools:context=".activities.MainActivity"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rcv_images"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            tools:context=".activities.MainActivity"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp">
 
-    </RelativeLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcv_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginBottom="160dp"
-        android:layout_marginRight="20dp"
-        android:src="@drawable/main_fab"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:elevation="21dp"
-        app:borderWidth="0dp" />
+        </RelativeLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="36dp"
-        android:layout_marginTop="8dp"
-        app:backgroundTint="@color/black"
-        android:backgroundTint="#F2E7D5"
-        android:visibility="invisible"
-        app:layout_constraintTop_toBottomOf="@+id/fab_main"
-        app:layout_constraintEnd_toEndOf="@+id/fab_main"
-        app:fabSize="mini"
-        android:src="@drawable/ic_baseline_search_24" />
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_secret_media"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:backgroundTint="@color/black"
-        android:backgroundTint="#F2E7D5"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toLeftOf="@+id/fab_main"
-        app:layout_constraintBottom_toTopOf="@+id/fab_search"
-        app:fabSize="mini"
-        android:src="@drawable/hidden_media_fab" />
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_sort_by"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:backgroundTint="@color/black"
-        android:backgroundTint="#F2E7D5"
-        android:visibility="invisible"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintRight_toLeftOf="@+id/fab_main"
-        app:layout_constraintBottom_toTopOf="@+id/fab_secret_media"
-        app:fabSize="mini"
-        android:src="@drawable/sort_by_fab" />
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_change_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:backgroundTint="@color/black"
-        android:backgroundTint="#F2E7D5"
-        android:layout_marginBottom="12dp"
-        android:layout_marginRight="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/fab_main"
-        app:layout_constraintEnd_toEndOf="@id/fab_main"
-        app:fabSize="mini"
-        android:src="@drawable/change_layout_fab" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="160dp"
+            android:src="@drawable/main_fab"
+            app:borderWidth="0dp"
+            app:elevation="21dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="36dp"
+            android:backgroundTint="#F2E7D5"
+            android:src="@drawable/ic_baseline_search_24"
+            android:visibility="invisible"
+            app:backgroundTint="@color/black"
+            app:fabSize="mini"
+            app:layout_constraintEnd_toEndOf="@+id/fab_main"
+            app:layout_constraintTop_toBottomOf="@+id/fab_main" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_secret_media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:backgroundTint="#F2E7D5"
+            android:src="@drawable/hidden_media_fab"
+            android:visibility="invisible"
+            app:backgroundTint="@color/black"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toTopOf="@+id/fab_search"
+            app:layout_constraintRight_toLeftOf="@+id/fab_main" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_sort_by"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:backgroundTint="#F2E7D5"
+            android:src="@drawable/sort_by_fab"
+            android:visibility="invisible"
+            app:backgroundTint="@color/black"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toTopOf="@+id/fab_secret_media"
+            app:layout_constraintRight_toLeftOf="@+id/fab_main" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_change_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#F2E7D5"
+            android:src="@drawable/change_layout_fab"
+            android:visibility="invisible"
+            app:backgroundTint="@color/black"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toTopOf="@+id/fab_main"
+            app:layout_constraintEnd_toEndOf="@id/fab_main" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

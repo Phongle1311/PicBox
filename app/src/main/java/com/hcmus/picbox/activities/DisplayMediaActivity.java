@@ -1,6 +1,7 @@
 package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
+import static android.Manifest.permission.SET_WALLPAPER;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -36,6 +37,9 @@ public class DisplayMediaActivity extends AppCompatActivity {
             if (!PermissionUtils.checkPermissions(this, ACCESS_MEDIA_LOCATION)) {
                 PermissionUtils.requestPermissions(this, 123, ACCESS_MEDIA_LOCATION);
             }
+        }
+        if (!PermissionUtils.checkPermissions(this, SET_WALLPAPER)) {
+            PermissionUtils.requestPermissions(this, 123, SET_WALLPAPER);
         }
 
         // Get model being selected

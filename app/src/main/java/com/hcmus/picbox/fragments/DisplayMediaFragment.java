@@ -1,7 +1,9 @@
 package com.hcmus.picbox.fragments;
 
+import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
@@ -39,12 +41,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.works.DeleteHelper;
+import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -67,17 +72,21 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private IOnClickDetailBackButton backListener;
     private int pos;
     private MediaMetadataRetriever retriever;
+    private TextView btnUseFor;
     private ImageView imageView;
     private StyledPlayerView playerView;
     private ExoPlayer player;
     private TextView goToMap;
     private TextView showLocation;
+    private Bitmap decodedBitmap;
     private ProgressBar pbPlayer;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
+    private BottomSheetDialog dialogActionuseFor;
     private SupportMapFragment map;
     private LatLng position;
+    private double[] latLong;
 
     public DisplayMediaFragment() {
     }
@@ -125,9 +134,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             default:
                 throw new IllegalStateException("Unsupported type");
         }
-
         setTopAppBarListener();
         setBottomAppBarListener();
+        setActionUseForListener();
         loadExif(view);
     }
 
@@ -152,6 +161,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
         if (playerView != null)
             playerView.onResume();
+        map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if (latLong != null && map != null) {
+            position = new LatLng(latLong[0], latLong[1]);
+            map.getMapAsync(this);
+        }
     }
 
     @Override
@@ -197,12 +211,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         showLocation = view.findViewById(R.id.tv_location);
         pbPlayer = view.findViewById(R.id.pb_player);
         goToMap = view.findViewById(R.id.tv_go_to_map);
-
+        btnUseFor = view.findViewById(R.id.action_use_for);
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.layout_detail_bottom_sheet));
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        dialogActionuseFor = new BottomSheetDialog(context);
         retriever = new MediaMetadataRetriever();
+        int type = model.getType();
+        if (type != AbstractModel.TYPE_PHOTO) {
+            btnUseFor.setVisibility(View.GONE);
+        }
     }
 
     private void displayImage() {
@@ -271,6 +290,30 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
+    }
+
+
+    public void setActionUseForListener() {
+        View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
+        TextView set_wallpaper = view.findViewById(R.id.txt_set_as_wallpaper);
+        TextView set_background = view.findViewById(R.id.txt_set_as_background);
+        decodedBitmap = PhotoModel.getBitMap(context, model.getFile().getAbsolutePath());
+        set_wallpaper.setOnClickListener(v -> {
+            try {
+                if (!("").equals(model.getFile().getAbsolutePath()) && decodedBitmap != null) {
+                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+                    wallpaperManager.setBitmap(decodedBitmap);
+                    dialogActionuseFor.hide();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        set_background.setOnClickListener(v -> {
+            SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE, model.getFile().getAbsolutePath());
+            dialogActionuseFor.hide();
+        });
+        dialogActionuseFor.setContentView(view);
     }
 
     public void toggleBottomSheet() {
@@ -359,7 +402,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 view.findViewById(R.id.device_detail).setVisibility(View.GONE);
             }
 
-            double[] latLong;
             if (model.getType() == AbstractModel.TYPE_VIDEO) {
                 latLong = extractVideoLocation(uri);
             } else {

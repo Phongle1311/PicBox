@@ -3,9 +3,12 @@ package com.hcmus.picbox.activities;
 import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
 import static android.Manifest.permission.SET_WALLPAPER;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -15,11 +18,14 @@ import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.transformers.ZoomOutPageTransformer;
 import com.hcmus.picbox.utils.PermissionUtils;
+import com.hcmus.picbox.works.DeleteHelper;
 
 /**
  * Created on 16/11/2022 by Phong Le
  */
 public class DisplayMediaActivity extends AppCompatActivity {
+
+    private ScreenSlidePagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +49,18 @@ public class DisplayMediaActivity extends AppCompatActivity {
 
         // Init View pager
         ViewPager2 viewPager = findViewById(R.id.pager);
-        viewPager.setAdapter(new ScreenSlidePagerAdapter(getSupportFragmentManager(),
-                getLifecycle(), AlbumHolder.sGetAlbumById(albumId).getMediaList(), this::finish));
+        adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
+                AlbumHolder.sGetAlbumById(albumId).getMediaList(), this::finish);
+        viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position, false); // immediately scroll to position
         viewPager.setPageTransformer(new ZoomOutPageTransformer());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == DeleteHelper.DELETE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            adapter.removeFragment(ScreenSlidePagerAdapter.deletePosition);
+        }
     }
 }

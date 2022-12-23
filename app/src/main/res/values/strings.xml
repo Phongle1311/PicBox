@@ -73,6 +73,14 @@
     <string name="language_english">English</string>
     <string name="language_vietnamese">Vietnamese</string>
     <string name="setting_ic_desc_setting_language">Setting language</string>
+    <string name="desc_image_delete">Image(s) to be deleted</string>
+    <string name="desc_icon_delete_image">Desc icon delete image</string>
+    <string name="move_to_trash_bin">Move to trash bin</string>
+    <string name="delete_permanently">Delete permanently</string>
+    <string name="delete_deeply">Delete deeply</string>
+    <string name="helper_text_move_to_trash_bin">You can recover files in trash bin within 30 days.</string>
+    <string name="helper_text_delete_permanently">You can\'t recover deleted files.</string>
+    <string name="helper_text_delete_deeply">Overwrite this file, make sure this file can\'t be recovered!</string>
     <string name="set_as_wallpaper">Set as device\'s wallpaper</string>
     <string name="set_as_background">Set as app\'s background</string>
 </resources>

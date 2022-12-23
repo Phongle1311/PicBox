@@ -43,9 +43,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
+import com.hcmus.picbox.works.DeleteHelper;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
@@ -68,6 +70,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private IOnClickDetailBackButton backListener;
+    private int pos;
     private MediaMetadataRetriever retriever;
     private TextView btnUseFor;
     private ImageView imageView;
@@ -88,9 +91,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     public DisplayMediaFragment() {
     }
 
-    public DisplayMediaFragment(MediaModel model, IOnClickDetailBackButton backListener) {
+    public DisplayMediaFragment(MediaModel model, IOnClickDetailBackButton backListener,
+                                int position) {
         this.model = model;
         this.backListener = backListener;
+        this.pos = position;
     }
 
     @Override
@@ -270,12 +275,21 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     }
 
     private void setBottomAppBarListener() {
-        bottomBar.setOnItemSelectedListener(item ->
-                item.getItemId() == R.id.favourite_display_image ||
-                        item.getItemId() == R.id.edit_display_image ||
-                        item.getItemId() == R.id.delete_display_image ||
-                        item.getItemId() == R.id.secret_display_image);
-        btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
+        bottomBar.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.share_display_image) {
+                return true;
+            } else if (itemId == R.id.edit_display_image) {
+                return true;
+            } else if (itemId == R.id.delete_display_image) {
+                DeleteHelper.delete(context, model);
+                ScreenSlidePagerAdapter.deletePosition = pos;
+                return true;
+            } else if (itemId == R.id.secret_display_image) {
+                return true;
+            }
+            return false;
+        });
     }
 
 

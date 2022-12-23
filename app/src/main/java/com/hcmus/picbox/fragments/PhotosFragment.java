@@ -31,7 +31,7 @@ import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
-import com.hcmus.picbox.utils.StorageUtils;
+import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.util.Objects;
 
@@ -48,7 +48,7 @@ public class PhotosFragment extends Fragment {
 
     public PhotosFragment(String albumId) {
         album = AlbumHolder.sGetAlbumById(albumId);
-        StorageUtils.setMediasListener(albumId, this::onItemRangeInserted);
+        LoadStorageHelper.setMediasListener(albumId, this::onItemRangeInserted);
     }
 
     @Nullable
@@ -68,9 +68,10 @@ public class PhotosFragment extends Fragment {
     public void onResume() {
         super.onResume();
         int newSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
-        if (newSpanCount != mSpanCount) {
+//        if (newSpanCount != mSpanCount) {
+        if (photoAdapter != null) {
             mSpanCount = newSpanCount;
-            photoAdapter.notifyAll();
+            photoAdapter.updateAll();
         }
     }
 

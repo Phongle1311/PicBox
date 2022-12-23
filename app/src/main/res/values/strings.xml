@@ -73,4 +73,6 @@
     <string name="language_english">English</string>
     <string name="language_vietnamese">Vietnamese</string>
     <string name="setting_ic_desc_setting_language">Setting language</string>
+    <string name="set_as_wallpaper">Set as device\'s wallpaper</string>
+    <string name="set_as_background">Set as app\'s background</string>
 </resources>

@@ -24,6 +24,10 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
         this.mName = mFile.getName();
     }
 
+    protected MediaModel(Parcel in) {
+        this(new File(in.readString()));
+    }
+
     public boolean checkExists() {
         return mFile.exists();
     }
@@ -48,10 +52,6 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
         this.albumName = albumName;
     }
 
-    protected MediaModel(Parcel in) {
-        this(new File(in.readString()));
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -61,4 +61,5 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mFile.getPath());
     }
+
 }

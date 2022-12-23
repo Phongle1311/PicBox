@@ -43,12 +43,11 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
-import com.hcmus.picbox.processes.DeleteHelper;
+import com.hcmus.picbox.works.DeleteHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,6 +64,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private GestureDetector gestureDetector;
     private ScaleGestureDetector scaleGestureDetector;
     private IOnClickDetailBackButton backListener;
+    private int pos;
     private MediaMetadataRetriever retriever;
     private ImageView imageView;
     private StyledPlayerView playerView;
@@ -81,9 +81,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     public DisplayMediaFragment() {
     }
 
-    public DisplayMediaFragment(MediaModel model, IOnClickDetailBackButton backListener) {
+    public DisplayMediaFragment(MediaModel model, IOnClickDetailBackButton backListener,
+                                int position) {
         this.model = model;
         this.backListener = backListener;
+        this.pos = position;
     }
 
     @Override
@@ -254,22 +256,16 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
     private void setBottomAppBarListener() {
         bottomBar.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.share_display_image:
-                    return true;
-
-                case R.id.edit_display_image:
-                    return true;
-
-                case R.id.delete_display_image: {
-                    List<MediaModel> modelList = new ArrayList<>();
-                    modelList.add(model);
-                    DeleteHelper.delete(modelList, context);
-                    return true;
-
-                }
-                case R.id.secret_display_image:
-                    return true;
+            int itemId = item.getItemId();
+            if (itemId == R.id.share_display_image) {
+                return true;
+            } else if (itemId == R.id.edit_display_image) {
+                return true;
+            } else if (itemId == R.id.delete_display_image) {
+                DeleteHelper.delete(context, model, pos);
+                return true;
+            } else if (itemId == R.id.secret_display_image) {
+                return true;
             }
             return false;
         });

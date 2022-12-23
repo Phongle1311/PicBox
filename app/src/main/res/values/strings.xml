@@ -78,4 +78,7 @@
     <string name="move_to_trash_bin">Move to trash bin</string>
     <string name="delete_permanently">Delete permanently</string>
     <string name="delete_deeply">Delete deeply</string>
+    <string name="helper_text_move_to_trash_bin">You can recover files in trash bin within 30 days.</string>
+    <string name="helper_text_delete_permanently">You can\'t recover deleted files.</string>
+    <string name="helper_text_delete_deeply">Overwrite this file, make sure this file can\'t be recovered!</string>
 </resources>

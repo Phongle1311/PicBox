@@ -23,7 +23,7 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
-import com.hcmus.picbox.processes.LoadStorageHelper;
+import com.hcmus.picbox.works.LoadStorageHelper;
 
 public class MainActivity extends AppCompatActivity {
 

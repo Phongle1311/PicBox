@@ -78,4 +78,7 @@
     <string name="move_to_trash_bin">Đưa vào thùng rác</string>
     <string name="delete_permanently">Xóa hoàn toàn</string>
     <string name="delete_deeply">Xóa sâu</string>
+    <string name="helper_text_move_to_trash_bin">Bạn có thể khôi phục lại những file trong thùng rác trong vòng 30 ngày.</string>
+    <string name="helper_text_delete_permanently">Xóa những file này ngay lập tức và bạn không thể khôi phục lại chúng.</string>
+    <string name="helper_text_delete_deeply">Những file này sẽ bị ghi đè và không có cách nào để khôi phục lại.</string>
 </resources>

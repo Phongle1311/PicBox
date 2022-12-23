@@ -19,7 +19,7 @@ import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
-import com.hcmus.picbox.processes.LoadStorageHelper;
+import com.hcmus.picbox.works.LoadStorageHelper;
 
 public class PhotosFragment extends Fragment {
 

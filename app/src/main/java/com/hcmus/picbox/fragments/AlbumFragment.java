@@ -17,7 +17,7 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.AlbumAdapter;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
-import com.hcmus.picbox.processes.LoadStorageHelper;
+import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.util.List;
 

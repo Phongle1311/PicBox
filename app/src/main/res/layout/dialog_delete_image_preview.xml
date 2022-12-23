@@ -15,7 +15,7 @@
         android:textStyle="bold" />
 
     <RadioGroup
-        android:id="@+id/languageSettingRadioGroup"
+        android:id="@+id/rg_type_of_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

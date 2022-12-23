@@ -1,13 +1,24 @@
 package com.hcmus.picbox.fragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,9 +28,12 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.MediaAdapter;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
+import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.utils.StorageUtils;
+
+import java.util.Objects;
 
 public class PhotosFragment extends Fragment {
 
@@ -27,6 +41,7 @@ public class PhotosFragment extends Fragment {
     private Context context;
     private int mSpanCount;
     private int fabClicked = 0;
+    private ImageView photoBackground;
     private RecyclerView mGallery;
     private MediaAdapter photoAdapter;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
@@ -66,7 +81,7 @@ public class PhotosFragment extends Fragment {
         fabSecret = v.findViewById(R.id.fab_secret_media);
         fabChangeLayout = v.findViewById(R.id.fab_change_layout);
         fabSortBy = v.findViewById(R.id.fab_sort_by);
-
+        photoBackground = v.findViewById(R.id.fragment_photo_layout);
         fabMain.setOnClickListener(view -> {
             if (fabClicked == 0) {
                 showMiniFABs();
@@ -75,6 +90,14 @@ public class PhotosFragment extends Fragment {
             }
             fabClicked = ~fabClicked;
         });
+        String backgroundPath = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE);
+        if (!Objects.equals(backgroundPath, "")) {
+            Bitmap decodedBitmap = PhotoModel.getBitMap(context, backgroundPath);
+            if (decodedBitmap != null) {
+                Drawable ob = new BitmapDrawable(getResources(), decodedBitmap);
+                photoBackground.setImageBitmap(decodedBitmap);
+            }
+        }
     }
 
     private void showMiniFABs() {

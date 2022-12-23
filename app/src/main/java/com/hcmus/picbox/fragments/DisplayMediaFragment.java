@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -25,10 +26,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 
@@ -53,6 +57,10 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
+import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.utils.SharedPreferencesUtils;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -83,6 +91,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private ExoPlayer player;
     private TextView goToMap;
     private TextView showLocation;
+    private Bitmap decodedBitmap;
     private ProgressBar pbPlayer;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
@@ -221,7 +230,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         dialogActionuseFor = new BottomSheetDialog(context);
         retriever = new MediaMetadataRetriever();
         int type = model.getType();
-        if(type!=AbstractModel.TYPE_PHOTO){
+        if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
         }
     }
@@ -290,67 +299,28 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         });
     }
 
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-
-        return inSampleSize;
-    }
 
     public void setActionUseForListener() {
         View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
         TextView set_wallpaper = view.findViewById(R.id.txt_set_as_wallpaper);
-        ;
-        set_wallpaper.setOnClickListener(new View.OnClickListener() {
+        TextView set_background = view.findViewById(R.id.txt_set_as_background);
+        decodedBitmap = PhotoModel.getBitMap(context, model.getFile().getAbsolutePath());
+        set_wallpaper.setOnClickListener(v -> {
+            try {
+                if (!("").equals(model.getFile().getAbsolutePath()) && decodedBitmap != null) {
+                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+                    wallpaperManager.setBitmap(decodedBitmap);
+                    dialogActionuseFor.hide();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        set_background.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (model.getFile() != null) {
-                    DisplayMetrics displayMetrics = new DisplayMetrics();
-                    ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-                    int width = displayMetrics.widthPixels << 1;
-                    int height = displayMetrics.heightPixels;
-                    final BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(model.getFile().getAbsolutePath(), options);
-                    options.inSampleSize = calculateInSampleSize(options, width, height);
-                    options.inJustDecodeBounds = false;
-                    Bitmap decodedSampleBitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath(), options);
-                    try {
-                        ExifInterface exif = new ExifInterface(model.getFile().getAbsolutePath());
-                        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-                        int rotation = 0;
-                        if (orientation == 6) rotation = 90;
-                        else if (orientation == 3) rotation = 180;
-                        else if (orientation == 8) rotation = 270;
-                        if (rotation != 0) {
-                            Matrix matrix = new Matrix();
-                            matrix.postRotate(rotation);
-                            Bitmap rotated = Bitmap.createBitmap(decodedSampleBitmap, 0, 0, decodedSampleBitmap.getWidth(), decodedSampleBitmap.getHeight(), matrix, true);
-                            decodedSampleBitmap.recycle();
-                            decodedSampleBitmap = rotated;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if (!("").equals(model.getFile().getAbsolutePath())) {
-                        WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
-                        try {
-                            wallpaperManager.setBitmap(decodedSampleBitmap);
-                            dialogActionuseFor.hide();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE, model.getFile().getAbsolutePath());
+                dialogActionuseFor.hide();
             }
         });
         dialogActionuseFor.setContentView(view);

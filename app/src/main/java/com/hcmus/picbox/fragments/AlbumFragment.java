@@ -1,10 +1,15 @@
 package com.hcmus.picbox.fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,10 +21,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.AlbumAdapter;
 import com.hcmus.picbox.models.AlbumModel;
+import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
+import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.utils.StorageUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 public class AlbumFragment extends Fragment {
 
@@ -28,6 +36,7 @@ public class AlbumFragment extends Fragment {
     private final List<AlbumModel> userAlbumList = AlbumHolder.getUserAlbumList().getList();
     private AlbumAdapter deviceAlbumAdapter;
     private AlbumAdapter userAlbumAdapter;
+    private ImageView albumBackground;
     private RecyclerView rcvUserAlbums;
     private RecyclerView rcvDeviceAlbum;
 
@@ -48,7 +57,15 @@ public class AlbumFragment extends Fragment {
     private void initUI(View view) {
         rcvUserAlbums = view.findViewById(R.id.rcv_user_album);
         rcvDeviceAlbum = view.findViewById(R.id.rcv_device_album);
-
+        albumBackground = view.findViewById(R.id.fragment_album_layout);
+        String backgroundPath = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE);
+        if (!Objects.equals(backgroundPath, "")) {
+            Bitmap decodedBitmap = PhotoModel.getBitMap(context, backgroundPath);
+            if (decodedBitmap != null) {
+                Drawable ob = new BitmapDrawable(getResources(), decodedBitmap);
+                albumBackground.setImageDrawable(ob);
+            }
+        }
         view.findViewById(R.id.card_view_favorite).setOnClickListener(v -> {
             // TODO: open album
         });

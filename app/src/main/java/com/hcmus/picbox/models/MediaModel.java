@@ -1,5 +1,6 @@
 package com.hcmus.picbox.models;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -61,4 +62,5 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(mFile.getPath());
     }
+
 }

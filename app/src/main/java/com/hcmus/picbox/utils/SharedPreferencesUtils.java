@@ -3,6 +3,8 @@ package com.hcmus.picbox.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 
 /**
  * Created on 21/11/2022 by Minh Kha
@@ -15,6 +17,7 @@ public class SharedPreferencesUtils {
     public static final String KEY_LANGUAGE = "language";
     public static final String KEY_GROUP_MODE = "group_mode";
     public static final String KEY_GRID_MODE = "grid_mode";
+    public static final String KEY_BACKGROUND_IMAGE = "background_image";
 
     private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(
@@ -28,7 +31,7 @@ public class SharedPreferencesUtils {
      * @param key     the key
      * @return the boolean if key exists in Shared Preferences
      */
-    static  public  boolean checkKeyExist(Context context, String key){
+    static public boolean checkKeyExist(Context context, String key) {
         return context.getSharedPreferences(PREF_APP, Context.MODE_PRIVATE).contains(key);
     }
 
@@ -118,7 +121,7 @@ public class SharedPreferencesUtils {
      * @param key     the key
      */
     @SuppressLint("CommitPrefEdits")
-    static public void removeData(Context context, String key){
+    static public void removeData(Context context, String key) {
         context.getSharedPreferences(PREF_APP, Context.MODE_PRIVATE)
                 .edit()
                 .remove(key)

@@ -15,11 +15,11 @@
         android:text="@string/set_as_wallpaper" />
 
     <TextView
-        android:id="@+id/txt_set_as_contact_wallpaper"
+        android:id="@+id/txt_set_as_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
         android:paddingHorizontal="8dp"
         android:paddingVertical="16dp"
-        android:text="Set as background contact" />
+        android:text="@string/set_as_background" />
 </LinearLayout>

@@ -53,9 +53,10 @@ public class PhotosFragment extends Fragment {
     public void onResume() {
         super.onResume();
         int newSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
-        if (newSpanCount != mSpanCount) {
+//        if (newSpanCount != mSpanCount) {
+        if (photoAdapter != null) {
             mSpanCount = newSpanCount;
-            photoAdapter.notifyAll();
+            photoAdapter.updateAll();
         }
     }
 

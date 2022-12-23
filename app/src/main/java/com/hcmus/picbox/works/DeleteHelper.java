@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Build;
@@ -46,18 +45,14 @@ import java.util.Locale;
 public class DeleteHelper {
 
     public static final int DELETE_REQUEST_CODE = 1;
-    public static final String KEY_POSITION = "key_position";
 
-
-    public static void delete(Context context, MediaModel media, int position) {
+    public static void delete(Context context, MediaModel media) {
         List<MediaModel> modelList = new ArrayList<>();
         modelList.add(media);
-        ArrayList<Integer> positions = new ArrayList<>();
-        positions.add(position);
-        delete(context, modelList, positions);
+        delete(context, modelList);
     }
 
-    public static void delete(Context context, List<MediaModel> mediaList, ArrayList<Integer> positions) {
+    public static void delete(Context context, List<MediaModel> mediaList) {
         // Declare work request
         String[] paths = new String[mediaList.size()];
         int index = 0;
@@ -75,7 +70,6 @@ public class DeleteHelper {
                         .build();
 
         // UI
-//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(context);
         builder.setCancelable(true);
 
@@ -96,9 +90,9 @@ public class DeleteHelper {
 
         rgTypeOfDelete.setOnCheckedChangeListener((radioGroup, i) -> {
             TextView tvHelper = dialogLayout.findViewById(R.id.tv_helper_text);
-            if (i == 0)
+            if (i == R.id.rb_move_to_trash_bin)
                 tvHelper.setText(R.string.helper_text_move_to_trash_bin);
-            else if (i == 1)
+            else if (i == R.id.rb_delete_permanently)
                 tvHelper.setText(R.string.helper_text_delete_permanently);
             else
                 tvHelper.setText(R.string.helper_text_delete_deeply);
@@ -130,7 +124,7 @@ public class DeleteHelper {
 
                                 try {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                        deleteAPI30(uriList, context, positions);
+                                        deleteAPI30(uriList, context);
                                     } else {
                                         deleteAPI28(uriList, context);
                                     }
@@ -159,7 +153,7 @@ public class DeleteHelper {
 //    }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
-    private static void deleteAPI30(List<Uri> uriList, Context context, ArrayList<Integer> positions) throws
+    private static void deleteAPI30(List<Uri> uriList, Context context) throws
             IntentSender.SendIntentException {
         ContentResolver contentResolver = context.getContentResolver();
         PendingIntent pendingIntent = MediaStore.createDeleteRequest(contentResolver, uriList);

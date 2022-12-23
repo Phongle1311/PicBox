@@ -12,7 +12,7 @@ public abstract class AbstractModel {
     public static final int TYPE_VIDEO = 2;
     public static final int TYPE_GIF = 3;
 
-    public static int GROUP_BY = 2; // 0: none, 1: day, 2: month, 3: year
+    public static int groupBy = 2; // 0: none, 1: day, 2: month, 3: year
 
     protected LocalDate mLastModifiedTime;
 
@@ -23,7 +23,7 @@ public abstract class AbstractModel {
     @NonNull
     public String getStringLastModifiedTime() {
         DateTimeFormatter formatter;
-        switch(GROUP_BY) {
+        switch(groupBy) {
             case 1:
                 formatter = DateTimeFormatter.ofPattern("'Ngày 'dd' tháng 'MM' năm 'yyyy");
                 break;
@@ -41,7 +41,7 @@ public abstract class AbstractModel {
     public boolean isTimeEqual(AbstractModel model) {
         LocalDate otherDate = model.getLastModifiedTime();
         return mLastModifiedTime.getYear() == otherDate.getYear() &&
-                (GROUP_BY == 3 || mLastModifiedTime.getMonth() == otherDate.getMonth()) &&
-                (GROUP_BY != 1 || mLastModifiedTime.getDayOfMonth() == otherDate.getDayOfMonth());
+                (groupBy == 3 || mLastModifiedTime.getMonth() == otherDate.getMonth()) &&
+                (groupBy != 1 || mLastModifiedTime.getDayOfMonth() == otherDate.getDayOfMonth());
     }
 }

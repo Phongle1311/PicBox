@@ -143,19 +143,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         bottomBar.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.photos:
-                    mainViewPager.setCurrentItem(0);
-                    break;
-                case R.id.gallery:
-                    mainViewPager.setCurrentItem(1);
-                    break;
-                case R.id.drawing:
-                    mainViewPager.setCurrentItem(2);
-                    break;
-                case R.id.setting:
-                    mainViewPager.setCurrentItem(3);
-                    break;
+            int itemId = item.getItemId();
+            if (itemId == R.id.photos) {
+                mainViewPager.setCurrentItem(0);
+            } else if (itemId == R.id.gallery) {
+                mainViewPager.setCurrentItem(1);
+            } else if (itemId == R.id.drawing) {
+                mainViewPager.setCurrentItem(2);
+            } else if (itemId == R.id.setting) {
+                mainViewPager.setCurrentItem(3);
             }
             return true;
         });

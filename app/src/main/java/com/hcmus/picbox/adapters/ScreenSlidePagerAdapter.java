@@ -20,6 +20,7 @@ public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
 
     private final List<MediaModel> models;
     private final IOnClickDetailBackButton backListener;
+    public static int deletePosition;
 
     public ScreenSlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<MediaModel> models, IOnClickDetailBackButton backListen) {
         super(fragmentManager, lifecycle);

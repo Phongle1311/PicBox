@@ -40,6 +40,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
@@ -262,7 +263,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             } else if (itemId == R.id.edit_display_image) {
                 return true;
             } else if (itemId == R.id.delete_display_image) {
-                DeleteHelper.delete(context, model, pos);
+                DeleteHelper.delete(context, model);
+                ScreenSlidePagerAdapter.deletePosition = pos;
                 return true;
             } else if (itemId == R.id.secret_display_image) {
                 return true;

@@ -127,4 +127,10 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             txt_date = itemView.findViewById(R.id.tv_date);
         }
     }
+
+    public void updateAll() {
+        album.updateMediaList();
+        album.updateModelList();
+        notifyDataSetChanged();
+    }
 }

@@ -19,8 +19,6 @@ import com.hcmus.picbox.transformers.ZoomOutPageTransformer;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 
-import java.util.ArrayList;
-
 /**
  * Created on 16/11/2022 by Phong Le
  */
@@ -58,7 +56,7 @@ public class DisplayMediaActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == DeleteHelper.DELETE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            adapter.notifyDataSetChanged();
+            adapter.removeFragment(ScreenSlidePagerAdapter.deletePosition);
         }
     }
 }

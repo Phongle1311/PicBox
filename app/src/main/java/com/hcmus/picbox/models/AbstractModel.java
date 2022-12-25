@@ -12,7 +12,11 @@ public abstract class AbstractModel {
     public static final int TYPE_VIDEO = 2;
     public static final int TYPE_GIF = 3;
 
-    public static int groupBy = 2; // 0: none, 1: day, 2: month, 3: year
+    public static final String GROUP_MODE_OPTION_1 = "None";
+    public static final String GROUP_MODE_OPTION_2 = "Day";
+    public static final String GROUP_MODE_OPTION_3 = "Month";
+    public static final String GROUP_MODE_OPTION_4 = "Year";
+    public static String groupMode = GROUP_MODE_OPTION_3; // 0: none, 1: day, 2: month, 3: year
 
     protected LocalDate mLastModifiedTime;
 
@@ -23,11 +27,11 @@ public abstract class AbstractModel {
     @NonNull
     public String getStringLastModifiedTime() {
         DateTimeFormatter formatter;
-        switch(groupBy) {
-            case 1:
+        switch (groupMode) {
+            case GROUP_MODE_OPTION_2:
                 formatter = DateTimeFormatter.ofPattern("'Ngày 'dd' tháng 'MM' năm 'yyyy");
                 break;
-            case 3:
+            case GROUP_MODE_OPTION_4:
                 formatter = DateTimeFormatter.ofPattern("'Năm 'yyyy");
                 break;
             default:
@@ -41,7 +45,7 @@ public abstract class AbstractModel {
     public boolean isTimeEqual(AbstractModel model) {
         LocalDate otherDate = model.getLastModifiedTime();
         return mLastModifiedTime.getYear() == otherDate.getYear() &&
-                (groupBy == 3 || mLastModifiedTime.getMonth() == otherDate.getMonth()) &&
-                (groupBy != 1 || mLastModifiedTime.getDayOfMonth() == otherDate.getDayOfMonth());
+                (groupMode.equals(GROUP_MODE_OPTION_4) || mLastModifiedTime.getMonth() == otherDate.getMonth()) &&
+                (!groupMode.equals(GROUP_MODE_OPTION_2) || mLastModifiedTime.getDayOfMonth() == otherDate.getDayOfMonth());
     }
 }

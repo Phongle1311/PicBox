@@ -2,10 +2,11 @@ package com.hcmus.picbox.fragments;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_1;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -31,13 +32,13 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.util.Arrays;
 
 public class SettingFragment extends Fragment {
-
 
     private Context context;
 
@@ -133,10 +134,10 @@ public class SettingFragment extends Fragment {
             RadioButton englishRadioButton = languageSettingDialog.findViewById(R.id.englishRadioButton);
             RadioButton vietnameseRadioButton = languageSettingDialog.findViewById(R.id.vietnamseRadioButton);
             switch (SharedPreferencesUtils.getStringData(context, KEY_LANGUAGE)) {
-                case "english":
+                case LANGUAGE_OPTION_1:
                     englishRadioButton.setChecked(true);
                     break;
-                case "vietnamese":
+                case LANGUAGE_OPTION_2:
                     vietnameseRadioButton.setChecked(true);
                     break;
                 default:
@@ -150,11 +151,11 @@ public class SettingFragment extends Fragment {
                 switch (selectedId) {
                     case R.id.englishRadioButton:
                         languageTextView.setText(R.string.language_english);
-                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, "english");
+                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_1);
                         break;
                     case R.id.vietnamseRadioButton:
                         languageTextView.setText(R.string.language_vietnamese);
-                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, "vietnamese");
+                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_2);
                         break;
                 }
                 languageSettingDialog.dismiss();
@@ -171,14 +172,25 @@ public class SettingFragment extends Fragment {
         groupModeLayout.setOnClickListener(view17 -> {
             AlertDialog.Builder groupModeSettingDialogBuilder = new AlertDialog.Builder(context);
             groupModeSettingDialogBuilder.setTitle(R.string.group_mode_dialog_title);
-            String[] items = {getResources().getString(R.string.day), getResources().getString(R.string.month), getResources().getString(R.string.year), getResources().getString(R.string.none)};
+            String[] saveValues =
+                    {AbstractModel.GROUP_MODE_OPTION_2,
+                            AbstractModel.GROUP_MODE_OPTION_3,
+                            AbstractModel.GROUP_MODE_OPTION_4,
+                            AbstractModel.GROUP_MODE_OPTION_1};
 
-            int checkedItem = Arrays.asList(items).indexOf(SharedPreferencesUtils.getStringData(context, KEY_GROUP_MODE));
+            String[] items =
+                    {getResources().getString(R.string.day),
+                            getResources().getString(R.string.month),
+                            getResources().getString(R.string.year),
+                            getResources().getString(R.string.none)};
+
+            int checkedItem = Arrays.asList(saveValues).indexOf(
+                    SharedPreferencesUtils.getStringData(context, KEY_GROUP_MODE));
             groupModeSettingDialogBuilder
                     .setSingleChoiceItems(items, checkedItem, null)
                     .setPositiveButton(R.string.confirm, (dialog, which) -> {
                         int groupModeChosenIndex = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                        SharedPreferencesUtils.saveData(context, KEY_GROUP_MODE, items[groupModeChosenIndex]);
+                        SharedPreferencesUtils.saveData(context, KEY_GROUP_MODE, saveValues[groupModeChosenIndex]);
                         groupModeTextView.setText(items[groupModeChosenIndex]);
                         dialog.cancel();
                     })
@@ -263,15 +275,28 @@ public class SettingFragment extends Fragment {
 
         multiColumnTextView.setText(String.valueOf(SharedPreferencesUtils.getIntData(context, KEY_SPAN_COUNT)));
 
-        switch (String.valueOf(SharedPreferencesUtils.getStringData(context, "language"))) {
-            case "english":
+        switch (String.valueOf(SharedPreferencesUtils.getStringData(context, KEY_LANGUAGE))) {
+            case LANGUAGE_OPTION_1:
                 languageTextView.setText(R.string.language_english);
                 break;
-            case "vietnamese":
+            case LANGUAGE_OPTION_2:
                 languageTextView.setText(R.string.language_vietnamese);
                 break;
         }
 
-        groupModeTextView.setText(String.valueOf(SharedPreferencesUtils.getStringData(context, "group_mode")));
+        switch (String.valueOf(SharedPreferencesUtils.getStringData(context, KEY_GROUP_MODE))) {
+            case AbstractModel.GROUP_MODE_OPTION_2:
+                groupModeTextView.setText(R.string.day);
+                break;
+            case AbstractModel.GROUP_MODE_OPTION_3:
+                groupModeTextView.setText(R.string.month);
+                break;
+            case AbstractModel.GROUP_MODE_OPTION_4:
+                groupModeTextView.setText(R.string.year);
+                break;
+            default:
+                groupModeTextView.setText(R.string.none);
+                break;
+        }
     }
 }

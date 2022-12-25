@@ -1,6 +1,6 @@
 package com.hcmus.picbox.models;
 
-import static com.hcmus.picbox.models.AbstractModel.groupBy;
+import static com.hcmus.picbox.models.AbstractModel.groupMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,8 @@ public class ModelList {
      * @param model the media item want to add
      */
     public void add(MediaModel model) {
-        if (AbstractModel.groupBy != 0 && (lastItem == null || !lastItem.isTimeEqual(model)))
+        if (!AbstractModel.groupMode.equals(AbstractModel.GROUP_MODE_OPTION_1)
+                && (lastItem == null || !lastItem.isTimeEqual(model)))
             mModelList.add(new DateModel(model.getLastModifiedTime()));
         mModelList.add(model);
         mMediaList.add(model);
@@ -73,11 +74,11 @@ public class ModelList {
      * Update modelList after changing datetime-breaking type
      */
     public void updateModelList() {
-        if (groupBy == 0) {
+        mModelList = new ArrayList<>();
+        if (groupMode.equals(AbstractModel.GROUP_MODE_OPTION_1)) {
             mModelList.addAll(mMediaList);
             lastItem = mMediaList.get(mModelList.size() - 1);
         } else {
-            mModelList = new ArrayList<>();
             lastItem = null;
             for (MediaModel model : mMediaList) {
                 if (lastItem == null || !lastItem.isTimeEqual(model))

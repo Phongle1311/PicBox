@@ -1,5 +1,7 @@
 package com.hcmus.picbox.utils;
 
+import static com.hcmus.picbox.models.AbstractModel.GROUP_MODE_OPTION_3;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -15,6 +17,13 @@ public class SharedPreferencesUtils {
     public static final String KEY_GRID_MODE = "grid_mode";
     public static final String KEY_BACKGROUND_IMAGE = "background_image";
     private static final String PREF_APP = "pref_app";
+
+    public static final String LANGUAGE_OPTION_1 = "english";
+    public static final String LANGUAGE_OPTION_2 = "vietnamese";
+
+    public static final int SPAN_COUNT_DEFAULT = 4;
+    public static final String GROUP_MODE_DEFAULT = GROUP_MODE_OPTION_3;
+    public static final String LANGUAGE_DEFAULT = LANGUAGE_OPTION_2;
 
     private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(

@@ -1,15 +1,10 @@
 package com.hcmus.picbox.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +12,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,10 +60,12 @@ public class PhotosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        int newSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
+        int newSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
+        String newGroupMode = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_GROUP_MODE);
 //        if (newSpanCount != mSpanCount) {
         if (photoAdapter != null) {
             mSpanCount = newSpanCount;
+            AbstractModel.groupMode = newGroupMode;
             photoAdapter.updateAll();
         }
     }
@@ -117,7 +112,7 @@ public class PhotosFragment extends Fragment {
 
     private void prepareRecyclerView() {
         photoAdapter = new MediaAdapter(context, album);
-        mSpanCount = SharedPreferencesUtils.getIntData(context, "num_columns_of_row");
+        mSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override

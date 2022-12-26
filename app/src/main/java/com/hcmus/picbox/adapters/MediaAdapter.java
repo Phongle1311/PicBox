@@ -97,6 +97,12 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     viewHolder.imageView.setScaleY(SCALE_Y);
                     viewHolder.rbSelect.setChecked(true);
                 }
+                else {
+                    viewHolder.imageView.setScaleX(1f);
+                    viewHolder.imageView.setScaleY(1f);
+                    viewHolder.rbSelect.setChecked(false);
+                }
+
                 if (isSelecting)
                     viewHolder.rbSelect.setVisibility(View.VISIBLE);
                 else
@@ -187,8 +193,9 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void endSelection() {
-        deselectAll();
+        selectedMedia.clear();
         isSelecting = false;
+        deselectAll();
     }
 
     public void updateAll() {
@@ -208,6 +215,7 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             this.itemView = itemView;
             imageView = itemView.findViewById(R.id.img_card);
             rbSelect = itemView.findViewById(R.id.rb_select);
+            rbSelect.setEnabled(false);
         }
     }
 

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,19 +16,38 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.DisplayMediaActivity;
+import com.hcmus.picbox.interfaces.IMediaAdapterCallback;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DateModel;
 import com.hcmus.picbox.models.MediaModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
     private final AlbumModel album;
+    public List<MediaModel> selectedMedia = new ArrayList<>();
+    private boolean isSelecting = false;
+    private IMediaAdapterCallback listener;
+    private CustomActionModeCallback actionModeCallback;
+
+    private static final float SCALE_X = 0.7f;
+    private static final float SCALE_Y = 0.7f;
 
     public MediaAdapter(Context context, AlbumModel album) {
         this.context = context;
         this.album = album;
+    }
+
+    public void setCallback(IMediaAdapterCallback listener) {
+        this.listener = listener;
+    }
+
+    public void setActionModeCallback(CustomActionModeCallback actionModeCallback) {
+        this.actionModeCallback = actionModeCallback;
     }
 
     @NonNull
@@ -72,6 +92,22 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 MediaModel model = (MediaModel) album.getModelList().get(position);
                 MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
+                if (selectedMedia.contains(model)) {
+                    viewHolder.imageView.setScaleX(SCALE_X);
+                    viewHolder.imageView.setScaleY(SCALE_Y);
+                    viewHolder.rbSelect.setChecked(true);
+                }
+                else {
+                    viewHolder.imageView.setScaleX(1f);
+                    viewHolder.imageView.setScaleY(1f);
+                    viewHolder.rbSelect.setChecked(false);
+                }
+
+                if (isSelecting)
+                    viewHolder.rbSelect.setVisibility(View.VISIBLE);
+                else
+                    viewHolder.rbSelect.setVisibility(View.GONE);
+
                 // Load image by glide library
                 Glide.with(context)
                         .load(model.getFile())
@@ -80,19 +116,51 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         .into(viewHolder.imageView);
 
                 // Set onClick Listener to display media
-                viewHolder.imageView.setOnClickListener(view -> {
-                    Intent i = new Intent(context, DisplayMediaActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("position", album.getMediaList().indexOf(model));
-                    bundle.putString("category", album.getId());
-                    i.putExtra("model", bundle);
-                    context.startActivity(i);
+                viewHolder.itemView.setOnClickListener(view -> {
+                    if (isSelecting) {
+                        onClickItem(viewHolder, model);
+                    } else {
+                        Intent i = new Intent(context, DisplayMediaActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("position", album.getMediaList().indexOf(model));
+                        bundle.putString("category", album.getId());
+                        i.putExtra("model", bundle);
+                        context.startActivity(i);
+                    }
+                });
+
+                viewHolder.itemView.setOnLongClickListener(view -> {
+                    if (!isSelecting) {
+                        isSelecting = true;
+                        listener.onStartSelectMultiple();
+                        onClickItem(viewHolder, model);
+                        notifyDataSetChanged();
+                        return true;
+                    }
+                    return false;
                 });
                 break;
             }
             default:
                 throw new IllegalStateException("Unsupported type");
         }
+    }
+
+    private void onClickItem(MediaViewHolder viewHolder, MediaModel model) {
+        if (selectedMedia.contains(model)) {
+            selectedMedia.remove(model);
+            viewHolder.imageView.setScaleX(1f);
+            viewHolder.imageView.setScaleY(1f);
+            viewHolder.rbSelect.setChecked(false);
+        } else {
+            selectedMedia.add(model);
+            viewHolder.imageView.setScaleX(SCALE_X);
+            viewHolder.imageView.setScaleY(SCALE_Y);
+            viewHolder.rbSelect.setChecked(true);
+        }
+
+        if (actionModeCallback != null)
+            actionModeCallback.updateActionModeTitle();
     }
 
     @Override
@@ -103,18 +171,51 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public int getItemViewType(int position) {
         if (position < 0 || album == null || position >= album.getModelList().size()) {
-            throw new IllegalStateException("the position is invalid");
+            throw new IllegalStateException("The position is invalid");
         }
         return album.getModelList().get(position).getType();
     }
 
+    public void selectAll() {
+        int i = 0;
+        for (MediaModel media : album.getMediaList()) {
+            if (!selectedMedia.contains(media)) {
+                selectedMedia.add(media);
+                notifyItemChanged(i);
+            }
+            i++;
+        }
+    }
+
+    public void deselectAll() {
+        selectedMedia.clear();
+        notifyDataSetChanged();
+    }
+
+    public void endSelection() {
+        selectedMedia.clear();
+        isSelecting = false;
+        deselectAll();
+    }
+
+    public void updateAll() {
+        album.updateMediaList();
+        album.updateModelList();
+        notifyDataSetChanged();
+    }
+
     public static class MediaViewHolder extends RecyclerView.ViewHolder {
 
+        private final View itemView;
         private final ImageView imageView;
+        private final RadioButton rbSelect;
 
         public MediaViewHolder(@NonNull View itemView) {
             super(itemView);
+            this.itemView = itemView;
             imageView = itemView.findViewById(R.id.img_card);
+            rbSelect = itemView.findViewById(R.id.rb_select);
+            rbSelect.setEnabled(false);
         }
     }
 
@@ -126,11 +227,5 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             super(itemView);
             txt_date = itemView.findViewById(R.id.tv_date);
         }
-    }
-
-    public void updateAll() {
-        album.updateMediaList();
-        album.updateModelList();
-        notifyDataSetChanged();
     }
 }

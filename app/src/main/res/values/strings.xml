@@ -83,4 +83,9 @@
     <string name="helper_text_delete_deeply">Overwrite this file, make sure this file can\'t be recovered!</string>
     <string name="set_as_wallpaper">Set as device\'s wallpaper</string>
     <string name="set_as_background">Set as app\'s background</string>
+    <string name="select_multi_add_to_album">Add to album</string>
+    <string name="select_multi_move_to_secret">Move to secret album</string>
+    <string name="select_multi_compound_images">Compound images</string>
+    <string name="select_multi__slide_show">Slide show</string>
+    <string name="select_multi_make_gif">Make GIF</string>
 </resources>

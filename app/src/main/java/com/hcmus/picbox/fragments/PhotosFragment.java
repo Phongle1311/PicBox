@@ -1,5 +1,6 @@
 package com.hcmus.picbox.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -18,7 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.adapters.CustomActionModeCallback;
 import com.hcmus.picbox.adapters.MediaAdapter;
+import com.hcmus.picbox.interfaces.IMediaAdapterCallback;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.PhotoModel;
@@ -28,7 +31,7 @@ import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.util.Objects;
 
-public class PhotosFragment extends Fragment {
+public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
 
     private final AlbumModel album;
     private Context context;
@@ -36,7 +39,8 @@ public class PhotosFragment extends Fragment {
     private int fabClicked = 0;
     private ImageView photoBackground;
     private RecyclerView mGallery;
-    private MediaAdapter photoAdapter;
+    private MediaAdapter mediaAdapter;
+    private CustomActionModeCallback actionModeCallback;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
 
     public PhotosFragment(String albumId) {
@@ -63,10 +67,10 @@ public class PhotosFragment extends Fragment {
         int newSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
         String newGroupMode = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_GROUP_MODE);
 //        if (newSpanCount != mSpanCount) {
-        if (photoAdapter != null) {
+        if (mediaAdapter != null) {
             mSpanCount = newSpanCount;
             AbstractModel.groupMode = newGroupMode;
-            photoAdapter.updateAll();
+            mediaAdapter.updateAll();
         }
     }
 
@@ -111,13 +115,16 @@ public class PhotosFragment extends Fragment {
     }
 
     private void prepareRecyclerView() {
-        photoAdapter = new MediaAdapter(context, album);
+        mediaAdapter = new MediaAdapter(context, album);
+        mediaAdapter.setCallback(this);
+        actionModeCallback = new CustomActionModeCallback(context, mediaAdapter);
+        mediaAdapter.setActionModeCallback(actionModeCallback);
         mSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
         GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                switch (photoAdapter.getItemViewType(position)) {
+                switch (mediaAdapter.getItemViewType(position)) {
                     case AbstractModel.TYPE_DATE:
                         return manager.getSpanCount();
                     case AbstractModel.TYPE_PHOTO:
@@ -131,7 +138,7 @@ public class PhotosFragment extends Fragment {
             }
         });
         mGallery.setLayoutManager(manager);
-        mGallery.setAdapter(photoAdapter);
+        mGallery.setAdapter(mediaAdapter);
         mGallery.setOnTouchListener((view, motionEvent) -> {
             hideMiniFABs();
             fabClicked = 0;
@@ -163,6 +170,11 @@ public class PhotosFragment extends Fragment {
     }
 
     public void onItemRangeInserted(int positionStart, int itemCount) {
-        photoAdapter.notifyItemRangeInserted(positionStart, itemCount);
+        mediaAdapter.notifyItemRangeInserted(positionStart, itemCount);
+    }
+
+    @Override
+    public void onStartSelectMultiple() {
+        ((Activity) context).startActionMode(actionModeCallback);
     }
 }

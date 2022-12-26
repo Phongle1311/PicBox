@@ -3,11 +3,11 @@ package com.hcmus.picbox.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,7 +32,10 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public List<MediaModel> selectedMedia = new ArrayList<>();
     private boolean isSelecting = false;
     private IMediaAdapterCallback listener;
-    private CustomActionModeCallback actionModeCallback ;
+    private CustomActionModeCallback actionModeCallback;
+
+    private static final float SCALE_X = 0.7f;
+    private static final float SCALE_Y = 0.7f;
 
     public MediaAdapter(Context context, AlbumModel album) {
         this.context = context;
@@ -89,10 +92,15 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 MediaModel model = (MediaModel) album.getModelList().get(position);
                 MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
-                if (selectedMedia.contains(model))
-                    viewHolder.imageView.setVisibility(View.INVISIBLE);
+                if (selectedMedia.contains(model)) {
+                    viewHolder.imageView.setScaleX(SCALE_X);
+                    viewHolder.imageView.setScaleY(SCALE_Y);
+                    viewHolder.rbSelect.setChecked(true);
+                }
+                if (isSelecting)
+                    viewHolder.rbSelect.setVisibility(View.VISIBLE);
                 else
-                    viewHolder.imageView.setVisibility(View.VISIBLE);
+                    viewHolder.rbSelect.setVisibility(View.GONE);
 
                 // Load image by glide library
                 Glide.with(context)
@@ -105,7 +113,6 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 viewHolder.itemView.setOnClickListener(view -> {
                     if (isSelecting) {
                         onClickItem(viewHolder, model);
-                        actionModeCallback.updateActionModeTitle();
                     } else {
                         Intent i = new Intent(context, DisplayMediaActivity.class);
                         Bundle bundle = new Bundle();
@@ -119,8 +126,9 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 viewHolder.itemView.setOnLongClickListener(view -> {
                     if (!isSelecting) {
                         isSelecting = true;
-                        onClickItem(viewHolder, model);
                         listener.onStartSelectMultiple();
+                        onClickItem(viewHolder, model);
+                        notifyDataSetChanged();
                         return true;
                     }
                     return false;
@@ -135,11 +143,18 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private void onClickItem(MediaViewHolder viewHolder, MediaModel model) {
         if (selectedMedia.contains(model)) {
             selectedMedia.remove(model);
-            viewHolder.imageView.setVisibility(View.VISIBLE);
+            viewHolder.imageView.setScaleX(1f);
+            viewHolder.imageView.setScaleY(1f);
+            viewHolder.rbSelect.setChecked(false);
         } else {
             selectedMedia.add(model);
-            viewHolder.imageView.setVisibility(View.INVISIBLE);
+            viewHolder.imageView.setScaleX(SCALE_X);
+            viewHolder.imageView.setScaleY(SCALE_Y);
+            viewHolder.rbSelect.setChecked(true);
         }
+
+        if (actionModeCallback != null)
+            actionModeCallback.updateActionModeTitle();
     }
 
     @Override
@@ -168,8 +183,6 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public void deselectAll() {
         selectedMedia.clear();
-//        for (MediaModel media : selectedMedia)
-//            onClick(media)
         notifyDataSetChanged();
     }
 
@@ -188,11 +201,13 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         private final View itemView;
         private final ImageView imageView;
+        private final RadioButton rbSelect;
 
         public MediaViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             imageView = itemView.findViewById(R.id.img_card);
+            rbSelect = itemView.findViewById(R.id.rb_select);
         }
     }
 

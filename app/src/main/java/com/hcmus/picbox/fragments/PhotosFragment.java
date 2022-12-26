@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +41,6 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
     private RecyclerView mGallery;
     private MediaAdapter mediaAdapter;
     private CustomActionModeCallback actionModeCallback;
-    private ActionMode actionMode;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
 
     public PhotosFragment(String albumId) {
@@ -177,8 +175,6 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
 
     @Override
     public void onStartSelectMultiple() {
-        if (actionMode != null)
-            return;
-        actionMode = ((Activity) context).startActionMode(actionModeCallback);
+        ((Activity) context).startActionMode(actionModeCallback);
     }
 }

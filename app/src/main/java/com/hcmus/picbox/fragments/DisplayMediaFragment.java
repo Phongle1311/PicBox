@@ -412,7 +412,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                         File parentDirectory = model.getFile().getParentFile();
                         DocumentFile parentDocument = DocumentFile.fromFile(parentDirectory);
                         DocumentFile fileDocument = parentDocument.findFile(model.getFile().getName());
-                        if (fileDocument.renameTo(newName)) {
+                        if (fileDocument!=null&&fileDocument.renameTo(newName)) {
                             Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
                             dialogEditFileName.hide();
                         } else {

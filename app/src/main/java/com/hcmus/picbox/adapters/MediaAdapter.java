@@ -2,6 +2,7 @@ package com.hcmus.picbox.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -212,7 +213,8 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 media.setFavorite(true);
             }
         }
-        FavouritesDatabase.getInstance(context).favouriteDao().insertAll(entities);
+        new Thread(() -> FavouritesDatabase.getInstance(context)
+                .favouriteDao().insertAll(entities)).start();
     }
 
     public static class MediaViewHolder extends RecyclerView.ViewHolder {

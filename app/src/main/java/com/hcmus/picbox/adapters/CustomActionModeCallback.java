@@ -82,6 +82,7 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 return true;
             } else if (itemId == R.id.add_to_favourite) {
                 adapter.addToFavoriteList();
+                adapter.endSelection();
                 Toast.makeText(ctx, "Added to favourites", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.move_to_secret) {

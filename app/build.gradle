@@ -10,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId "com.hcmus.picbox"
-        minSdk 26
-        targetSdk 32
+        minSdk 28
+        targetSdk 31
         versionCode 1
         versionName "1.0"
 
@@ -45,6 +45,9 @@ dependencies {
     implementation 'androidx.exifinterface:exifinterface:1.3.5'
 
     implementation "androidx.work:work-runtime:2.7.1"
+
+    implementation "androidx.room:room-runtime:2.4.3"
+    annotationProcessor "androidx.room:room-compiler:2.4.3"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'

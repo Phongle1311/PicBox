@@ -14,15 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 
-import java.io.File;
-
 public class PhotoModel extends MediaModel {
 
     // static
     public static final Uri sCollection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     public static final String[] sProjection = {
-            MediaStore.Images.Media.DATA,
-            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media._ID, // unique ID in MediaStore
+            MediaStore.Images.Media.DATA, // file path
             MediaStore.Images.Media.BUCKET_ID,
             MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
 //            MediaStore.Images.Media.MIME_TYPE,
@@ -44,12 +42,12 @@ public class PhotoModel extends MediaModel {
     public static String sOrderDirection = " DESC";
 
     // non-static
-    public PhotoModel(File file) {
-        super(file);
+    public PhotoModel(String path) {
+        super(path);
     }
 
     protected PhotoModel(Parcel in) {
-        super(new File(in.readString()));
+        super(in.readString());
     }
 
     private static int calculateInSampleSize(

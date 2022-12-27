@@ -44,12 +44,15 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
+import com.hcmus.picbox.database.FavouritesDatabase;
+import com.hcmus.picbox.database.MediaEntity;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
-import com.hcmus.picbox.works.DeleteHelper;
 import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+import com.hcmus.picbox.works.DeleteHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -222,6 +225,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
         }
+        if (model.isFavorite()) {
+            topAppBar.getMenu().getItem(0).setIcon(R.drawable.ic_baseline_star_24);
+        }
     }
 
     private void displayImage() {
@@ -262,8 +268,23 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private void setTopAppBarListener() {
         topAppBar.setNavigationOnClickListener(v -> backListener.onClickDetailBackButton());
         topAppBar.setOnMenuItemClickListener(item -> {
+            // Add/remove model to/from database
             if (item.getItemId() == R.id.ic_favourite) {
-                // TODO: add/remove image to/from favourite album
+                if (model.isFavorite()) {
+                    item.setIcon(R.drawable.ic_baseline_star_border_24);
+                    model.setFavorite(false);
+                    MediaHolder.sFavouriteAlbum.remove(model);
+                    FavouritesDatabase.getInstance(context)
+                            .favouriteDao()
+                            .delete(new MediaEntity(model.getMediaId(), model.getPath()));
+                } else {
+                    item.setIcon(R.drawable.ic_baseline_star_24);
+                    model.setFavorite(true);
+                    MediaHolder.sFavouriteAlbum.insert(model);
+                    FavouritesDatabase.getInstance(context)
+                            .favouriteDao()
+                            .insert(new MediaEntity(model.getMediaId(), model.getPath()));
+                }
                 return true;
             } else if (item.getItemId() == R.id.ic_more) {
                 // Show/hide bottom sheet

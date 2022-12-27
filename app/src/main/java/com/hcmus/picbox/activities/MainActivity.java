@@ -10,7 +10,12 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,6 +26,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
 import com.hcmus.picbox.utils.PermissionUtils;
@@ -90,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
         }
-
         cameraButton.setOnClickListener(view -> {
             if (PermissionUtils.checkPermissions(this, CAMERA)) {
                 Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");

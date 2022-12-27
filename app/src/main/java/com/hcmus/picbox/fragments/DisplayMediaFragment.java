@@ -1,6 +1,9 @@
 package com.hcmus.picbox.fragments;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.WallpaperManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,7 +11,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -16,12 +23,16 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 
@@ -42,6 +53,8 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
+import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.database.FavouritesDatabase;
@@ -54,6 +67,7 @@ import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,10 +97,12 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private TextView showLocation;
     private Bitmap decodedBitmap;
     private ProgressBar pbPlayer;
+    private ImageView btnEdit;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private BottomSheetDialog dialogActionuseFor;
+    private BottomSheetDialog dialogEditFileName;
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
@@ -140,6 +156,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         setTopAppBarListener();
         setBottomAppBarListener();
         setActionUseForListener();
+        setEditFileNameListener();
         loadExif(view);
     }
 
@@ -221,6 +238,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         dialogActionuseFor = new BottomSheetDialog(context);
         retriever = new MediaMetadataRetriever();
+        dialogEditFileName = new BottomSheetDialog(context);
+        btnEdit = (ImageView) view.findViewById(R.id.img_edit_file_name);
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
@@ -312,6 +331,31 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             return false;
         });
         btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
+        btnEdit.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT >= 30) {
+                if (!Environment.isExternalStorageManager()) {
+                    Snackbar.make(((Activity) context).findViewById(android.R.id.content), "Permission needed!", Snackbar.LENGTH_INDEFINITE)
+                            .setAction("Settings", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    try {
+                                        Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
+                                        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
+                                        startActivity(intent);
+                                    } catch (Exception ex) {
+                                        Intent intent = new Intent();
+                                        intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                        startActivity(intent);
+                                    }
+                                }
+                            })
+                            .show();
+                } else {
+                    dialogEditFileName.show();
+                }
+            }
+        });
     }
 
 
@@ -336,6 +380,51 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             dialogActionuseFor.hide();
         });
         dialogActionuseFor.setContentView(view);
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void setEditFileNameListener() {
+        View view = getLayoutInflater().inflate(R.layout.edit_file_name_dialog, null);
+        EditText edit_filename = view.findViewById(R.id.edit_text_file_name);
+        TextView txt_extension = view.findViewById(R.id.txt_extension_file);
+        String fileName = model.getFile().getName();
+        int indexExtension = fileName.lastIndexOf(".");
+        String extension = "." + fileName.substring(indexExtension + 1);
+        if (indexExtension != -1) {
+            txt_extension.setText(extension);
+            edit_filename.setText(fileName.substring(0, indexExtension));
+        } else {
+            edit_filename.setText(fileName);
+        }
+        Button btn_cancel = view.findViewById(R.id.btn_cancel_file_name);
+        Button btn_save = view.findViewById(R.id.btn_save_file_name);
+        btn_cancel.setOnClickListener(v -> dialogEditFileName.hide());
+        btn_save.setOnClickListener(v -> {
+            String newFileName = edit_filename.getText().toString();
+            if (newFileName.length() == 0) {
+                Toast.makeText(context, "Filename can't be empty.", Toast.LENGTH_SHORT).show();
+            } else {
+                try {
+                    if (edit_filename.getText().toString().length() == 0) {
+                        Toast.makeText(context, "Filename can't be empty.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String newName = edit_filename.getText().toString() + extension;
+                        File parentDirectory = model.getFile().getParentFile();
+                        DocumentFile parentDocument = DocumentFile.fromFile(parentDirectory);
+                        DocumentFile fileDocument = parentDocument.findFile(model.getFile().getName());
+                        if (fileDocument.renameTo(newName)) {
+                            Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
+                            dialogEditFileName.hide();
+                        } else {
+                            Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        dialogEditFileName.setContentView(view);
     }
 
     public void toggleBottomSheet() {

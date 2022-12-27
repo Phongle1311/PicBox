@@ -80,6 +80,10 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 // Todo: add to album
                 Toast.makeText(ctx, "add to album", Toast.LENGTH_SHORT).show();
                 return true;
+            } else if (itemId == R.id.add_to_favourite) {
+                adapter.addToFavoriteList();
+                Toast.makeText(ctx, "Added to favourites", Toast.LENGTH_SHORT).show();
+                return true;
             } else if (itemId == R.id.move_to_secret) {
                 // Todo: move to secret album
                 return true;

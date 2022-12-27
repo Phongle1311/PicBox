@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.DisplayMediaActivity;
+import com.hcmus.picbox.database.FavouritesDatabase;
+import com.hcmus.picbox.database.MediaEntity;
 import com.hcmus.picbox.interfaces.IMediaAdapterCallback;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
@@ -27,15 +29,14 @@ import java.util.List;
 
 public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static final float SCALE_X = 0.7f;
+    private static final float SCALE_Y = 0.7f;
     private final Context context;
     private final AlbumModel album;
     public List<MediaModel> selectedMedia = new ArrayList<>();
     private boolean isSelecting = false;
     private IMediaAdapterCallback listener;
     private CustomActionModeCallback actionModeCallback;
-
-    private static final float SCALE_X = 0.7f;
-    private static final float SCALE_Y = 0.7f;
 
     public MediaAdapter(Context context, AlbumModel album) {
         this.context = context;
@@ -96,8 +97,7 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     viewHolder.imageView.setScaleX(SCALE_X);
                     viewHolder.imageView.setScaleY(SCALE_Y);
                     viewHolder.rbSelect.setChecked(true);
-                }
-                else {
+                } else {
                     viewHolder.imageView.setScaleX(1f);
                     viewHolder.imageView.setScaleY(1f);
                     viewHolder.rbSelect.setChecked(false);
@@ -202,6 +202,17 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         album.updateMediaList();
         album.updateModelList();
         notifyDataSetChanged();
+    }
+
+    public void addToFavoriteList() {
+        List<MediaEntity> entities = new ArrayList<>();
+        for (MediaModel media : selectedMedia) {
+            if (!media.isFavorite()) {
+                entities.add(new MediaEntity(media.getMediaId(), media.getPath()));
+                media.setFavorite(true);
+            }
+        }
+        FavouritesDatabase.getInstance(context).favouriteDao().insertAll(entities);
     }
 
     public static class MediaViewHolder extends RecyclerView.ViewHolder {

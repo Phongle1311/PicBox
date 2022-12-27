@@ -12,6 +12,9 @@ public interface FavouriteDao {
     @Insert
     void insert(MediaEntity model);
 
+    @Insert
+    void insertAll(List<MediaEntity> models);
+
     @Delete
     void delete(MediaEntity model);
 

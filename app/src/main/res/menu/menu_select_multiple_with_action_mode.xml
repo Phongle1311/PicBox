@@ -5,6 +5,10 @@
         android:title="@string/select_multi_add_to_album" />
 
     <item
+        android:id="@+id/add_to_favourite"
+        android:title="@string/select_multi_add_to_favorites" />
+
+    <item
         android:id="@+id/move_to_secret"
         android:title="@string/select_multi_move_to_secret" />
 

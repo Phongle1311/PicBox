@@ -61,6 +61,24 @@ public class ModelList {
      * @param model the media item want to add
      */
     public void insert(MediaModel model) {
+        int i = 0;
+        for (; i < mMediaList.size(); i++) {
+            if (model.mLastModifiedTime.isAfter(mMediaList.get(i).mLastModifiedTime)) {
+                break;
+            }
+        }
+        mMediaList.add(i, model);
+        updateModelList();
+    }
+
+    /**
+     * Remove model from list, also remove datetime-model if needed
+     *
+     * @param model the media item want to add
+     */
+    public void remove(MediaModel model) {
+        mModelList.remove(model);
+        updateModelList();
     }
 
     /**

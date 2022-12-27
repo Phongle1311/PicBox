@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
+import com.hcmus.picbox.database.FavouritesDatabase;
+import com.hcmus.picbox.database.MediaEntity;
 import com.hcmus.picbox.interfaces.IOnItemRangeInserted;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.MediaModel;
@@ -12,7 +14,6 @@ import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,8 @@ public final class LoadStorageHelper {
     private static IOnItemRangeInserted allMediaListener;
     private static IOnItemRangeInserted deviceAlbumListener;
     private static IOnItemRangeInserted userAlbumListener;
+
+    private static List<MediaEntity> favourites;
 
     public static void setMediasListener(String category, IOnItemRangeInserted listener) {
         switch (category) {
@@ -41,6 +44,9 @@ public final class LoadStorageHelper {
     }
 
     public static void getAllMediaFromStorage(Context context) {
+        // Get favourite mediaIds
+        favourites = FavouritesDatabase.getInstance(context).favouriteDao().getAllFavorites();
+
         // Check device has SDCard or not
         if (android.os.Environment.getExternalStorageState()
                 .equals(android.os.Environment.MEDIA_MOUNTED)) {
@@ -66,6 +72,10 @@ public final class LoadStorageHelper {
                     media = photoList.get(photoIndex);
                     photoIndex++;
                 }
+
+                // check favourite
+                media.setFavorite(isFavourite(media));
+                if (media.isFavorite()) MediaHolder.sFavouriteAlbum.add(media);
 
                 // add model to Total list
                 totalAlbum.add(media);
@@ -98,6 +108,7 @@ public final class LoadStorageHelper {
         if (cursor == null) return result;
 
         int count = cursor.getCount();
+        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
         int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         int bucketDisplayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
         int bucketIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_ID);
@@ -107,7 +118,9 @@ public final class LoadStorageHelper {
 
             // add media to allMediaList
             String path = cursor.getString(dataColumn);
-            PhotoModel media = new PhotoModel(new File(path));
+            PhotoModel media = new PhotoModel(path);
+            media.setMediaId(cursor.getInt(idColumn));
+
             if (path.contains("DCIM")) {
                 media.setAlbumName(AlbumHolder.DCIM_DISPLAY_NAME);
                 media.setAlbumId(AlbumHolder.DCIM_ID);
@@ -131,6 +144,7 @@ public final class LoadStorageHelper {
         if (cursor == null) return result;
 
         int count = cursor.getCount();
+        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
         int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
         int bucketDisplayNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
         int bucketIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.BUCKET_ID);
@@ -139,7 +153,10 @@ public final class LoadStorageHelper {
             cursor.moveToPosition(i);
 
             String path = cursor.getString(dataColumn);
-            VideoModel media = new VideoModel(new File(path));
+            VideoModel media = new VideoModel(path);
+            media.setMediaId(cursor.getInt(idColumn));
+            media.setFavorite(MediaHolder.sFavouriteAlbum.getMediaList().contains(media));
+
             if (path.contains("DCIM")) {
                 media.setAlbumName(AlbumHolder.DCIM_DISPLAY_NAME);
                 media.setAlbumId(AlbumHolder.DCIM_ID);
@@ -151,5 +168,12 @@ public final class LoadStorageHelper {
         }
         cursor.close();
         return result;
+    }
+
+    private static boolean isFavourite(MediaModel model) {
+        for (MediaEntity media : favourites)
+            if (media.getMediaId() == model.getMediaId())
+                return true;
+        return false;
     }
 }

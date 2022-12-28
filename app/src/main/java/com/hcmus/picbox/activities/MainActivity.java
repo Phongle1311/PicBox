@@ -2,6 +2,7 @@ package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.GROUP_MODE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
@@ -60,14 +61,14 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
 
-//    private final ActivityResultLauncher<String> requestWritePermissionLauncher =
-//            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-//                if (isGranted) {
-//                    Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
-//                }
-//            });
+        private final ActivityResultLauncher<String> requestWritePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
+                }
+            });
     private FloatingActionButton cameraButton;
 
     @Override
@@ -80,15 +81,15 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
 
         // check permission
-//        if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
-//            Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
-//        }
-//        else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
-//            Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
-//        } else {
-//            requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
-//        }
-
+        if(Build.VERSION.SDK_INT<=28) {
+            if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
+                Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
+            } else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
+                Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
+            } else {
+                requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
+            }
+        }
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE)) {
             LoadStorageHelper.getAllMediaFromStorage(this);
         } else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
@@ -182,5 +183,12 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+    }
+
+    public void onDataSetChanged() {
+        if (mainViewPager != null) {
+            LoadStorageHelper.getAllMediaFromStorage(this);
+            mainViewPager.getAdapter().notifyDataSetChanged();
+        }
     }
 }

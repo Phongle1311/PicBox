@@ -34,7 +34,7 @@ import com.hcmus.picbox.works.DeleteHelper;
 public class DisplayMediaActivity extends AppCompatActivity {
 
     private ScreenSlidePagerAdapter adapter;
-
+    private ViewPager2 viewPager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,12 +61,16 @@ public class DisplayMediaActivity extends AppCompatActivity {
         int position = bundle.getInt("position", 0);
 
         // Init View pager
-        ViewPager2 viewPager = findViewById(R.id.pager);
+        viewPager = findViewById(R.id.pager);
         adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
                 AlbumHolder.sGetAlbumById(albumId).getMediaList(), this::finish);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position, false); // immediately scroll to position
         viewPager.setPageTransformer(new ZoomOutPageTransformer());
     }
-
+    public void onDataSetChanged() {
+        if (viewPager != null) {
+            viewPager.getAdapter().notifyDataSetChanged();
+        }
+    }
 }

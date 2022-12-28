@@ -3,9 +3,12 @@ package com.hcmus.picbox.fragments;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.WallpaperManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.webkit.MimeTypeMap;
 import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
@@ -14,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -56,6 +60,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.DisplayMediaActivity;
+import com.hcmus.picbox.activities.MainActivity;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.database.FavouritesDatabase;
 import com.hcmus.picbox.database.MediaEntity;
@@ -63,9 +69,11 @@ import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
+import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -73,6 +81,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is fragment for showing detail of media <br/>
@@ -409,17 +418,82 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                         Toast.makeText(context, "Filename can't be empty.", Toast.LENGTH_SHORT).show();
                     } else {
                         String newName = edit_filename.getText().toString() + extension;
-                        File parentDirectory = model.getFile().getParentFile();
-                        DocumentFile parentDocument = DocumentFile.fromFile(parentDirectory);
-                        DocumentFile fileDocument = parentDocument.findFile(model.getFile().getName());
-                        if (fileDocument!=null&&fileDocument.renameTo(newName)) {
+//                        File parentDirectory = model.getFile().getParentFile();
+//                        DocumentFile parentDocument = DocumentFile.fromFile(parentDirectory);
+//                        DocumentFile fileDocument = parentDocument.findFile(model.getFile().getName());
+//                        if (fileDocument!=null&&fileDocument.renameTo(newName)) {
+//                            Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
+//                            ((DisplayMediaActivity) getActivity()). onDataSetChanged();
+//                            dialogEditFileName.hide();
+//                        } else {
+//                            Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
+//                        }
+                        Uri uri=null;
+                        int type=model.getType();
+                        if(type==AbstractModel.TYPE_GIF){
+                            String fileExtension=MimeTypeMap.getFileExtensionFromUrl("file://"+model.getFile().getAbsolutePath());
+                            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+                            if (mimeType.equals("image/gif")) {
+                                type=AbstractModel.TYPE_PHOTO;
+                            } else if (mimeType.equals("video/gif")) {
+                                type=AbstractModel.TYPE_VIDEO;
+                            }
+                        }
+
+                        if(type==AbstractModel.TYPE_PHOTO) {
+                            String selection = MediaStore.Images.Media.DATA + "=?";
+                            String[] selectionArgs = new String[]{model.getFile().getAbsolutePath()};
+                            String sortOrder = MediaStore.Video.Media.DISPLAY_NAME + " ASC";
+                            Cursor cursor = context.getContentResolver().query(
+                                    PhotoModel.sCollection,
+                                    PhotoModel.sProjection,
+                                    selection,
+                                    selectionArgs,
+                                    sortOrder
+                            );
+                            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
+                            while (cursor.moveToNext()) {
+                                long id = cursor.getLong(idColumn);
+                                uri = ContentUris.withAppendedId(
+                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+                            }
+                            ContentValues values = new ContentValues();
+                            values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
+                            values.put(MediaStore.Images.Media.TITLE,edit_filename.getText().toString());
+                            context.getContentResolver().update(uri, values, MediaStore.Images.Media.DATA + "=?", new String[] { model.getFile().getAbsolutePath() });
+                            context.getContentResolver().notifyChange(uri, null);
                             Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
                             dialogEditFileName.hide();
-                        } else {
-                            Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
+                        }
+                        else if(type==AbstractModel.TYPE_VIDEO){
+                            String selection = MediaStore.Video.Media.DATA + "=?";
+                            String[] selectionArgs = new String[]{model.getFile().getAbsolutePath()};
+                            String sortOrder = MediaStore.Video.Media.DISPLAY_NAME + " ASC";
+                            Cursor cursor = context.getContentResolver().query(
+                                    VideoModel.sCollection,
+                                    VideoModel.sProjection,
+                                    selection,
+                                    selectionArgs,
+                                    sortOrder
+                            );
+                            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
+                            while (cursor.moveToNext()) {
+                                long id = cursor.getLong(idColumn);
+                                uri = ContentUris.withAppendedId(
+                                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
+                            }
+                            ContentValues values = new ContentValues();
+                            values.put(MediaStore.Video.Media.DISPLAY_NAME, newName);
+                            values.put(MediaStore.Video.Media.TITLE,edit_filename.getText().toString());
+                            context.getContentResolver().update(uri, values, MediaStore.Video.Media.DATA + "=?", new String[] { model.getFile().getAbsolutePath() });
+                            context.getContentResolver().notifyChange(uri, null);
+                            Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
+                            dialogEditFileName.hide();
                         }
                     }
                 } catch (Exception e) {
+                    Log.d("ERROR",e.toString());
+                    e.printStackTrace();
                     Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
                 }
             }

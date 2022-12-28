@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.MainActivity;
 import com.hcmus.picbox.adapters.CustomActionModeCallback;
 import com.hcmus.picbox.adapters.MediaAdapter;
 import com.hcmus.picbox.interfaces.IMediaAdapterCallback;

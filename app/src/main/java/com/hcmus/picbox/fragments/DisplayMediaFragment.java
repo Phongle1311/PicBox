@@ -431,7 +431,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 //                        } else {
 //                            Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
 //                        }
-                        Uri uri=null;
                         int type=model.getType();
                         if(type==AbstractModel.TYPE_GIF){
                             String fileExtension=MimeTypeMap.getFileExtensionFromUrl("file://"+model.getFile().getAbsolutePath());
@@ -444,22 +443,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                         }
 
                         if(type==AbstractModel.TYPE_PHOTO) {
-                            String selection = MediaStore.Images.Media.DATA + "=?";
-                            String[] selectionArgs = new String[]{model.getFile().getAbsolutePath()};
-                            String sortOrder = MediaStore.Video.Media.DISPLAY_NAME + " ASC";
-                            Cursor cursor = context.getContentResolver().query(
-                                    PhotoModel.sCollection,
-                                    PhotoModel.sProjection,
-                                    selection,
-                                    selectionArgs,
-                                    sortOrder
-                            );
-                            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
-                            while (cursor.moveToNext()) {
-                                long id = cursor.getLong(idColumn);
-                                uri = ContentUris.withAppendedId(
-                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                            }
+                            Uri uri=ContentUris.withAppendedId(
+                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
                             ContentValues values = new ContentValues();
                             values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
                             values.put(MediaStore.Images.Media.TITLE,edit_filename.getText().toString());
@@ -469,22 +454,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                             dialogEditFileName.hide();
                         }
                         else if(type==AbstractModel.TYPE_VIDEO){
-                            String selection = MediaStore.Video.Media.DATA + "=?";
-                            String[] selectionArgs = new String[]{model.getFile().getAbsolutePath()};
-                            String sortOrder = MediaStore.Video.Media.DISPLAY_NAME + " ASC";
-                            Cursor cursor = context.getContentResolver().query(
-                                    VideoModel.sCollection,
-                                    VideoModel.sProjection,
-                                    selection,
-                                    selectionArgs,
-                                    sortOrder
-                            );
-                            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
-                            while (cursor.moveToNext()) {
-                                long id = cursor.getLong(idColumn);
-                                uri = ContentUris.withAppendedId(
-                                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
-                            }
+                            Uri uri=ContentUris.withAppendedId(
+                                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
                             ContentValues values = new ContentValues();
                             values.put(MediaStore.Video.Media.DISPLAY_NAME, newName);
                             values.put(MediaStore.Video.Media.TITLE,edit_filename.getText().toString());

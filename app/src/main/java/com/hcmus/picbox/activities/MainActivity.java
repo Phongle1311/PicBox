@@ -185,10 +185,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void onDataSetChanged() {
-        if (mainViewPager != null) {
-            LoadStorageHelper.getAllMediaFromStorage(this);
-            mainViewPager.getAdapter().notifyDataSetChanged();
-        }
-    }
 }

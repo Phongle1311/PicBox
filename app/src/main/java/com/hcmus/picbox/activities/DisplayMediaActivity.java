@@ -68,9 +68,4 @@ public class DisplayMediaActivity extends AppCompatActivity {
         viewPager.setCurrentItem(position, false); // immediately scroll to position
         viewPager.setPageTransformer(new ZoomOutPageTransformer());
     }
-    public void onDataSetChanged() {
-        if (viewPager != null) {
-            viewPager.getAdapter().notifyDataSetChanged();
-        }
-    }
 }

@@ -27,6 +27,7 @@ import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.LoadStorageHelper;
 

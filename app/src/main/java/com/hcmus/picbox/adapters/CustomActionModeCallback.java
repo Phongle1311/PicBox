@@ -89,6 +89,7 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 // Add/remove media to/from favourites
                 adapter.addToFavoriteList();
                 adapter.endSelection();
+                updateActionModeTitle();
                 Toast.makeText(ctx, "Added to favourites", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.move_to_secret) {

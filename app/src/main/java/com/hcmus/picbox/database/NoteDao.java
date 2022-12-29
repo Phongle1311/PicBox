@@ -10,14 +10,14 @@ import androidx.room.Update;
 @Dao
 public interface NoteDao {
     @Insert
-    public void insert(NoteEntity model);
+    void insert(NoteEntity model);
 
     @Update
-    public void update(NoteEntity model);
+    void update(NoteEntity model);
 
     @Delete
     void delete(NoteEntity model);
 
     @Query("SELECT * FROM notes WHERE mediaId = :id")
-    public NoteEntity getItemById(int id);
+    NoteEntity getItemById(int id);
 }

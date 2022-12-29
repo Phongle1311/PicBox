@@ -1,6 +1,7 @@
 package com.hcmus.picbox.fragments;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.WallpaperManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -101,7 +102,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private BottomSheetDialog dialogActionuseFor;
-    private BottomSheetDialog dialogEditFileName;
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
@@ -156,7 +156,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         setTopAppBarListener();
         setBottomAppBarListener();
         setActionUseForListener();
-        setEditFileNameListener();
         loadExif(view);
     }
 
@@ -238,7 +237,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         dialogActionuseFor = new BottomSheetDialog(context);
         retriever = new MediaMetadataRetriever();
-        dialogEditFileName = new BottomSheetDialog(context);
         btnEditMediaName = view.findViewById(R.id.img_edit_file_name);
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
@@ -348,7 +346,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                             })
                             .show();
                 } else {
-                    dialogEditFileName.show();
+                    setEditFileNameListener();
                 }
             }
         });
@@ -379,6 +377,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     }
 
     public void setEditFileNameListener() {
+        Dialog dialogEditFileName = new Dialog(context);
         View view = getLayoutInflater().inflate(R.layout.edit_file_name_dialog, null);
         dialogEditFileName.setContentView(view);
 
@@ -454,6 +453,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 }
             }
         });
+        dialogEditFileName.show();
     }
 
     public void toggleBottomSheet() {

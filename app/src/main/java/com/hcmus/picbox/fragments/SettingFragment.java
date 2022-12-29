@@ -236,7 +236,10 @@ public class SettingFragment extends Fragment {
                     && !SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)){
                 Intent intent = new Intent(getActivity(), RegisterPasswordActivity.class);
                 ((MainActivity) requireActivity()).startActivity(intent);
-            } else {
+            }
+            if (!passwordImageSwitch.isChecked()
+                    && SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)){
+                passwordImageSwitch.setChecked(true);
                 Intent intent = new Intent(getActivity(), ImagePasswordActivity.class);
                 startActivityForResult(intent, IMAGE_PASSWORD_REQUEST_CODE);
             }
@@ -255,11 +258,9 @@ public class SettingFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Toast.makeText(context, String.valueOf(requestCode), Toast.LENGTH_SHORT).show();
         if (requestCode == IMAGE_PASSWORD_REQUEST_CODE) {
             if(resultCode == Activity.RESULT_OK){
                 Boolean result = data.getBooleanExtra("accept_password", false);
-                Toast.makeText(context, String.valueOf(result), Toast.LENGTH_SHORT).show();
                 if (result){
                     SharedPreferencesUtils.removeData(context, KEY_PASSWORD);
                     SharedPreferencesUtils.removeData(context, KEY_PET_QUESTION);
@@ -335,7 +336,7 @@ public class SettingFragment extends Fragment {
                 break;
         }
 
-        if (String.valueOf(SharedPreferencesUtils.getStringData(context, KEY_PASSWORD)).length() == 5){
+        if (SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)){
             passwordImageSwitch.setChecked(true);
         } else {
             passwordImageSwitch.setChecked(false);

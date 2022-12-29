@@ -1,17 +1,11 @@
 package com.hcmus.picbox.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.telephony.PhoneNumberFormattingTextWatcher;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.webkit.MimeTypeMap;
 import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
@@ -20,7 +14,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -30,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,7 +33,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 
@@ -63,8 +56,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
-import com.hcmus.picbox.activities.DisplayMediaActivity;
-import com.hcmus.picbox.activities.MainActivity;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.database.FavouritesDatabase;
 import com.hcmus.picbox.database.MediaEntity;
@@ -72,19 +63,15 @@ import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
-import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
-import com.hcmus.picbox.works.LoadStorageHelper;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is fragment for showing detail of media <br/>
@@ -109,7 +96,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private TextView showLocation;
     private Bitmap decodedBitmap;
     private ProgressBar pbPlayer;
-    private ImageView btnEdit;
+    private ImageView btnEditMediaName;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
@@ -165,6 +152,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             default:
                 throw new IllegalStateException("Unsupported type");
         }
+
         setTopAppBarListener();
         setBottomAppBarListener();
         setActionUseForListener();
@@ -251,7 +239,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         dialogActionuseFor = new BottomSheetDialog(context);
         retriever = new MediaMetadataRetriever();
         dialogEditFileName = new BottomSheetDialog(context);
-        btnEdit = (ImageView) view.findViewById(R.id.img_edit_file_name);
+        btnEditMediaName = view.findViewById(R.id.img_edit_file_name);
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
@@ -343,23 +331,19 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             return false;
         });
         btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
-        btnEdit.setOnClickListener(v -> {
+        btnEditMediaName.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= 30) {
                 if (!Environment.isExternalStorageManager()) {
                     Snackbar.make(((Activity) context).findViewById(android.R.id.content), "Permission needed!", Snackbar.LENGTH_INDEFINITE)
-                            .setAction("Settings", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-
-                                    try {
-                                        Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
-                                        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
-                                        startActivity(intent);
-                                    } catch (Exception ex) {
-                                        Intent intent = new Intent();
-                                        intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                                        startActivity(intent);
-                                    }
+                            .setAction("Settings", v1 -> {
+                                try {
+                                    Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
+                                    startActivity(intent);
+                                } catch (Exception ex) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                    startActivity(intent);
                                 }
                             })
                             .show();
@@ -394,11 +378,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         dialogActionuseFor.setContentView(view);
     }
 
-    @SuppressLint("SetTextI18n")
     public void setEditFileNameListener() {
         View view = getLayoutInflater().inflate(R.layout.edit_file_name_dialog, null);
+        dialogEditFileName.setContentView(view);
+
         EditText edit_filename = view.findViewById(R.id.edit_text_file_name);
         TextView txt_extension = view.findViewById(R.id.txt_extension_file);
+        Button btn_cancel = view.findViewById(R.id.btn_cancel_file_name);
+        Button btn_save = view.findViewById(R.id.btn_save_file_name);
+
         String fileName = model.getFile().getName();
         int indexExtension = fileName.lastIndexOf(".");
         String extension = "." + fileName.substring(indexExtension + 1);
@@ -408,8 +396,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         } else {
             edit_filename.setText(fileName);
         }
-        Button btn_cancel = view.findViewById(R.id.btn_cancel_file_name);
-        Button btn_save = view.findViewById(R.id.btn_save_file_name);
+
         btn_cancel.setOnClickListener(v -> dialogEditFileName.hide());
         btn_save.setOnClickListener(v -> {
             String newFileName = edit_filename.getText().toString();
@@ -417,10 +404,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 Toast.makeText(context, "Filename can't be empty.", Toast.LENGTH_SHORT).show();
             } else {
                 try {
-                    if (edit_filename.getText().toString().length() == 0) {
-                        Toast.makeText(context, "Filename can't be empty.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        String newName = edit_filename.getText().toString() + extension;
+                    String newName = newFileName + extension;
 //                        File parentDirectory = model.getFile().getParentFile();
 //                        DocumentFile parentDocument = DocumentFile.fromFile(parentDirectory);
 //                        DocumentFile fileDocument = parentDocument.findFile(model.getFile().getName());
@@ -431,48 +415,45 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 //                        } else {
 //                            Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
 //                        }
-                        int type=model.getType();
-                        if(type==AbstractModel.TYPE_GIF){
-                            String fileExtension=MimeTypeMap.getFileExtensionFromUrl("file://"+model.getFile().getAbsolutePath());
-                            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-                            if (mimeType.equals("image/gif")) {
-                                type=AbstractModel.TYPE_PHOTO;
-                            } else if (mimeType.equals("video/gif")) {
-                                type=AbstractModel.TYPE_VIDEO;
-                            }
-                        }
-
-                        if(type==AbstractModel.TYPE_PHOTO) {
-                            Uri uri=ContentUris.withAppendedId(
-                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
-                            ContentValues values = new ContentValues();
-                            values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
-                            values.put(MediaStore.Images.Media.TITLE,edit_filename.getText().toString());
-                            context.getContentResolver().update(uri, values, MediaStore.Images.Media.DATA + "=?", new String[] { model.getFile().getAbsolutePath() });
-                            context.getContentResolver().notifyChange(uri, null);
-                            Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
-                            dialogEditFileName.hide();
-                        }
-                        else if(type==AbstractModel.TYPE_VIDEO){
-                            Uri uri=ContentUris.withAppendedId(
-                                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
-                            ContentValues values = new ContentValues();
-                            values.put(MediaStore.Video.Media.DISPLAY_NAME, newName);
-                            values.put(MediaStore.Video.Media.TITLE,edit_filename.getText().toString());
-                            context.getContentResolver().update(uri, values, MediaStore.Video.Media.DATA + "=?", new String[] { model.getFile().getAbsolutePath() });
-                            context.getContentResolver().notifyChange(uri, null);
-                            Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
-                            dialogEditFileName.hide();
+                    int type = model.getType();
+                    if (type == AbstractModel.TYPE_GIF) {
+                        String fileExtension = MimeTypeMap.getFileExtensionFromUrl("file://" + model.getFile().getAbsolutePath());
+                        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+                        if (mimeType.equals("image/gif")) {
+                            type = AbstractModel.TYPE_PHOTO;
+                        } else if (mimeType.equals("video/gif")) {
+                            type = AbstractModel.TYPE_VIDEO;
                         }
                     }
+
+                    if (type == AbstractModel.TYPE_PHOTO) {
+                        Uri uri = ContentUris.withAppendedId(
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
+                        values.put(MediaStore.Images.Media.TITLE, newFileName);
+                        context.getContentResolver().update(uri, values, MediaStore.Images.Media.DATA + "=?", new String[]{model.getFile().getAbsolutePath()});
+                        context.getContentResolver().notifyChange(uri, null);
+                        Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
+                        dialogEditFileName.hide();
+                    } else if (type == AbstractModel.TYPE_VIDEO) {
+                        Uri uri = ContentUris.withAppendedId(
+                                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Video.Media.DISPLAY_NAME, newName);
+                        values.put(MediaStore.Video.Media.TITLE, edit_filename.getText().toString());
+                        context.getContentResolver().update(uri, values, MediaStore.Video.Media.DATA + "=?", new String[]{model.getFile().getAbsolutePath()});
+                        context.getContentResolver().notifyChange(uri, null);
+                        Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
+                        dialogEditFileName.hide();
+                    }
                 } catch (Exception e) {
-                    Log.d("ERROR",e.toString());
+                    Log.d("ERROR", e.toString());
                     e.printStackTrace();
                     Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        dialogEditFileName.setContentView(view);
     }
 
     public void toggleBottomSheet() {

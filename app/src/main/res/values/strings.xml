@@ -89,7 +89,7 @@
     <string name="select_multi__slide_show">Slide show</string>
     <string name="select_multi_make_gif">Make GIF</string>
     <string name="select_multi_add_to_favorites">Add to favorites</string>
-    <string name="save">SAVE</string>
+    <string name="save">Save</string>
     <string name="edit_filename">Edit filename:</string>
     <string name="change_filename">Change filename...</string>
 </resources>

@@ -4,6 +4,7 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
@@ -16,6 +17,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
+import androidx.print.PrintHelper;
 
 import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -90,6 +93,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
+    private TextView btnPrint;
 
     public DisplayMediaFragment() {
     }
@@ -220,10 +224,12 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         dialogActionuseFor = new BottomSheetDialog(context);
+        btnPrint=view.findViewById(R.id.action_print);
         retriever = new MediaMetadataRetriever();
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
+            btnPrint.setVisibility(View.GONE);
         }
         if (model.isFavorite()) {
             topAppBar.getMenu().getItem(0).setIcon(R.drawable.ic_baseline_star_24);
@@ -313,9 +319,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             return false;
         });
         btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
+        btnPrint.setOnClickListener(v->setActionPrintListener());
     }
 
-
+    public void setActionPrintListener(){
+        PrintHelper photoPrinter = new PrintHelper(context);
+        photoPrinter.setScaleMode(PrintHelper.SCALE_MODE_FIT);
+        Bitmap bitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath());
+        photoPrinter.printBitmap("droids.jpg", bitmap);
+    }
     public void setActionUseForListener() {
         View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
         TextView set_wallpaper = view.findViewById(R.id.txt_set_as_wallpaper);

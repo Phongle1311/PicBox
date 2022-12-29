@@ -2,6 +2,7 @@ package com.hcmus.picbox.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -10,7 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultRegistry;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,12 +24,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.CustomActionModeCallback;
 import com.hcmus.picbox.adapters.MediaAdapter;
+import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.interfaces.IMediaAdapterCallback;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+import com.hcmus.picbox.works.DeleteHelper;
 import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.util.Objects;
@@ -46,6 +51,11 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
     public PhotosFragment(String albumId) {
         album = AlbumHolder.sGetAlbumById(albumId);
         LoadStorageHelper.setMediasListener(albumId, this::onItemRangeInserted);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Nullable
@@ -176,5 +186,15 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
     @Override
     public void onStartSelectMultiple() {
         ((Activity) context).startActionMode(actionModeCallback);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == DeleteHelper.DELETE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            mediaAdapter.notifyDataSetChanged();
+            mediaAdapter.endSelection();
+            Toast.makeText(context, "Delete successfully!", Toast.LENGTH_SHORT).show();
+        }
     }
 }

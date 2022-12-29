@@ -33,8 +33,11 @@ public class CustomActionModeCallback implements ActionMode.Callback {
         View customView = inflater.inflate(R.layout.layout_select_multiple_action_mode_header, null);
         actionMode.setCustomView(customView);
 
+        // Init UI
         tvTitle = customView.findViewById(R.id.tv_title);
         CheckBox cbSelectAll = customView.findViewById(R.id.action_select_all);
+
+        // Select/Deselect all
         cbSelectAll.setOnClickListener(view -> {
             if (cbSelectAll.isChecked()) {
                 adapter.selectAll();
@@ -43,9 +46,11 @@ public class CustomActionModeCallback implements ActionMode.Callback {
             }
             updateActionModeTitle();
         });
-        customView.findViewById(R.id.action_delete).setOnClickListener(view -> {
-            Toast.makeText(ctx, "Selected images deleted", Toast.LENGTH_SHORT).show();
-        });
+
+        // Delete listener
+        customView.findViewById(R.id.action_delete).setOnClickListener(view -> adapter.deleteAll());
+
+        // Show popup: more actions
         customView.findViewById(R.id.show_more_button).setOnClickListener(this::showPopup);
 
         return true;
@@ -81,6 +86,7 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 Toast.makeText(ctx, "add to album", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.add_to_favourite) {
+                // Add/remove media to/from favourites
                 adapter.addToFavoriteList();
                 adapter.endSelection();
                 Toast.makeText(ctx, "Added to favourites", Toast.LENGTH_SHORT).show();

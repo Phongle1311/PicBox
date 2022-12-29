@@ -87,12 +87,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private TextView goToMap;
     private TextView showLocation;
     private Bitmap decodedBitmap;
-    private NoteDatabase db;
     private ProgressBar pbPlayer;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
-    private BottomSheetDialog dialogActionuseFor;
+    private BottomSheetDialog dialogActionUseFor;
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
@@ -116,7 +115,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_media_slide_page, container, false);
         context = view.getContext();
-        db=NoteDatabase.getInstance(context);
         return view;
     }
 
@@ -226,7 +224,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        dialogActionuseFor = new BottomSheetDialog(context);
+        dialogActionUseFor = new BottomSheetDialog(context);
         retriever = new MediaMetadataRetriever();
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
@@ -318,7 +316,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
-        btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
+        btnUseFor.setOnClickListener(v -> dialogActionUseFor.show());
     }
 
 
@@ -332,7 +330,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 if (!("").equals(model.getFile().getAbsolutePath()) && decodedBitmap != null) {
                     WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
                     wallpaperManager.setBitmap(decodedBitmap);
-                    dialogActionuseFor.hide();
+                    dialogActionUseFor.hide();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -340,9 +338,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         });
         set_background.setOnClickListener(v -> {
             SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE, model.getFile().getAbsolutePath());
-            dialogActionuseFor.hide();
+            dialogActionUseFor.hide();
         });
-        dialogActionuseFor.setContentView(view);
+        dialogActionUseFor.setContentView(view);
     }
 
     public void toggleBottomSheet() {
@@ -398,9 +396,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
-            EditText edit_note=(EditText)view.findViewById(R.id.tv_add_note);
-            NoteEntity noteEntity=db.getItemDAO().getItemById(model.getMediaId());
-            if(noteEntity!=null&&noteEntity.getNote().length()>0){
+            EditText edit_note = view.findViewById(R.id.tv_add_note);
+            NoteEntity noteEntity = NoteDatabase.getInstance(context).getItemDAO().getItemById(model.getMediaId());
+            if (noteEntity != null && noteEntity.getNote().length() > 0) {
                 edit_note.setText(noteEntity.getNote());
             }
             edit_note.addTextChangedListener(new TextWatcher() {
@@ -414,13 +412,12 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    String note=edit_note.getText().toString();
-                    if(note.length()>0){
-                        if(noteEntity==null){
-                            db.getItemDAO().insert(new NoteEntity(model.getMediaId(),note));
-                        }
-                        else{
-                            db.getItemDAO().update(new NoteEntity(model.getMediaId(),note));
+                    String note = edit_note.getText().toString();
+                    if (note.length() > 0) {
+                        if (noteEntity == null) {
+                            NoteDatabase.getInstance(context).getItemDAO().insert(new NoteEntity(model.getMediaId(), note));
+                        } else {
+                            NoteDatabase.getInstance(context).getItemDAO().update(new NoteEntity(model.getMediaId(), note));
                         }
                     }
                 }

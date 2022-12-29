@@ -1,13 +1,13 @@
 package com.hcmus.picbox.database;
+
 import android.content.Context;
 
 import androidx.room.Database;
-import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 @Database(entities = {NoteEntity.class}, version = 1)
-public abstract class NoteDatabase extends RoomDatabase{
+public abstract class NoteDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "notes.db";
     private static NoteDatabase instance;
 
@@ -20,6 +20,7 @@ public abstract class NoteDatabase extends RoomDatabase{
         }
         return instance;
     }
+
     public abstract NoteDao getItemDAO();
 
 }

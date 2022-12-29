@@ -21,6 +21,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PicBox"
         tools:targetApi="31">
+
+        <activity
+            android:name=".activities.ImagePasswordActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
+        <activity
+            android:name=".activities.ForgotPasswordActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
+        <activity
+            android:name=".activities.RegisterPasswordActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
         <activity
             android:name=".activities.AlbumActivity"
             android:exported="false">

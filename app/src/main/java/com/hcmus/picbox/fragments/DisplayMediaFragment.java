@@ -276,6 +276,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         topAppBar.setOnMenuItemClickListener(item -> {
             // Add/remove model to/from database
             if (item.getItemId() == R.id.ic_favourite) {
+                // Add/remove media to/from favourites
                 if (model.isFavorite()) {
                     item.setIcon(R.drawable.ic_baseline_star_border_24);
                     model.setFavorite(false);

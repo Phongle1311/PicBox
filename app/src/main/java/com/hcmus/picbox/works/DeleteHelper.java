@@ -15,6 +15,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LifecycleOwner;
@@ -153,7 +154,7 @@ public class DeleteHelper {
 //    }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
-    private static void deleteAPI30(List<Uri> uriList, Context context) throws
+    private static void deleteAPI30(List<Uri> uriList, @NonNull Context context) throws
             IntentSender.SendIntentException {
         ContentResolver contentResolver = context.getContentResolver();
         PendingIntent pendingIntent = MediaStore.createDeleteRequest(contentResolver, uriList);
@@ -163,7 +164,7 @@ public class DeleteHelper {
                 0, 0, null);
     }
 
-    private static void deleteAPI28(List<Uri> uriList, Context context) {
+    private static void deleteAPI28(@NonNull List<Uri> uriList, @NonNull Context context) {
         ContentResolver resolver = context.getContentResolver();
         for (Uri uri : uriList)
             resolver.delete(uri, null, null);

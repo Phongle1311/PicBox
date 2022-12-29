@@ -4,12 +4,18 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.GROUP_MODE_DEFAULT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PET_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.PASSWORD_DEFAULT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -25,8 +32,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
+import com.hcmus.picbox.fragments.PhotosFragment;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+import com.hcmus.picbox.works.DeleteHelper;
 import com.hcmus.picbox.works.LoadStorageHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
+  
     private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -52,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app..", Toast.LENGTH_SHORT).show();
                 }
             });
+
     private final ActivityResultLauncher<String> requestWritePermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -62,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             });
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
+    private ViewPagerAdapter adapter;
     private FloatingActionButton cameraButton;
 
     @Override
@@ -103,6 +115,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == DeleteHelper.DELETE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            PhotosFragment photosFragment = adapter.getPhotosFragment();
+            if (photosFragment != null)
+                photosFragment.finishDelete();
+        }
+    }
+
     private void initSharedPreferencesDefault() {
         String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE, KEY_LANGUAGE};
         for (String key : SharedPreferencesKeys) {
@@ -130,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViewPager() {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        adapter = new ViewPagerAdapter(getSupportFragmentManager(),
+                FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         mainViewPager.setAdapter(adapter);
 
         mainViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

@@ -24,6 +24,7 @@ import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DateModel;
 import com.hcmus.picbox.models.MediaModel;
+import com.hcmus.picbox.works.DeleteHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -215,6 +216,10 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
         new Thread(() -> FavouritesDatabase.getInstance(context)
                 .favouriteDao().insertAll(entities)).start();
+    }
+
+    public void deleteAll() {
+        DeleteHelper.delete(context, selectedMedia);
     }
 
     public static class MediaViewHolder extends RecyclerView.ViewHolder {

@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
@@ -17,6 +18,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -36,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
+import androidx.print.PrintHelper;
 
 import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -60,6 +64,8 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.database.FavouritesDatabase;
 import com.hcmus.picbox.database.MediaEntity;
+import com.hcmus.picbox.database.NoteDatabase;
+import com.hcmus.picbox.database.NoteEntity;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
@@ -93,7 +99,10 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private TextView btnUseFor;
     private ImageView imageView;
     private StyledPlayerView playerView;
+    private NoteDatabase noteDB;
+    private ImageView edit_note_icon;
     private ExoPlayer player;
+    private EditText edit_note;
     private TextView goToMap;
     private TextView showLocation;
     private TextView tvMediaPath;
@@ -103,10 +112,12 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
-    private BottomSheetDialog dialogActionuseFor;
+    private BottomSheetDialog dialogActionUseFor;
+    private String original_note = "";
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
+    private TextView btnPrint;
 
     public DisplayMediaFragment() {
     }
@@ -238,12 +249,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         scaleGestureDetector = new ScaleGestureDetector(context, new DisplayMediaFragment.CustomizeScaleListener());
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        dialogActionuseFor = new BottomSheetDialog(context);
+        edit_note = view.findViewById(R.id.tv_add_note);
+        dialogActionUseFor = new BottomSheetDialog(context);
+        edit_note_icon = view.findViewById(R.id.icon_edit_note);
+        noteDB = NoteDatabase.getInstance(context);
+        btnPrint = view.findViewById(R.id.action_print);
         retriever = new MediaMetadataRetriever();
         btnEditMediaName = view.findViewById(R.id.img_edit_file_name);
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
+            btnPrint.setVisibility(View.GONE);
         }
         if (model.isFavorite()) {
             topAppBar.getMenu().getItem(0).setIcon(R.drawable.ic_baseline_star_24);
@@ -290,6 +306,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         topAppBar.setOnMenuItemClickListener(item -> {
             // Add/remove model to/from database
             if (item.getItemId() == R.id.ic_favourite) {
+                // Add/remove media to/from favourites
                 if (model.isFavorite()) {
                     item.setIcon(R.drawable.ic_baseline_star_border_24);
                     model.setFavorite(false);
@@ -331,7 +348,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
-        btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
+
         btnEditMediaName.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= 30) {
                 if (!Environment.isExternalStorageManager()) {
@@ -353,8 +370,18 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 }
             }
         });
+
+        btnUseFor.setOnClickListener(v -> dialogActionUseFor.show());
+        btnPrint.setOnClickListener(v -> setActionPrintListener());
+
     }
 
+    public void setActionPrintListener() {
+        PrintHelper photoPrinter = new PrintHelper(context);
+        photoPrinter.setScaleMode(PrintHelper.SCALE_MODE_FIT);
+        Bitmap bitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath());
+        photoPrinter.printBitmap("droids.jpg", bitmap);
+    }
 
     public void setActionUseForListener() {
         View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
@@ -366,7 +393,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 if (!("").equals(model.getFile().getAbsolutePath()) && decodedBitmap != null) {
                     WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
                     wallpaperManager.setBitmap(decodedBitmap);
-                    dialogActionuseFor.hide();
+                    dialogActionUseFor.hide();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -374,9 +401,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         });
         set_background.setOnClickListener(v -> {
             SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE, model.getFile().getAbsolutePath());
-            dialogActionuseFor.hide();
+            dialogActionUseFor.hide();
         });
-        dialogActionuseFor.setContentView(view);
+        dialogActionUseFor.setContentView(view);
     }
 
     public void setEditFileNameListener() {
@@ -483,6 +510,49 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         }
     }
 
+    private void toggleEditNoteAction() {
+        NoteEntity noteEntity = noteDB.getItemDAO().getItemById(model.getMediaId());
+        if (noteEntity != null && noteEntity.getNote().length() > 0) {
+            original_note = noteEntity.getNote();
+            edit_note.setText(original_note);
+        }
+        edit_note.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String note = edit_note.getText().toString();
+                if (!note.equals(original_note)) {
+                    edit_note_icon.setImageResource(R.drawable.ic_baseline_done_24);
+                } else {
+                    edit_note_icon.setImageResource(R.drawable.ic_baseline_edit_note_24);
+                }
+            }
+        });
+        edit_note_icon.setOnClickListener(v -> {
+            String note = edit_note.getText().toString();
+            if (!note.equals(original_note)) {
+                if (noteEntity == null) {
+                    noteDB.getItemDAO().insert(new NoteEntity(model.getMediaId(), note));
+                } else {
+                    noteDB.getItemDAO().update(new NoteEntity(model.getMediaId(), note));
+                }
+                edit_note_icon.setImageResource(R.drawable.ic_baseline_edit_note_24);
+                edit_note.clearFocus();
+            } else {
+                edit_note.requestFocus();
+                edit_note.setSelection(note.length());
+            }
+        });
+
+    }
+
     // TODO: when and where should we load metadata? not here
     private void loadExif(View view) {
         Uri uri = Uri.fromFile(model.getFile());
@@ -511,7 +581,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
-
+            toggleEditNoteAction();
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
             tvMediaPath.setText(path);

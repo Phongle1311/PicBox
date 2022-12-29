@@ -17,6 +17,9 @@ public class SharedPreferencesUtils {
     public static final String KEY_GRID_MODE = "grid_mode";
     public static final String KEY_BACKGROUND_IMAGE = "background_image";
     private static final String PREF_APP = "pref_app";
+    public static final String KEY_PASSWORD = "password";
+    public static final String KEY_PET_QUESTION = "pet_question";
+    public static final String KEY_FOOD_QUESTION = "food_question";
 
     public static final String LANGUAGE_OPTION_1 = "english";
     public static final String LANGUAGE_OPTION_2 = "vietnamese";
@@ -24,6 +27,7 @@ public class SharedPreferencesUtils {
     public static final int SPAN_COUNT_DEFAULT = 4;
     public static final String GROUP_MODE_DEFAULT = GROUP_MODE_OPTION_3;
     public static final String LANGUAGE_DEFAULT = LANGUAGE_OPTION_2;
+    public static final String PASSWORD_DEFAULT = "";
 
     private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(

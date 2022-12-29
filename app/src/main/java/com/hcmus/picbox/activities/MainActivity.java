@@ -11,12 +11,8 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -27,8 +23,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
 import com.hcmus.picbox.utils.PermissionUtils;
@@ -58,10 +52,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app..", Toast.LENGTH_SHORT).show();
                 }
             });
-    private ViewPager mainViewPager;
-    private BottomNavigationView bottomBar;
-
-        private final ActivityResultLauncher<String> requestWritePermissionLauncher =
+    private final ActivityResultLauncher<String> requestWritePermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
@@ -69,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
+    private ViewPager mainViewPager;
+    private BottomNavigationView bottomBar;
     private FloatingActionButton cameraButton;
 
     @Override
@@ -81,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
 
         // check permission
-        if(Build.VERSION.SDK_INT<=28) {
+        if (Build.VERSION.SDK_INT <= 28) {
             if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
                 Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
             } else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
@@ -184,5 +177,4 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
     }
-
 }

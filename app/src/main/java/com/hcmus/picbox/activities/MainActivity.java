@@ -4,9 +4,13 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.GROUP_MODE_DEFAULT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PET_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.PASSWORD_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
 
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSharedPreferencesDefault() {
-        String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE, KEY_LANGUAGE} ;
+        String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE, KEY_LANGUAGE, KEY_PASSWORD} ;
         for (String key : SharedPreferencesKeys){
             if (!SharedPreferencesUtils.checkKeyExist(this, key)){
                 switch (key){

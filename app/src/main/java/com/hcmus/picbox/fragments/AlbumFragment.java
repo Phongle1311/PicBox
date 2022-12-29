@@ -1,6 +1,7 @@
 package com.hcmus.picbox.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.ImagePasswordActivity;
+import com.hcmus.picbox.activities.MainActivity;
 import com.hcmus.picbox.adapters.AlbumAdapter;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.PhotoModel;
@@ -54,6 +58,11 @@ public class AlbumFragment extends Fragment {
     }
 
     private void initUI(View view) {
+        view.findViewById(R.id.secretLayout).setOnClickListener(v->{
+            Intent intent = new Intent(getActivity(), ImagePasswordActivity.class);
+            ((MainActivity) requireActivity()).startActivity(intent);
+        });
+
         rcvUserAlbums = view.findViewById(R.id.rcv_user_album);
         rcvDeviceAlbum = view.findViewById(R.id.rcv_device_album);
         albumBackground = view.findViewById(R.id.fragment_album_layout);

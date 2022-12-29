@@ -88,4 +88,14 @@
     <string name="select_multi_compound_images">Ghép ảnh</string>
     <string name="select_multi__slide_show">Trình chiếu</string>
     <string name="select_multi_make_gif">Tạo GIF</string>
+    <string name="enter_your_pin">Nhập mật khẩu</string>
+    <string name="forgot_your_password"><u>Quên mật khẩu</u></string>
+    <string name="wrong_password">Mật khẩu chưa đúng</string>
+    <string name="password_must_have_5_character">Mật khẩu phải có 5 kí tự</string>
+    <string name="recover_question">Câu hỏi khôi phục</string>
+    <string name="which_pet_do_you_like_most">Thú cưng bạn thích nhất là gì?</string>
+    <string name="what_is_your_favorite_food">Món ăn bạn thích nhất là gì?</string>
+    <string name="wrong_recover_question_answer">Câu trả lời chưa đúng</string>
+    <string name="register_password">Tạo mật khẩu</string>
+    <string name="answer_can_not_empty">answer can not empty</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.hcmus.picbox.fragments;
 
-import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
@@ -20,9 +19,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -100,7 +97,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private BottomSheetDialog dialogActionUseFor;
-    private String original_note="";
+    private String original_note = "";
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
@@ -236,10 +233,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         edit_note = view.findViewById(R.id.tv_add_note);
         dialogActionUseFor = new BottomSheetDialog(context);
-        edit_note_icon=view.findViewById(R.id.icon_edit_note);
-        noteDB=NoteDatabase.getInstance(context);
-        dialogActionuseFor = new BottomSheetDialog(context);
-        btnPrint=view.findViewById(R.id.action_print);
+        edit_note_icon = view.findViewById(R.id.icon_edit_note);
+        noteDB = NoteDatabase.getInstance(context);
+        btnPrint = view.findViewById(R.id.action_print);
         retriever = new MediaMetadataRetriever();
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
@@ -333,16 +329,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
-        btnUseFor.setOnClickListener(v -> dialogActionuseFor.show());
-        btnPrint.setOnClickListener(v->setActionPrintListener());
+        btnUseFor.setOnClickListener(v -> dialogActionUseFor.show());
+        btnPrint.setOnClickListener(v -> setActionPrintListener());
     }
 
-    public void setActionPrintListener(){
+    public void setActionPrintListener() {
         PrintHelper photoPrinter = new PrintHelper(context);
         photoPrinter.setScaleMode(PrintHelper.SCALE_MODE_FIT);
         Bitmap bitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath());
         photoPrinter.printBitmap("droids.jpg", bitmap);
     }
+
     public void setActionUseForListener() {
         View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
         TextView set_wallpaper = view.findViewById(R.id.txt_set_as_wallpaper);
@@ -390,10 +387,11 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             return new double[]{Double.parseDouble(parts[1]), Double.parseDouble(parts[2])};
         }
     }
-    private void toggleEditNoteAction(){
+
+    private void toggleEditNoteAction() {
         NoteEntity noteEntity = noteDB.getItemDAO().getItemById(model.getMediaId());
         if (noteEntity != null && noteEntity.getNote().length() > 0) {
-            original_note=noteEntity.getNote();
+            original_note = noteEntity.getNote();
             edit_note.setText(original_note);
         }
         edit_note.addTextChangedListener(new TextWatcher() {
@@ -410,15 +408,14 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 String note = edit_note.getText().toString();
                 if (!note.equals(original_note)) {
                     edit_note_icon.setImageResource(R.drawable.ic_baseline_done_24);
-                }
-                else{
+                } else {
                     edit_note_icon.setImageResource(R.drawable.ic_baseline_edit_note_24);
                 }
             }
         });
         edit_note_icon.setOnClickListener(v -> {
             String note = edit_note.getText().toString();
-            if(!note.equals(original_note)) {
+            if (!note.equals(original_note)) {
                 if (noteEntity == null) {
                     noteDB.getItemDAO().insert(new NoteEntity(model.getMediaId(), note));
                 } else {
@@ -426,14 +423,14 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 }
                 edit_note_icon.setImageResource(R.drawable.ic_baseline_edit_note_24);
                 edit_note.clearFocus();
-            }
-            else{
+            } else {
                 edit_note.requestFocus();
                 edit_note.setSelection(note.length());
             }
         });
 
     }
+
     // TODO: when and where should we load metadata? not here
     private void loadExif(View view) {
         Uri uri = Uri.fromFile(model.getFile());

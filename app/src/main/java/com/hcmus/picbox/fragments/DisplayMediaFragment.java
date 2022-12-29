@@ -224,15 +224,16 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         dialogActionuseFor = new BottomSheetDialog(context);
+        btnPrint=view.findViewById(R.id.action_print);
         retriever = new MediaMetadataRetriever();
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
+            btnPrint.setVisibility(View.GONE);
         }
         if (model.isFavorite()) {
             topAppBar.getMenu().getItem(0).setIcon(R.drawable.ic_baseline_star_24);
         }
-        btnPrint=view.findViewById(R.id.action_print);
     }
 
     private void displayImage() {

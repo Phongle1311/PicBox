@@ -65,9 +65,11 @@ import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
+import com.hcmus.picbox.utils.FileUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,6 +97,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private ExoPlayer player;
     private TextView goToMap;
     private TextView showLocation;
+    private TextView tvMediaPath;
     private Bitmap decodedBitmap;
     private ProgressBar pbPlayer;
     private ImageView btnEditMediaName;
@@ -228,6 +231,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         imageView = view.findViewById(R.id.image_view);
         playerView = view.findViewById(R.id.exoplayer2_view);
         showLocation = view.findViewById(R.id.tv_location);
+        tvMediaPath =  view.findViewById(R.id.tv_media_path);
         pbPlayer = view.findViewById(R.id.pb_player);
         goToMap = view.findViewById(R.id.tv_go_to_map);
         btnUseFor = view.findViewById(R.id.action_use_for);
@@ -396,24 +400,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             edit_filename.setText(fileName);
         }
 
-        btn_cancel.setOnClickListener(v -> dialogEditFileName.hide());
+        btn_cancel.setOnClickListener(v -> dialogEditFileName.dismiss());
+
         btn_save.setOnClickListener(v -> {
             String newFileName = edit_filename.getText().toString();
             if (newFileName.length() == 0) {
-                Toast.makeText(context, "Filename can't be empty.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Filename can't be empty!", Toast.LENGTH_SHORT).show();
+            } else if (!FileUtils.isValidFileName(newFileName)) {
+                Toast.makeText(context, "Filename is invalid!", Toast.LENGTH_SHORT).show();
             } else {
                 try {
                     String newName = newFileName + extension;
-//                        File parentDirectory = model.getFile().getParentFile();
-//                        DocumentFile parentDocument = DocumentFile.fromFile(parentDirectory);
-//                        DocumentFile fileDocument = parentDocument.findFile(model.getFile().getName());
-//                        if (fileDocument!=null&&fileDocument.renameTo(newName)) {
-//                            Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
-//                            ((DisplayMediaActivity) getActivity()). onDataSetChanged();
-//                            dialogEditFileName.hide();
-//                        } else {
-//                            Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
-//                        }
                     int type = model.getType();
                     if (type == AbstractModel.TYPE_GIF) {
                         String fileExtension = MimeTypeMap.getFileExtensionFromUrl("file://" + model.getFile().getAbsolutePath());
@@ -425,33 +422,41 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                         }
                     }
 
+                    String oldPath =model.getFile().getAbsolutePath();
+                    String newPath = oldPath.substring(0, oldPath.lastIndexOf("/") + 1) + newName;
+
                     if (type == AbstractModel.TYPE_PHOTO) {
                         Uri uri = ContentUris.withAppendedId(
                                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
                         ContentValues values = new ContentValues();
                         values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
                         values.put(MediaStore.Images.Media.TITLE, newFileName);
-                        context.getContentResolver().update(uri, values, MediaStore.Images.Media.DATA + "=?", new String[]{model.getFile().getAbsolutePath()});
+                        context.getContentResolver().update(uri, values,
+                                MediaStore.Images.Media.DATA + "=?", new String[]{oldPath});
                         context.getContentResolver().notifyChange(uri, null);
-                        Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
-                        dialogEditFileName.hide();
                     } else if (type == AbstractModel.TYPE_VIDEO) {
                         Uri uri = ContentUris.withAppendedId(
                                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
                         ContentValues values = new ContentValues();
                         values.put(MediaStore.Video.Media.DISPLAY_NAME, newName);
                         values.put(MediaStore.Video.Media.TITLE, edit_filename.getText().toString());
-                        context.getContentResolver().update(uri, values, MediaStore.Video.Media.DATA + "=?", new String[]{model.getFile().getAbsolutePath()});
+                        context.getContentResolver().update(uri, values,
+                                MediaStore.Video.Media.DATA + "=?", new String[]{oldPath});
                         context.getContentResolver().notifyChange(uri, null);
-                        Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
-                        dialogEditFileName.hide();
                     }
+
+                    // Update UI
+                    model.setFile(new File(newPath));
+                    tvMediaPath.setText(newPath);
+
+                    Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Log.d("ERROR", e.toString());
                     e.printStackTrace();
                     Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
                 }
             }
+                dialogEditFileName.dismiss();
         });
         dialogEditFileName.show();
     }
@@ -512,7 +517,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
-            ((TextView) view.findViewById(R.id.tv_media_path)).setText(path);
+            tvMediaPath.setText(path);
             ((TextView) view.findViewById(R.id.tv_file_length)).setText(size);
             if (dimensionX != null && dimensionY != null)
                 ((TextView) view.findViewById(R.id.tv_dimension)).setText(String.format("%s x %s",

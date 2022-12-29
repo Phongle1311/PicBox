@@ -48,6 +48,10 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
         return mFile;
     }
 
+    public void setFile(File mFile) {
+        this.mFile = mFile;
+    }
+
     public String getAlbumId() {
         return albumId;
     }

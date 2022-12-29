@@ -2,7 +2,6 @@ package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.GROUP_MODE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
@@ -13,6 +12,7 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.PASSWORD_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,10 +33,6 @@ import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.LoadStorageHelper;
 
 public class MainActivity extends AppCompatActivity {
-
-    private ViewPager mainViewPager;
-    private BottomNavigationView bottomBar;
-    private FloatingActionButton cameraButton;
 
     /**
      * Use registerForActivityResult instead of onRequestPermissionResult because
@@ -59,6 +55,18 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app..", Toast.LENGTH_SHORT).show();
                 }
             });
+    private ViewPager mainViewPager;
+    private BottomNavigationView bottomBar;
+
+//    private final ActivityResultLauncher<String> requestWritePermissionLauncher =
+//            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+//                if (isGranted) {
+//                    Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+    private FloatingActionButton cameraButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,15 +76,26 @@ public class MainActivity extends AppCompatActivity {
         initSharedPreferencesDefault();
         initUI();
         initViewPager();
+
         // check permission
-        if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE))
+//        if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
+//            Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
+//        }
+//        else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
+//            Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
+//        } else {
+//            requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
+//        }
+
+        if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE)) {
             LoadStorageHelper.getAllMediaFromStorage(this);
-        else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
+        } else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
             // TODO: show dialog to educate user and persuade user to grant permission
             Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
         } else {
             requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
         }
+
         cameraButton.setOnClickListener(view -> {
             if (PermissionUtils.checkPermissions(this, CAMERA)) {
                 Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -90,12 +109,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSharedPreferencesDefault() {
-        String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE, KEY_LANGUAGE, KEY_PASSWORD} ;
-        for (String key : SharedPreferencesKeys){
-            if (!SharedPreferencesUtils.checkKeyExist(this, key)){
-                switch (key){
+        String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE, KEY_LANGUAGE};
+        for (String key : SharedPreferencesKeys) {
+            if (!SharedPreferencesUtils.checkKeyExist(this, key)) {
+                switch (key) {
                     case KEY_SPAN_COUNT:
-                        SharedPreferencesUtils.saveData(this,KEY_SPAN_COUNT, SPAN_COUNT_DEFAULT);
+                        SharedPreferencesUtils.saveData(this, KEY_SPAN_COUNT, SPAN_COUNT_DEFAULT);
                         break;
                     case KEY_GROUP_MODE:
                         SharedPreferencesUtils.saveData(this, KEY_GROUP_MODE, GROUP_MODE_DEFAULT);

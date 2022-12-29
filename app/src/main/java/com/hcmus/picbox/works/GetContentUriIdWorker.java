@@ -30,38 +30,40 @@ public class GetContentUriIdWorker extends Worker {
         if (paths == null)
             return Result.failure();
 
-        String[] projections = {MediaStore.MediaColumns._ID};
-        Cursor cursor1 = context.getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projections, MediaStore.MediaColumns.DATA + "=?", paths, null);
-
-        Cursor cursor2 = context.getContentResolver().query(
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                projections, MediaStore.MediaColumns.DATA + "=?", paths, null);
-
-
-        long id;
         String[] contentUris = new String[paths.length];
         int i = 0;
-        if (cursor1 != null) {
-            if (cursor1.moveToFirst() && cursor1.getCount() > 0) {
-                do {
-                    id = cursor1.getLong(cursor1.getColumnIndexOrThrow(BaseColumns._ID));
+        for (String path : paths) {
+            String[] projections = {MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATA};
+            String[] selectionArgs = new String[]{path};
+
+            Cursor cursor1 = context.getContentResolver().query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projections,
+                    MediaStore.MediaColumns.DATA + "=?", selectionArgs, null);
+
+            Cursor cursor2 = context.getContentResolver().query(
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projections,
+                    MediaStore.MediaColumns.DATA + "=?", selectionArgs, null);
+
+            long id;
+            if (cursor1 != null) {
+                int idColumn = cursor1.getColumnIndexOrThrow(BaseColumns._ID);
+                if (cursor1.moveToFirst() && cursor1.getCount() > 0) {
+                    id = cursor1.getLong(idColumn);
                     contentUris[i++] = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             String.valueOf((int) id)).toString();
-                } while (cursor1.moveToNext());
+                }
+                cursor1.close();
             }
-            cursor1.close();
-        }
-        if (cursor2 != null) {
-            if (cursor2.moveToFirst() && cursor2.getCount() > 0) {
-                do {
-                    id = cursor2.getLong(cursor2.getColumnIndexOrThrow(BaseColumns._ID));
+
+            if (cursor2 != null) {
+                int idColumn = cursor2.getColumnIndexOrThrow(BaseColumns._ID);
+                if (cursor2.moveToFirst() && cursor2.getCount() > 0) {
+                    id = cursor2.getLong(idColumn);
                     contentUris[i++] = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             String.valueOf((int) id)).toString();
-                } while (cursor2.moveToNext());
+                }
+                cursor2.close();
             }
-            cursor2.close();
         }
 
         if (i == 0) return Result.failure();

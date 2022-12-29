@@ -2,13 +2,16 @@ package com.hcmus.picbox.fragments;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PET_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
-import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_1;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -32,6 +35,9 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.ImagePasswordActivity;
+import com.hcmus.picbox.activities.MainActivity;
+import com.hcmus.picbox.activities.RegisterPasswordActivity;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
@@ -40,11 +46,10 @@ import java.util.Arrays;
 
 public class SettingFragment extends Fragment {
 
+    private final int IMAGE_PASSWORD_REQUEST_CODE = 1298912;
     private Context context;
-
     private MaterialButton cameraPermissionButton;
     private MaterialButton galleyPermissionButton;
-
     private SwitchCompat darkThemeSwitch;
     private SwitchCompat floatingButtonSwitch;
     private LinearLayout multiColumnLayout;
@@ -55,12 +60,10 @@ public class SettingFragment extends Fragment {
     private TextView groupModeTextView;
     private LinearLayout gridModeLayout;
     private TextView gridModeTextView;
-
     private SwitchCompat rotationSwitch;
     private LinearLayout passwordImageLayout;
     private SwitchCompat passwordImageSwitch;
 
-    @SuppressLint("NonConstantResourceId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -148,15 +151,12 @@ public class SettingFragment extends Fragment {
             languageSettingDialog.findViewById(R.id.confirmButton).setOnClickListener(view17 -> {
                 RadioGroup languageSettingRadioGroup = languageSettingDialog.findViewById(R.id.languageSettingRadioGroup);
                 int selectedId = languageSettingRadioGroup.getCheckedRadioButtonId();
-                switch (selectedId) {
-                    case R.id.englishRadioButton:
-                        languageTextView.setText(R.string.language_english);
-                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_1);
-                        break;
-                    case R.id.vietnamseRadioButton:
-                        languageTextView.setText(R.string.language_vietnamese);
-                        SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_2);
-                        break;
+                if (selectedId == R.id.englishRadioButton) {
+                    languageTextView.setText(R.string.language_english);
+                    SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_1);
+                } else if (selectedId == R.id.vietnamseRadioButton) {
+                    languageTextView.setText(R.string.language_vietnamese);
+                    SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_2);
                 }
                 languageSettingDialog.dismiss();
             });
@@ -221,10 +221,18 @@ public class SettingFragment extends Fragment {
         });
 
         passwordImageSwitch.setOnCheckedChangeListener((compoundButton, b) ->
-
         {
-            //TODO: enable password for image
-
+            if (passwordImageSwitch.isChecked()
+                    && !SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
+                Intent intent = new Intent(context, RegisterPasswordActivity.class);
+                context.startActivity(intent);
+            }
+            if (!passwordImageSwitch.isChecked()
+                    && SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
+                passwordImageSwitch.setChecked(true);
+                Intent intent = new Intent(context, ImagePasswordActivity.class);
+                startActivityForResult(intent, IMAGE_PASSWORD_REQUEST_CODE);
+            }
         });
 
         return view;
@@ -235,6 +243,25 @@ public class SettingFragment extends Fragment {
         // TODO: change UI when data change, no need to update on resume
         super.onResume();
         initUI();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMAGE_PASSWORD_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                boolean result = data.getBooleanExtra("accept_password", false);
+                if (result) {
+                    SharedPreferencesUtils.removeData(context, KEY_PASSWORD);
+                    SharedPreferencesUtils.removeData(context, KEY_PET_QUESTION);
+                    SharedPreferencesUtils.removeData(context, KEY_FOOD_QUESTION);
+                    passwordImageSwitch.setChecked(false);
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                // Write your code if there's no result
+            }
+        }
     }
 
     private void declareUI(View view) {
@@ -297,6 +324,12 @@ public class SettingFragment extends Fragment {
             default:
                 groupModeTextView.setText(R.string.none);
                 break;
+        }
+
+        if (SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
+            passwordImageSwitch.setChecked(true);
+        } else {
+            passwordImageSwitch.setChecked(false);
         }
     }
 }

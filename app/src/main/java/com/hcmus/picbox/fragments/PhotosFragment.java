@@ -6,10 +6,12 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,11 +43,17 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
     private RecyclerView mGallery;
     private MediaAdapter mediaAdapter;
     private CustomActionModeCallback actionModeCallback;
+    private ActionMode actionMode;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
 
     public PhotosFragment(String albumId) {
         album = AlbumHolder.sGetAlbumById(albumId);
         LoadStorageHelper.setMediasListener(albumId, this::onItemRangeInserted);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Nullable
@@ -175,6 +183,12 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
 
     @Override
     public void onStartSelectMultiple() {
-        ((Activity) context).startActionMode(actionModeCallback);
+        actionMode = ((Activity) context).startActionMode(actionModeCallback);
+    }
+
+    public void finishDelete() {
+        mediaAdapter.endSelection();
+        actionMode.finish();
+        Toast.makeText(context, "Delete successfully!", Toast.LENGTH_SHORT).show();
     }
 }

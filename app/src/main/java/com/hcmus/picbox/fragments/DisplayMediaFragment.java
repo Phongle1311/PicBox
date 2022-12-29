@@ -9,6 +9,8 @@ import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -46,6 +49,8 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.database.FavouritesDatabase;
 import com.hcmus.picbox.database.MediaEntity;
+import com.hcmus.picbox.database.NoteDatabase;
+import com.hcmus.picbox.database.NoteEntity;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
@@ -82,6 +87,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private TextView goToMap;
     private TextView showLocation;
     private Bitmap decodedBitmap;
+    private NoteDatabase db;
     private ProgressBar pbPlayer;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
@@ -110,6 +116,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_media_slide_page, container, false);
         context = view.getContext();
+        db=NoteDatabase.getInstance(context);
         return view;
     }
 
@@ -391,7 +398,33 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String resolutionY = exif.getAttribute(ExifInterface.TAG_Y_RESOLUTION);
             String resolutionUnit = exif.getAttribute(ExifInterface.TAG_RESOLUTION_UNIT);
             String deviceModel = exif.getAttribute(ExifInterface.TAG_MODEL);
+            EditText edit_note=(EditText)view.findViewById(R.id.tv_add_note);
+            NoteEntity noteEntity=db.getItemDAO().getItemById(model.getMediaId());
+            if(noteEntity!=null&&noteEntity.getNote().length()>0){
+                edit_note.setText(noteEntity.getNote());
+            }
+            edit_note.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
 
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String note=edit_note.getText().toString();
+                    if(note.length()>0){
+                        if(noteEntity==null){
+                            db.getItemDAO().insert(new NoteEntity(model.getMediaId(),note));
+                        }
+                        else{
+                            db.getItemDAO().update(new NoteEntity(model.getMediaId(),note));
+                        }
+                    }
+                }
+            });
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
             ((TextView) view.findViewById(R.id.tv_media_path)).setText(path);

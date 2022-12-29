@@ -1,5 +1,7 @@
 package com.hcmus.picbox.fragments;
 
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,8 +60,17 @@ public class AlbumFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     private void initUI(View view) {
         view.findViewById(R.id.secretLayout).setOnClickListener(v->{
+            if (!SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)){
+                Toast.makeText(context, getResources().getString(R.string.require_password_for_view_image), Toast.LENGTH_LONG).show();
+                return;
+            }
             Intent intent = new Intent(getActivity(), ImagePasswordActivity.class);
             ((MainActivity) requireActivity()).startActivity(intent);
         });

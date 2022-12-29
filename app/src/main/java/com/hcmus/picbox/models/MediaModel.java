@@ -42,14 +42,14 @@ public abstract class MediaModel extends AbstractModel implements Parcelable {
 
     public void setPath(String path) {
         this.path = path;
+        this.mFile = new File(path);
+        long date = mFile.lastModified();
+        this.mLastModifiedTime = Instant.ofEpochMilli(date).atZone(ZoneId.systemDefault()).toLocalDate();
+        this.mName = mFile.getName();
     }
 
     public File getFile() {
         return mFile;
-    }
-
-    public void setFile(File mFile) {
-        this.mFile = mFile;
     }
 
     public String getAlbumId() {

@@ -65,7 +65,6 @@ import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
-import com.hcmus.picbox.utils.FileUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 
@@ -406,8 +405,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             String newFileName = edit_filename.getText().toString();
             if (newFileName.length() == 0) {
                 Toast.makeText(context, "Filename can't be empty!", Toast.LENGTH_SHORT).show();
-            } else if (!FileUtils.isValidFileName(newFileName)) {
-                Toast.makeText(context, "Filename is invalid!", Toast.LENGTH_SHORT).show();
             } else {
                 try {
                     String newName = newFileName + extension;
@@ -446,7 +443,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                     }
 
                     // Update UI
-                    model.setFile(new File(newPath));
+                    model.setPath(newPath);
                     tvMediaPath.setText(newPath);
 
                     Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();

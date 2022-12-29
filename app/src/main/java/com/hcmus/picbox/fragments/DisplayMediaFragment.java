@@ -1,6 +1,10 @@
 package com.hcmus.picbox.fragments;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.WallpaperManager;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,7 +13,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -19,10 +27,13 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,6 +58,8 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
+import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.database.FavouritesDatabase;
@@ -61,6 +74,7 @@ import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,8 +105,10 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private EditText edit_note;
     private TextView goToMap;
     private TextView showLocation;
+    private TextView tvMediaPath;
     private Bitmap decodedBitmap;
     private ProgressBar pbPlayer;
+    private ImageView btnEditMediaName;
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
@@ -149,6 +165,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             default:
                 throw new IllegalStateException("Unsupported type");
         }
+
         setTopAppBarListener();
         setBottomAppBarListener();
         setActionUseForListener();
@@ -224,6 +241,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         imageView = view.findViewById(R.id.image_view);
         playerView = view.findViewById(R.id.exoplayer2_view);
         showLocation = view.findViewById(R.id.tv_location);
+        tvMediaPath =  view.findViewById(R.id.tv_media_path);
         pbPlayer = view.findViewById(R.id.pb_player);
         goToMap = view.findViewById(R.id.tv_go_to_map);
         btnUseFor = view.findViewById(R.id.action_use_for);
@@ -237,6 +255,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         noteDB = NoteDatabase.getInstance(context);
         btnPrint = view.findViewById(R.id.action_print);
         retriever = new MediaMetadataRetriever();
+        btnEditMediaName = view.findViewById(R.id.img_edit_file_name);
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
@@ -329,8 +348,32 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
+
+        btnEditMediaName.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT >= 30) {
+                if (!Environment.isExternalStorageManager()) {
+                    Snackbar.make(((Activity) context).findViewById(android.R.id.content), "Permission needed!", Snackbar.LENGTH_INDEFINITE)
+                            .setAction("Settings", v1 -> {
+                                try {
+                                    Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
+                                    startActivity(intent);
+                                } catch (Exception ex) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                    startActivity(intent);
+                                }
+                            })
+                            .show();
+                } else {
+                    setEditFileNameListener();
+                }
+            }
+        });
+
         btnUseFor.setOnClickListener(v -> dialogActionUseFor.show());
         btnPrint.setOnClickListener(v -> setActionPrintListener());
+
     }
 
     public void setActionPrintListener() {
@@ -361,6 +404,85 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             dialogActionUseFor.hide();
         });
         dialogActionUseFor.setContentView(view);
+    }
+
+    public void setEditFileNameListener() {
+        Dialog dialogEditFileName = new Dialog(context);
+        View view = getLayoutInflater().inflate(R.layout.edit_file_name_dialog, null);
+        dialogEditFileName.setContentView(view);
+
+        EditText edit_filename = view.findViewById(R.id.edit_text_file_name);
+        TextView txt_extension = view.findViewById(R.id.txt_extension_file);
+        Button btn_cancel = view.findViewById(R.id.btn_cancel_file_name);
+        Button btn_save = view.findViewById(R.id.btn_save_file_name);
+
+        String fileName = model.getFile().getName();
+        int indexExtension = fileName.lastIndexOf(".");
+        String extension = "." + fileName.substring(indexExtension + 1);
+        if (indexExtension != -1) {
+            txt_extension.setText(extension);
+            edit_filename.setText(fileName.substring(0, indexExtension));
+        } else {
+            edit_filename.setText(fileName);
+        }
+
+        btn_cancel.setOnClickListener(v -> dialogEditFileName.dismiss());
+
+        btn_save.setOnClickListener(v -> {
+            String newFileName = edit_filename.getText().toString();
+            if (newFileName.length() == 0) {
+                Toast.makeText(context, "Filename can't be empty!", Toast.LENGTH_SHORT).show();
+            } else {
+                try {
+                    String newName = newFileName + extension;
+                    int type = model.getType();
+                    if (type == AbstractModel.TYPE_GIF) {
+                        String fileExtension = MimeTypeMap.getFileExtensionFromUrl("file://" + model.getFile().getAbsolutePath());
+                        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+                        if (mimeType.equals("image/gif")) {
+                            type = AbstractModel.TYPE_PHOTO;
+                        } else if (mimeType.equals("video/gif")) {
+                            type = AbstractModel.TYPE_VIDEO;
+                        }
+                    }
+
+                    String oldPath =model.getFile().getAbsolutePath();
+                    String newPath = oldPath.substring(0, oldPath.lastIndexOf("/") + 1) + newName;
+
+                    if (type == AbstractModel.TYPE_PHOTO) {
+                        Uri uri = ContentUris.withAppendedId(
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Images.Media.DISPLAY_NAME, newName);
+                        values.put(MediaStore.Images.Media.TITLE, newFileName);
+                        context.getContentResolver().update(uri, values,
+                                MediaStore.Images.Media.DATA + "=?", new String[]{oldPath});
+                        context.getContentResolver().notifyChange(uri, null);
+                    } else if (type == AbstractModel.TYPE_VIDEO) {
+                        Uri uri = ContentUris.withAppendedId(
+                                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, model.getMediaId());
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Video.Media.DISPLAY_NAME, newName);
+                        values.put(MediaStore.Video.Media.TITLE, edit_filename.getText().toString());
+                        context.getContentResolver().update(uri, values,
+                                MediaStore.Video.Media.DATA + "=?", new String[]{oldPath});
+                        context.getContentResolver().notifyChange(uri, null);
+                    }
+
+                    // Update UI
+                    model.setPath(newPath);
+                    tvMediaPath.setText(newPath);
+
+                    Toast.makeText(context, "Rename file successfully.", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Log.d("ERROR", e.toString());
+                    e.printStackTrace();
+                    Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
+                }
+            }
+                dialogEditFileName.dismiss();
+        });
+        dialogEditFileName.show();
     }
 
     public void toggleBottomSheet() {
@@ -462,7 +584,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             toggleEditNoteAction();
             if (datetime != null)
                 ((TextView) view.findViewById(R.id.tv_date_time)).setText(datetime);
-            ((TextView) view.findViewById(R.id.tv_media_path)).setText(path);
+            tvMediaPath.setText(path);
             ((TextView) view.findViewById(R.id.tv_file_length)).setText(size);
             if (dimensionX != null && dimensionY != null)
                 ((TextView) view.findViewById(R.id.tv_dimension)).setText(String.format("%s x %s",

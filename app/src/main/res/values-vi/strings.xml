@@ -89,6 +89,9 @@
     <string name="select_multi__slide_show">Trình chiếu</string>
     <string name="select_multi_make_gif">Tạo GIF</string>
     <string name="select_multi_add_to_favorites">Thêm vào mục yêu thích</string>
+    <string name="save">Lưu</string>
+    <string name="edit_filename">Chỉnh sửa tên file:</string>
+    <string name="change_filename">Thay đổi tên file…</string>
     <string name="enter_your_pin">Nhập mật khẩu</string>
     <string name="forgot_your_password"><u>Quên mật khẩu</u></string>
     <string name="wrong_password">Mật khẩu chưa đúng</string>

@@ -2,6 +2,7 @@ package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
 import static android.Manifest.permission.SET_WALLPAPER;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -36,6 +37,11 @@ public class DisplayMediaActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 29) {
             if (!PermissionUtils.checkPermissions(this, ACCESS_MEDIA_LOCATION)) {
                 PermissionUtils.requestPermissions(this, 123, ACCESS_MEDIA_LOCATION);
+            }
+        }
+        if (Build.VERSION.SDK_INT <= 28) {
+            if (!PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE)) {
+                PermissionUtils.requestPermissions(this, 123, WRITE_EXTERNAL_STORAGE);
             }
         }
         if (!PermissionUtils.checkPermissions(this, SET_WALLPAPER)) {

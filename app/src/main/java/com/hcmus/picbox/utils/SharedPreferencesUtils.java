@@ -27,7 +27,6 @@ public class SharedPreferencesUtils {
     public static final int SPAN_COUNT_DEFAULT = 4;
     public static final String GROUP_MODE_DEFAULT = GROUP_MODE_OPTION_3;
     public static final String LANGUAGE_DEFAULT = LANGUAGE_OPTION_2;
-    public static final String PASSWORD_DEFAULT = "";
 
     private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(

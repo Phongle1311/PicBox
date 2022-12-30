@@ -4,19 +4,17 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.GROUP_MODE_DEFAULT;
-import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
-import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
-import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PET_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
-import static com.hcmus.picbox.utils.SharedPreferencesUtils.PASSWORD_DEFAULT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_1;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
-import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -37,6 +35,8 @@ import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 import com.hcmus.picbox.works.LoadStorageHelper;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -149,6 +149,20 @@ public class MainActivity extends AppCompatActivity {
         bottomBar = findViewById(R.id.bottom_navigation_view);
         bottomBar.setBackground(null);
         cameraButton = findViewById(R.id.cameraButton);
+
+        Configuration config = new Configuration();
+        switch (SharedPreferencesUtils.getStringData(this, KEY_LANGUAGE)) {
+            case LANGUAGE_OPTION_1:
+                config.setLocale(new Locale("en"));
+                getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+                break;
+            case LANGUAGE_OPTION_2:
+                config.setLocale(new Locale("vi"));
+                getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+                break;
+            default:
+                break;
+        }
     }
 
     private void initViewPager() {

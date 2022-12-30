@@ -11,17 +11,22 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_1;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
@@ -32,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
@@ -43,6 +49,7 @@ import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public class SettingFragment extends Fragment {
 
@@ -64,6 +71,7 @@ public class SettingFragment extends Fragment {
     private LinearLayout passwordImageLayout;
     private SwitchCompat passwordImageSwitch;
 
+    @SuppressLint("SetTextI18n")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -151,10 +159,16 @@ public class SettingFragment extends Fragment {
             languageSettingDialog.findViewById(R.id.confirmButton).setOnClickListener(view17 -> {
                 RadioGroup languageSettingRadioGroup = languageSettingDialog.findViewById(R.id.languageSettingRadioGroup);
                 int selectedId = languageSettingRadioGroup.getCheckedRadioButtonId();
+
+                Configuration config = new Configuration();
                 if (selectedId == R.id.englishRadioButton) {
+                    config.setLocale(new Locale("en"));
+                    context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
                     languageTextView.setText(R.string.language_english);
                     SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_1);
                 } else if (selectedId == R.id.vietnamseRadioButton) {
+                    config.setLocale(new Locale("vi"));
+                    context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
                     languageTextView.setText(R.string.language_vietnamese);
                     SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_2);
                 }

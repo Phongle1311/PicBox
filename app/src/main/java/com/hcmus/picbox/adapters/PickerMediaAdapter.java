@@ -1,8 +1,7 @@
 package com.hcmus.picbox.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,41 +11,36 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
-import com.hcmus.picbox.activities.DisplayMediaActivity;
-import com.hcmus.picbox.database.FavouritesDatabase;
-import com.hcmus.picbox.database.MediaEntity;
-import com.hcmus.picbox.interfaces.IMediaAdapterCallback;
+import com.hcmus.picbox.interfaces.IPickerMediaAdapterCallback;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DateModel;
 import com.hcmus.picbox.models.MediaModel;
-import com.hcmus.picbox.works.DeleteHelper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.IntStream;
 
-public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+/**
+ * Create on 30/12/2022 by Phong Le
+ * <br/> This class is use for picker media file activity
+ */
+public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final float SCALE_X = 0.7f;
     private static final float SCALE_Y = 0.7f;
     private final Context context;
     private final AlbumModel album;
-    public List<MediaModel> selectedMedia = new ArrayList<>();
-    private boolean isSelecting = false;
-    private IMediaAdapterCallback listener;
-    private CustomActionModeCallback actionModeCallback;
+    private final SparseBooleanArray selectedIndex;
+    private final IPickerMediaAdapterCallback callback;
 
-    public MediaAdapter(Context context, AlbumModel album) {
+    public PickerMediaAdapter(Context context, AlbumModel album,IPickerMediaAdapterCallback callback) {
         this.context = context;
         this.album = album;
+        this.callback = callback;
+        selectedIndex = new SparseBooleanArray();
     }
 
-    public void setCallback(IMediaAdapterCallback listener) {
-        this.listener = listener;
-    }
-
-    public void setActionModeCallback(CustomActionModeCallback actionModeCallback) {
-        this.actionModeCallback = actionModeCallback;
+    public SparseBooleanArray getSelectedIndex() {
+        return selectedIndex;
     }
 
     @NonNull
@@ -85,13 +79,16 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 viewHolder.txt_date.setText(date.getStringLastModifiedTime());
                 break;
             }
+
             case AbstractModel.TYPE_GIF:
             case AbstractModel.TYPE_PHOTO:
             case AbstractModel.TYPE_VIDEO: {
                 MediaModel model = (MediaModel) album.getModelList().get(position);
                 MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
-                if (selectedMedia.contains(model)) {
+                viewHolder.rbSelect.setVisibility(View.VISIBLE);
+
+                if (selectedIndex.get(position)) {
                     viewHolder.imageView.setScaleX(SCALE_X);
                     viewHolder.imageView.setScaleY(SCALE_Y);
                     viewHolder.rbSelect.setChecked(true);
@@ -100,11 +97,6 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     viewHolder.imageView.setScaleY(1f);
                     viewHolder.rbSelect.setChecked(false);
                 }
-
-                if (isSelecting)
-                    viewHolder.rbSelect.setVisibility(View.VISIBLE);
-                else
-                    viewHolder.rbSelect.setVisibility(View.GONE);
 
                 // Load image by glide library
                 Glide.with(context)
@@ -115,50 +107,24 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 // Set onClick Listener to display media
                 viewHolder.itemView.setOnClickListener(view -> {
-                    if (isSelecting) {
-                        onClickItem(viewHolder, model);
+                    if (selectedIndex.get(position)) {
+                        selectedIndex.put(position, false);
+                        viewHolder.imageView.setScaleX(1f);
+                        viewHolder.imageView.setScaleY(1f);
+                        viewHolder.rbSelect.setChecked(false);
                     } else {
-                        Intent i = new Intent(context, DisplayMediaActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putInt("position", album.getMediaList().indexOf(model));
-                        bundle.putString("category", album.getId());
-                        i.putExtra("model", bundle);
-                        context.startActivity(i);
+                        selectedIndex.put(position, true);
+                        viewHolder.imageView.setScaleX(SCALE_X);
+                        viewHolder.imageView.setScaleY(SCALE_Y);
+                        viewHolder.rbSelect.setChecked(true);
                     }
-                });
-
-                viewHolder.itemView.setOnLongClickListener(view -> {
-                    if (!isSelecting) {
-                        isSelecting = true;
-                        listener.onStartSelectMultiple();
-                        onClickItem(viewHolder, model);
-                        notifyDataSetChanged();
-                        return true;
-                    }
-                    return false;
                 });
                 break;
             }
+
             default:
                 throw new IllegalStateException("Unsupported type");
         }
-    }
-
-    private void onClickItem(MediaViewHolder viewHolder, MediaModel model) {
-        if (selectedMedia.contains(model)) {
-            selectedMedia.remove(model);
-            viewHolder.imageView.setScaleX(1f);
-            viewHolder.imageView.setScaleY(1f);
-            viewHolder.rbSelect.setChecked(false);
-        } else {
-            selectedMedia.add(model);
-            viewHolder.imageView.setScaleX(SCALE_X);
-            viewHolder.imageView.setScaleY(SCALE_Y);
-            viewHolder.rbSelect.setChecked(true);
-        }
-
-        if (actionModeCallback != null)
-            actionModeCallback.updateActionModeTitle();
     }
 
     @Override
@@ -175,46 +141,12 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void selectAll() {
-        int i = 0;
-        for (MediaModel media : album.getMediaList()) {
-            if (!selectedMedia.contains(media)) {
-                selectedMedia.add(media);
-                notifyItemChanged(i);
-            }
-            i++;
-        }
+        IntStream.range(0, album.getMediaList().size()).forEach(i -> selectedIndex.put(i, true));
+        notifyItemRangeChanged(0, album.getModelList().size());
     }
 
     public void deselectAll() {
-        selectedMedia.clear();
-        notifyDataSetChanged();
-    }
-
-    public void endSelection() {
-        selectedMedia.clear();
-        isSelecting = false;
-        deselectAll();
-    }
-
-    public void updateAll() {
-        album.updateMediaList();
-        album.updateModelList();
-        notifyDataSetChanged();
-    }
-
-    public void addToFavoriteList() {
-        List<MediaEntity> entities = new ArrayList<>();
-        for (MediaModel media : selectedMedia) {
-            if (!media.isFavorite()) {
-                entities.add(new MediaEntity(media.getMediaId(), media.getPath()));
-                media.setFavorite(true);
-            }
-        }
-        new Thread(() -> FavouritesDatabase.getInstance(context)
-                .mediaDao().insertAll(entities)).start();
-    }
-
-    public void deleteAll() {
-        DeleteHelper.delete(context, selectedMedia);
+        IntStream.range(0, album.getMediaList().size()).forEach(i -> selectedIndex.put(i, false));
+        notifyItemRangeChanged(0, album.getModelList().size());
     }
 }

@@ -102,4 +102,6 @@
     <string name="wrong_recover_question_answer">Câu trả lời chưa đúng</string>
     <string name="register_password">Tạo mật khẩu</string>
     <string name="answer_can_not_empty">answer can not empty</string>
+    <string name="pick_media_files">Chọn file</string>
+    <string name="header_selected"> đã chọn</string>
 </resources>

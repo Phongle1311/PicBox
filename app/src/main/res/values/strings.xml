@@ -91,7 +91,7 @@
     <string name="select_multi_add_to_favorites">Add to favorites</string>
     <string name="save">Save</string>
     <string name="edit_filename">Edit filename:</string>
-    <string name="change_filename">Change filename...</string>
+    <string name="change_filename">Change filename…</string>
     <string name="enter_your_pin">Enter your PIN:</string>
     <string name="forgot_your_password"><u>Forgot your password</u></string>
     <string name="wrong_password">Your password is incorrect</string>
@@ -102,4 +102,6 @@
     <string name="wrong_recover_question_answer">Wrong recover question answer</string>
     <string name="register_password">Register Password</string>
     <string name="answer_can_not_empty">answer can not empty</string>
+    <string name="pick_media_files">Pick media files</string>
+    <string name="header_selected"> selected</string>
 </resources>

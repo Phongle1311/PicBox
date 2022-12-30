@@ -31,11 +31,13 @@ public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private final AlbumModel album;
     private final SparseBooleanArray selectedIndex;
     private final IPickerMediaAdapterCallback callback;
+    private int selectedCount;
 
-    public PickerMediaAdapter(Context context, AlbumModel album,IPickerMediaAdapterCallback callback) {
+    public PickerMediaAdapter(Context context, AlbumModel album, IPickerMediaAdapterCallback callback) {
         this.context = context;
         this.album = album;
         this.callback = callback;
+        this.selectedCount = 0;
         selectedIndex = new SparseBooleanArray();
     }
 
@@ -112,12 +114,15 @@ public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         viewHolder.imageView.setScaleX(1f);
                         viewHolder.imageView.setScaleY(1f);
                         viewHolder.rbSelect.setChecked(false);
+                        selectedCount--;
                     } else {
                         selectedIndex.put(position, true);
                         viewHolder.imageView.setScaleX(SCALE_X);
                         viewHolder.imageView.setScaleY(SCALE_Y);
                         viewHolder.rbSelect.setChecked(true);
+                        selectedCount++;
                     }
+                    callback.onUpdateHeader(selectedCount);
                 });
                 break;
             }
@@ -143,10 +148,14 @@ public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void selectAll() {
         IntStream.range(0, album.getMediaList().size()).forEach(i -> selectedIndex.put(i, true));
         notifyItemRangeChanged(0, album.getModelList().size());
+        selectedCount = album.getMediaList().size();
+        callback.onUpdateHeader(selectedCount);
     }
 
     public void deselectAll() {
         IntStream.range(0, album.getMediaList().size()).forEach(i -> selectedIndex.put(i, false));
         notifyItemRangeChanged(0, album.getModelList().size());
+        selectedCount = 0;
+        callback.onUpdateHeader(selectedCount);
     }
 }

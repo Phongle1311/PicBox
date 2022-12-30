@@ -104,4 +104,6 @@
     <string name="answer_can_not_empty">answer can not empty</string>
     <string name="pick_media_files">Pick media files</string>
     <string name="header_selected"> selected</string>
+    <string name="choose_an_album">Choose an album</string>
+    <string name="create_a_new_album">Create a new album</string>
 </resources>

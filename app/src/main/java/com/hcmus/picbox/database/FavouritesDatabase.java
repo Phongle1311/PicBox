@@ -10,6 +10,7 @@ import androidx.room.RoomDatabase;
 public abstract class FavouritesDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "favourites.db";
+
     private static FavouritesDatabase instance;
 
     public static synchronized FavouritesDatabase getInstance(Context context) {
@@ -22,5 +23,5 @@ public abstract class FavouritesDatabase extends RoomDatabase {
         return instance;
     }
 
-    public abstract FavouriteDao favouriteDao();
+    public abstract MediaDao mediaDao();
 }

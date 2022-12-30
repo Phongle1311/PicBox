@@ -8,7 +8,9 @@ import androidx.room.RoomDatabase;
 
 @Database(entities = {NoteEntity.class}, version = 1)
 public abstract class NoteDatabase extends RoomDatabase {
+
     private static final String DATABASE_NAME = "notes.db";
+
     private static NoteDatabase instance;
 
     public static synchronized NoteDatabase getInstance(Context context) {

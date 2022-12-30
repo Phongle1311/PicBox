@@ -74,7 +74,6 @@ import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -312,14 +311,14 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                     model.setFavorite(false);
                     MediaHolder.sFavouriteAlbum.remove(model);
                     FavouritesDatabase.getInstance(context)
-                            .favouriteDao()
+                            .mediaDao()
                             .delete(new MediaEntity(model.getMediaId(), model.getPath()));
                 } else {
                     item.setIcon(R.drawable.ic_baseline_star_24);
                     model.setFavorite(true);
                     MediaHolder.sFavouriteAlbum.insert(model);
                     FavouritesDatabase.getInstance(context)
-                            .favouriteDao()
+                            .mediaDao()
                             .insert(new MediaEntity(model.getMediaId(), model.getPath()));
                 }
                 return true;

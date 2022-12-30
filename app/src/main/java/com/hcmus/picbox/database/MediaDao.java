@@ -8,7 +8,8 @@ import androidx.room.Query;
 import java.util.List;
 
 @Dao
-public interface FavouriteDao {
+public interface MediaDao {
+
     @Insert
     void insert(MediaEntity model);
 
@@ -18,6 +19,6 @@ public interface FavouriteDao {
     @Delete
     void delete(MediaEntity model);
 
-    @Query("SELECT * FROM favourites")
+    @Query("SELECT * FROM media_items")
     List<MediaEntity> getAllFavorites();
 }

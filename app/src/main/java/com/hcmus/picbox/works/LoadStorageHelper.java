@@ -45,7 +45,7 @@ public final class LoadStorageHelper {
 
     public static void getAllMediaFromStorage(Context context) {
         // Get favourite mediaIds
-        favourites = FavouritesDatabase.getInstance(context).favouriteDao().getAllFavorites();
+        favourites = FavouritesDatabase.getInstance(context).mediaDao().getAllFavorites();
 
         // Check device has SDCard or not
         if (android.os.Environment.getExternalStorageState()

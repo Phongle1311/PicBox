@@ -56,7 +56,6 @@ public final class LoadStorageHelper {
 
             AlbumModel totalAlbum = MediaHolder.sTotalAlbum;
             AlbumHolder deviceAlbumList = AlbumHolder.getDeviceAlbumList();
-            AlbumHolder userAlbumList = AlbumHolder.getUserAlbumList(); // tạm thời để đây, cái này không xài ở đây
 
             // Two-pointer: merge two sorted-lists
             int photoIndex = 0;
@@ -94,8 +93,8 @@ public final class LoadStorageHelper {
                 allMediaListener.onItemRangeInserted(0, totalAlbum.getCount());
             if (deviceAlbumListener != null)
                 deviceAlbumListener.onItemRangeInserted(0, deviceAlbumList.size());
-            if (userAlbumListener != null)
-                userAlbumListener.onItemRangeInserted(0, userAlbumList.size());
+//            if (userAlbumListener != null)
+//                userAlbumListener.onItemRangeInserted(0, userAlbumList.size());
         }
     }
 

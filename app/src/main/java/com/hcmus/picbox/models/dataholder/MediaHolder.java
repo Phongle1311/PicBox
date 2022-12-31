@@ -16,10 +16,13 @@ public class MediaHolder {
 
     // the special album contains all medias
     public static final AlbumModel sTotalAlbum = new AlbumModel("Total", KEY_TOTAL_ALBUM);
+
     // the special album contains favourite medias
     public static final AlbumModel sFavouriteAlbum = new AlbumModel("Favourite", KEY_FAVOURITE_ALBUM);
+
     // the special album contains deleted medias
     public static final AlbumModel sDeletedAlbum = new AlbumModel("Trash", KEY_DELETED_ALBUM);
+
     // the special album contains secret medias
     public static final AlbumModel sSecretAlbum = new AlbumModel("Secret", KEY_SECRET_ALBUM);
 }

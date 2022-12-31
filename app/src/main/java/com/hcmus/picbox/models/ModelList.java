@@ -82,6 +82,18 @@ public class ModelList {
     }
 
     /**
+     * Get model of list by media_id
+     *
+     * @param mediaId the id of media you want to find
+     */
+    public MediaModel findMediaById(int mediaId) {
+        return mMediaList.stream()
+                .filter(model -> model.getMediaId() == mediaId)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
      * @return the number of medias, not DateModel
      */
     public int getCount() {

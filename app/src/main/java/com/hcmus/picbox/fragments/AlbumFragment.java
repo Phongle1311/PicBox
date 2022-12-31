@@ -62,6 +62,8 @@ public class AlbumFragment extends Fragment {
 
     @Override
     public void onResume() {
+        // Todo: check if delete image (high complexity ...)
+        userAlbumAdapter.notifyItemRangeChanged(0, userAlbumList.size());
         super.onResume();
     }
 
@@ -111,7 +113,8 @@ public class AlbumFragment extends Fragment {
 
         userAlbumAdapter = new AlbumAdapter(context, userAlbumList);
         rcvUserAlbums.setAdapter(userAlbumAdapter);
-        LinearLayoutManager linearManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager linearManager = new LinearLayoutManager(context,
+                LinearLayoutManager.HORIZONTAL, false);
         rcvUserAlbums.setLayoutManager(linearManager);
     }
 

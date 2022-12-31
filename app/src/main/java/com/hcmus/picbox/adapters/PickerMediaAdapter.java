@@ -38,7 +38,7 @@ public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         this.album = album;
         this.callback = callback;
         this.selectedCount = 0;
-        selectedIndex = new SparseBooleanArray();
+        selectedIndex = new SparseBooleanArray(); // it includes date items => filter them
     }
 
     public SparseBooleanArray getSelectedIndex() {
@@ -146,14 +146,14 @@ public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void selectAll() {
-        IntStream.range(0, album.getMediaList().size()).forEach(i -> selectedIndex.put(i, true));
+        IntStream.range(0, album.getModelList().size()).forEach(i -> selectedIndex.put(i, true));
         notifyItemRangeChanged(0, album.getModelList().size());
         selectedCount = album.getMediaList().size();
         callback.onUpdateHeader(selectedCount);
     }
 
     public void deselectAll() {
-        IntStream.range(0, album.getMediaList().size()).forEach(i -> selectedIndex.put(i, false));
+        IntStream.range(0, album.getModelList().size()).forEach(i -> selectedIndex.put(i, false));
         notifyItemRangeChanged(0, album.getModelList().size());
         selectedCount = 0;
         callback.onUpdateHeader(selectedCount);

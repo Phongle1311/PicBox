@@ -17,10 +17,10 @@ public class AlbumModel extends ModelList implements Serializable {
         this.id = id;
     }
 
-    public AlbumModel(String displayName, String id, String Path) {
+    public AlbumModel(String displayName, String id, String path) {
         this.displayName = displayName;
         this.id = id;
-        this.path = Path;
+        this.path = path;
     }
 
     public String getDisplayName() {

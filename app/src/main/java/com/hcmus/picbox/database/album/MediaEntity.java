@@ -1,10 +1,10 @@
-package com.hcmus.picbox.database;
+package com.hcmus.picbox.database.album;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "media_items")
+@Entity(tableName = "media_table")
 public class MediaEntity {
 
     @PrimaryKey
@@ -13,20 +13,9 @@ public class MediaEntity {
 
     public String path;
 
-    @ColumnInfo(name = "album_id")
-    public String albumId;
-
     public MediaEntity(int mediaId, String path) {
         this.mediaId = mediaId;
         this.path = path;
-    }
-
-    public int getMediaId() {
-        return mediaId;
-    }
-
-    public void setMediaId(int mediaId) {
-        this.mediaId = mediaId;
     }
 
     public String getPath() {
@@ -37,3 +26,4 @@ public class MediaEntity {
         this.path = path;
     }
 }
+

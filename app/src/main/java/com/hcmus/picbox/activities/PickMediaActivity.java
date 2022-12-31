@@ -1,10 +1,11 @@
 package com.hcmus.picbox.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
+import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,8 +27,9 @@ import java.util.stream.IntStream;
  */
 public class PickMediaActivity extends AppCompatActivity {
 
+    public static final String KEY_SELECTED_ITEMS = "selected_items";
     private ImageView btnBack;
-    private RadioButton rbSelectAll;
+    private CheckBox rbSelectAll;
     private TextView tvSelectedCount;
     private ImageView btnConfirm;
     private PickerMediaAdapter adapter;
@@ -40,12 +42,11 @@ public class PickMediaActivity extends AppCompatActivity {
         initUI();
         setListener();
         prepareRecyclerView();
-
     }
 
     private void initUI() {
         btnBack = findViewById(R.id.btn_back);
-        rbSelectAll = findViewById(R.id.rb_select_all);
+        rbSelectAll = findViewById(R.id.cb_select_all);
         tvSelectedCount = findViewById(R.id.tv_selected_count);
         btnConfirm = findViewById(R.id.btn_confirm);
     }
@@ -55,21 +56,22 @@ public class PickMediaActivity extends AppCompatActivity {
 
         rbSelectAll.setOnClickListener(view -> {
             if (adapter == null) return;
-
             if (rbSelectAll.isChecked()) adapter.selectAll();
             else adapter.deselectAll();
         });
 
         btnConfirm.setOnClickListener(view -> {
+            // set picking result and finish activity
             if (adapter == null) return;
 
             Intent intent = new Intent();
             SparseBooleanArray selectedIndex = adapter.getSelectedIndex();
-            int size = MediaHolder.sTotalAlbum.getMediaList().size();
+            int size = MediaHolder.sTotalAlbum.getModelList().size();
             boolean[] selected = new boolean[size];
             IntStream.range(0, size).forEach(i -> selected[i] = selectedIndex.get(i));
 
-            intent.putExtra("selected_items", selected);
+            intent.putExtra(KEY_SELECTED_ITEMS, selected);
+            setResult(Activity.RESULT_OK, intent);
             finish();
         });
     }

@@ -1,4 +1,4 @@
-package com.hcmus.picbox.database;
+package com.hcmus.picbox.database.note;
 
 import android.content.Context;
 

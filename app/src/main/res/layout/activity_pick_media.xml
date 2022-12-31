@@ -23,8 +23,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <RadioButton
-            android:id="@+id/rb_select_all"
+        <CheckBox
+            android:id="@+id/cb_select_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -42,7 +42,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/rb_select_all"
+            app:layout_constraintStart_toEndOf="@+id/cb_select_all"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView

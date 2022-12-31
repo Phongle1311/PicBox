@@ -13,9 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.DisplayMediaActivity;
-import com.hcmus.picbox.database.FavouritesDatabase;
-import com.hcmus.picbox.database.MediaEntity;
-import com.hcmus.picbox.interfaces.IMediaAdapterCallback;
+import com.hcmus.picbox.database.favorite.FavoriteEntity;
+import com.hcmus.picbox.database.favorite.FavouritesDatabase;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.DateModel;
@@ -31,17 +30,14 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final float SCALE_Y = 0.7f;
     private final Context context;
     private final AlbumModel album;
+    private final IMediaAdapterCallback listener;
     public List<MediaModel> selectedMedia = new ArrayList<>();
     private boolean isSelecting = false;
-    private IMediaAdapterCallback listener;
     private CustomActionModeCallback actionModeCallback;
 
-    public MediaAdapter(Context context, AlbumModel album) {
+    public MediaAdapter(Context context, AlbumModel album, IMediaAdapterCallback listener) {
         this.context = context;
         this.album = album;
-    }
-
-    public void setCallback(IMediaAdapterCallback listener) {
         this.listener = listener;
     }
 
@@ -203,18 +199,22 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void addToFavoriteList() {
-        List<MediaEntity> entities = new ArrayList<>();
+        List<FavoriteEntity> entities = new ArrayList<>();
         for (MediaModel media : selectedMedia) {
             if (!media.isFavorite()) {
-                entities.add(new MediaEntity(media.getMediaId(), media.getPath()));
+                entities.add(new FavoriteEntity(media.getMediaId(), media.getPath()));
                 media.setFavorite(true);
             }
         }
         new Thread(() -> FavouritesDatabase.getInstance(context)
-                .mediaDao().insertAll(entities)).start();
+                .favoriteDao().insertAll(entities)).start();
     }
 
     public void deleteAll() {
         DeleteHelper.delete(context, selectedMedia);
+    }
+
+    public interface IMediaAdapterCallback {
+        void onStartSelectMultiple();
     }
 }

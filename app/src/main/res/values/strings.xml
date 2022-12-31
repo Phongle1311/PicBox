@@ -106,4 +106,6 @@
     <string name="header_selected"> selected</string>
     <string name="choose_an_album">Choose an album</string>
     <string name="create_a_new_album">Create a new album</string>
+    <string name="enter_name_of_new_album">Enter name of the new album …</string>
+    <string name="select_files">Select files</string>
 </resources>

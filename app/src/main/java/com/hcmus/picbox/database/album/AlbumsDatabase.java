@@ -1,4 +1,4 @@
-package com.hcmus.picbox.database;
+package com.hcmus.picbox.database.album;
 
 import android.content.Context;
 
@@ -6,7 +6,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {MediaEntity.class, AlbumEntity.class}, version = 1)
+@Database(entities = {MediaEntity.class, AlbumEntity.class, AlbumMediaCrossRef.class}, version = 1)
 public abstract class AlbumsDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "albums.db";

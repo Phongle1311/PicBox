@@ -20,6 +20,5 @@ public class MediaViewHolder extends RecyclerView.ViewHolder {
         this.itemView = itemView;
         imageView = itemView.findViewById(R.id.img_card);
         rbSelect = itemView.findViewById(R.id.rb_select);
-        rbSelect.setEnabled(false);
     }
 }

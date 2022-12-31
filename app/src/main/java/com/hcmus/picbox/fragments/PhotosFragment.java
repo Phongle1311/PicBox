@@ -23,7 +23,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.CustomActionModeCallback;
 import com.hcmus.picbox.adapters.MediaAdapter;
-import com.hcmus.picbox.interfaces.IMediaAdapterCallback;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.PhotoModel;
@@ -33,7 +32,7 @@ import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.util.Objects;
 
-public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
+public class PhotosFragment extends Fragment {
 
     private final AlbumModel album;
     private Context context;
@@ -123,8 +122,8 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
     }
 
     private void prepareRecyclerView() {
-        mediaAdapter = new MediaAdapter(context, album);
-        mediaAdapter.setCallback(this);
+        mediaAdapter = new MediaAdapter(context, album, () ->
+                actionMode = ((Activity) context).startActionMode(actionModeCallback));
         actionModeCallback = new CustomActionModeCallback(context, mediaAdapter);
         mediaAdapter.setActionModeCallback(actionModeCallback);
         mSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
@@ -179,11 +178,6 @@ public class PhotosFragment extends Fragment implements IMediaAdapterCallback {
 
     public void onItemRangeInserted(int positionStart, int itemCount) {
         mediaAdapter.notifyItemRangeInserted(positionStart, itemCount);
-    }
-
-    @Override
-    public void onStartSelectMultiple() {
-        actionMode = ((Activity) context).startActionMode(actionModeCallback);
     }
 
     public void finishDelete() {

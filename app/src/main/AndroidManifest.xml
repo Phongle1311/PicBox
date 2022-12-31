@@ -26,8 +26,15 @@
         android:theme="@style/Theme.PicBox"
         tools:targetApi="31">
         <activity
-            android:name=".PickMediaActivity"
-            android:exported="false">
+            android:name=".activities.CreateAlbumActivity"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".activities.PickMediaActivity"
+            android:exported="true">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

@@ -20,7 +20,7 @@ public class PickAlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private final Context context;
     private final List<AlbumModel> albums;
-    private IOnClickItem listener;
+    private final IOnClickItem listener;
 
     public PickAlbumAdapter(Context context, List<AlbumModel> albums, IOnClickItem listener) {
         this.context = context;
@@ -74,7 +74,7 @@ public class PickAlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             super(itemView);
             this.itemView = itemView;
             imageView = itemView.findViewById(R.id.img_album);
-            album_name = itemView.findViewById(R.id.tv_album_name);
+            album_name = itemView.findViewById(R.id.et_album_name);
         }
     }
 }

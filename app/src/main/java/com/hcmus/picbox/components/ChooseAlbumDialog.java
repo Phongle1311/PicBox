@@ -18,26 +18,29 @@ import com.hcmus.picbox.models.dataholder.AlbumHolder;
  */
 public class ChooseAlbumDialog extends Dialog {
 
-    private AlbumModel selectedAlbum;
-
-    public ChooseAlbumDialog(@NonNull Context context, AlbumModel selectedAlbum) {
+    public ChooseAlbumDialog(@NonNull Context context, IChooseAlbumDialogCallback callback) {
         super(context);
         setContentView(R.layout.dialog_choose_album);
-        this.selectedAlbum = selectedAlbum;
+
+        findViewById(R.id.btn_back).setOnClickListener(view -> dismiss());
 
         findViewById(R.id.tv_create_album).setOnClickListener(view -> {
             dismiss();
-            // TODO: show dialog create album
+            callback.onCreateAlbum();
         });
 
         RecyclerView rcv = findViewById(R.id.rcv);
         rcv.setAdapter(new PickAlbumAdapter(context, AlbumHolder.getUserAlbumList().getList(),
-                this::onClickItem));
+                album -> {
+                    dismiss();
+                    callback.onSelectAlbum(album);
+                }));
         rcv.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
     }
 
-    public void onClickItem(AlbumModel album) {
-        selectedAlbum = album;
-        dismiss();
+    public interface IChooseAlbumDialogCallback {
+        void onCreateAlbum();
+
+        void onSelectAlbum(AlbumModel album);
     }
 }

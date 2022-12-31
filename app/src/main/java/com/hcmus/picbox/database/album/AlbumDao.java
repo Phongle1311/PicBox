@@ -1,4 +1,4 @@
-package com.hcmus.picbox.database;
+package com.hcmus.picbox.database.album;
 
 
 import androidx.room.Dao;
@@ -14,15 +14,18 @@ import java.util.List;
 public interface AlbumDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAlbum(AlbumEntity albumEntity);
+    long insertAlbum(AlbumEntity albumEntity);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertMedias(List<MediaEntity> mediaEntities);
+    void insertMedia(MediaEntity mediaEntity);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAlbumMediaCrossRef(AlbumMediaCrossRef ref);
 
     @Update
-    void update(AlbumEntity albumEntity);
+    void updateAlbum(AlbumEntity albumEntity);
 
     @Transaction
-    @Query("SELECT * FROM albums")
+    @Query("SELECT * FROM album_table")
     List<AlbumWithMedias> getAllAlbumWithMedias();
 }

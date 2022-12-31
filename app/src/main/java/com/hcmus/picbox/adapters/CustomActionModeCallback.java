@@ -21,10 +21,16 @@ public class CustomActionModeCallback implements ActionMode.Callback {
     private final Context ctx;
     private final MediaAdapter adapter;
     private TextView tvTitle;
+    private ICustomActionModeCallback callback;
 
-    public CustomActionModeCallback(Context ctx, MediaAdapter adapter) {
+    public interface ICustomActionModeCallback {
+        void onAddingToAlbum();
+    }
+
+    public CustomActionModeCallback(Context ctx, MediaAdapter adapter, ICustomActionModeCallback callback) {
         this.ctx = ctx;
         this.adapter = adapter;
+        this.callback = callback;
     }
 
     @Override
@@ -83,13 +89,13 @@ public class CustomActionModeCallback implements ActionMode.Callback {
             int itemId = menuItem.getItemId();
             if (itemId == R.id.add_to_album) {
                 // Todo: add to album
-                Toast.makeText(ctx, "add to album", Toast.LENGTH_SHORT).show();
+                callback.onAddingToAlbum();
                 return true;
             } else if (itemId == R.id.add_to_favourite) {
                 // Add/remove media to/from favourites
                 adapter.addToFavoriteList();
                 adapter.endSelection();
-                updateActionModeTitle();
+                updateActionModeTitle(); // todo: need this line?
                 Toast.makeText(ctx, "Added to favourites", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.move_to_secret) {

@@ -5,6 +5,7 @@ import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
     public static final String KEY_ALBUM_NAME = "album_name";
     public static final String KEY_CREATE_ALBUM_RESULT = "create_album_result";
+    public static final String KEY_HIDE_BUTTON_ADD_FILES = "hide_button_add_files";
     private boolean[] selected;
 
     private final ActivityResultLauncher<Intent> pickMediaActivityResultLauncher =
@@ -37,10 +39,14 @@ public class CreateAlbumActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(view -> finish());
 
-        findViewById(R.id.btn_add_file).setOnClickListener(view -> {
-            Intent intent = new Intent(this, PickMediaActivity.class);
-            pickMediaActivityResultLauncher.launch(intent);
-        });
+        // Can hide button add file to prevent user select more files
+        if (getIntent().getBooleanExtra(KEY_HIDE_BUTTON_ADD_FILES, false))
+            findViewById(R.id.btn_add_file).setVisibility(View.GONE);
+        else
+            findViewById(R.id.btn_add_file).setOnClickListener(view -> {
+                Intent intent = new Intent(this, PickMediaActivity.class);
+                pickMediaActivityResultLauncher.launch(intent);
+            });
 
         findViewById(R.id.btn_confirm).setOnClickListener(view -> {
             // set result (album's name + selected files) and finish

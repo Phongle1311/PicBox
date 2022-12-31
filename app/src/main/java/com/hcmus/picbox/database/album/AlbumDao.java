@@ -20,6 +20,9 @@ public interface AlbumDao {
     void insertMedia(MediaEntity mediaEntity);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertMedias(List<MediaEntity> mediaEntities);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAlbumMediaCrossRef(AlbumMediaCrossRef ref);
 
     @Update

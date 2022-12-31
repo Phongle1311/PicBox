@@ -35,7 +35,7 @@ public class ChooseAlbumDialog extends Dialog {
                     dismiss();
                     callback.onSelectAlbum(album);
                 }));
-        rcv.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+        rcv.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
     }
 
     public interface IChooseAlbumDialogCallback {

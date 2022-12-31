@@ -114,7 +114,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                             String albumName = bundle.getString(KEY_ALBUM_NAME);
                             boolean[] selected = bundle.getBooleanArray(KEY_SELECTED_ITEMS);
                             if (albumName == null) {
-                                Toast.makeText(context, "Error when create album",
+                                Toast.makeText(context, R.string.toast_error_create_album,
                                         Toast.LENGTH_SHORT).show();
                                 return;
                             }
@@ -145,7 +145,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                                 if (model.getType() == AbstractModel.TYPE_DATE) continue;
                                 MediaModel media = (MediaModel) model;
                                 if (media.getMediaId() == this.model.getMediaId()) continue;
-                                // Add media to database and data holder
+                                // Add media to data holder
                                 newAlbum.add(media);
 
                                 // Add media to database

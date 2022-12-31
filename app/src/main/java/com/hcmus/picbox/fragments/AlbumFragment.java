@@ -1,7 +1,11 @@
 package com.hcmus.picbox.fragments;
 
+import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
+import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
+import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,9 +16,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,14 +28,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.CreateAlbumActivity;
 import com.hcmus.picbox.activities.ImagePasswordActivity;
 import com.hcmus.picbox.activities.MainActivity;
 import com.hcmus.picbox.adapters.AlbumAdapter;
+import com.hcmus.picbox.database.album.AlbumEntity;
+import com.hcmus.picbox.database.album.AlbumMediaCrossRef;
+import com.hcmus.picbox.database.album.AlbumsDatabase;
+import com.hcmus.picbox.database.album.MediaEntity;
+import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
+import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
-import com.hcmus.picbox.works.LoadStorageHelper;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,9 +53,59 @@ public class AlbumFragment extends Fragment {
     private final List<AlbumModel> deviceAlbumList = AlbumHolder.getDeviceAlbumList().getList();
     private final List<AlbumModel> userAlbumList = AlbumHolder.getUserAlbumList().getList();
     private Context context;
+    private final ActivityResultLauncher<Intent> createAlbumActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            // Add new album to albumHolder and database
+                            Intent data = result.getData();
+                            if (data == null) return;
+                            Bundle bundle = data.getBundleExtra(KEY_CREATE_ALBUM_RESULT);
+                            String albumName = bundle.getString(KEY_ALBUM_NAME);
+                            boolean[] selected = bundle.getBooleanArray(KEY_SELECTED_ITEMS);
+                            if (albumName == null) {
+                                Toast.makeText(context, R.string.toast_error_create_album,
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            AlbumsDatabase db = AlbumsDatabase.getInstance(context);
+
+                            // Add new album to database and data holder
+                            long albumId = db.albumDao().insertAlbum(new AlbumEntity(albumName));
+                            AlbumModel newAlbum = new AlbumModel(albumName, String.valueOf(albumId));
+                            AlbumHolder.getUserAlbumList().addAlbum(newAlbum);
+
+                            // Add selected media to album
+                            if (selected == null) return;
+                            // O(N^2) ??
+                            for (int i = 0; i < selected.length; i++) {
+                                if (!selected[i]) continue;
+                                AbstractModel model = MediaHolder.sTotalAlbum.getModelList().get(i);
+                                if (model.getType() == AbstractModel.TYPE_DATE) continue;
+                                MediaModel media = (MediaModel) model;
+                                // Add media to data holder
+                                newAlbum.add(media);
+
+                                // Add media to database
+                                db.albumDao().insertMedia(
+                                        new MediaEntity(media.getMediaId(), media.getPath())
+                                );
+
+                                // Add cross-ref
+                                db.albumDao().insertAlbumMediaCrossRef(
+                                        new AlbumMediaCrossRef((int) albumId, media.getMediaId())
+                                );
+                            }
+
+                            Toast.makeText(context, "Add this file to album " +
+                                            newAlbum.getDisplayName() + " successfully!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
     private AlbumAdapter deviceAlbumAdapter;
     private AlbumAdapter userAlbumAdapter;
-    private ImageView albumBackground;
     private RecyclerView rcvUserAlbums;
     private RecyclerView rcvDeviceAlbum;
 
@@ -68,8 +131,8 @@ public class AlbumFragment extends Fragment {
     }
 
     private void initUI(View view) {
-        view.findViewById(R.id.secretLayout).setOnClickListener(v->{
-            if (!SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)){
+        view.findViewById(R.id.secretLayout).setOnClickListener(v -> {
+            if (!SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
                 Toast.makeText(context, getResources().getString(R.string.require_password_for_view_image), Toast.LENGTH_LONG).show();
                 return;
             }
@@ -79,7 +142,7 @@ public class AlbumFragment extends Fragment {
 
         rcvUserAlbums = view.findViewById(R.id.rcv_user_album);
         rcvDeviceAlbum = view.findViewById(R.id.rcv_device_album);
-        albumBackground = view.findViewById(R.id.fragment_album_layout);
+        ImageView albumBackground = view.findViewById(R.id.fragment_album_layout);
         String backgroundPath = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE);
         if (!Objects.equals(backgroundPath, "")) {
             Bitmap decodedBitmap = PhotoModel.getBitMap(context, backgroundPath);
@@ -102,6 +165,11 @@ public class AlbumFragment extends Fragment {
 
         view.findViewById(R.id.card_view_trash).setOnClickListener(v -> {
             // TODO: open album
+        });
+
+        view.findViewById(R.id.card_view_add_album).setOnClickListener(v -> {
+            Intent intent = new Intent(context, CreateAlbumActivity.class);
+            createAlbumActivityResultLauncher.launch(intent);
         });
     }
 

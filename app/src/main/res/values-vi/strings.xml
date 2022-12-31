@@ -108,7 +108,7 @@
     <string name="create_a_new_album">Tạo bộ sưu tập mới</string>
     <string name="enter_name_of_new_album">Nhập tên bộ sưu tập …</string>
     <string name="select_files">Chọn tệp</string>
-    <string name="toast_error_create_album">Error when create album</string>
-    <string name="toast_add_file_to_album">Add these files to album %s successfully!</string>
-    <string name="toast_delete_successfully">Delete successfully!</string>
+    <string name="toast_error_create_album">Lỗi khi tạo album!</string>
+    <string name="toast_add_file_to_album">Thêm vào album %s thành công!</string>
+    <string name="toast_delete_successfully">Xóa thành công!</string>
 </resources>

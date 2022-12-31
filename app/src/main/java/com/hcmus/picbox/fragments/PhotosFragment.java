@@ -261,6 +261,8 @@ public class PhotosFragment extends Fragment {
             }
         }
 
+        if (models.size() == 0) return;
+
         AlbumsDatabase db = AlbumsDatabase.getInstance(context);
 
         // Insert medias to database (if it existed in db, replace it)

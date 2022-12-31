@@ -26,7 +26,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginTop="4dp"
+        android:clickable="false"
         android:elevation="3dp"
+        android:focusable="false"
         app:layout_constraintStart_toStartOf="@+id/img_card"
         app:layout_constraintTop_toTopOf="@+id/img_card" />
 </androidx.constraintlayout.widget.ConstraintLayout>

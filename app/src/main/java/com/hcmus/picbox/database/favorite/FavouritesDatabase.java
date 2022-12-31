@@ -1,4 +1,4 @@
-package com.hcmus.picbox.database;
+package com.hcmus.picbox.database.favorite;
 
 import android.content.Context;
 
@@ -6,10 +6,11 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {MediaEntity.class}, version = 1)
+@Database(entities = {FavoriteEntity.class}, version = 1)
 public abstract class FavouritesDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "favourites.db";
+
     private static FavouritesDatabase instance;
 
     public static synchronized FavouritesDatabase getInstance(Context context) {
@@ -22,5 +23,5 @@ public abstract class FavouritesDatabase extends RoomDatabase {
         return instance;
     }
 
-    public abstract FavouriteDao favouriteDao();
+    public abstract FavoriteDao favoriteDao();
 }

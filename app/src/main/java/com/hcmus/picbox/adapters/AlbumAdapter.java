@@ -22,11 +22,11 @@ import java.util.List;
 public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
-    private final List<AlbumModel> items;
+    private final List<AlbumModel> albums;
 
-    public AlbumAdapter(Context context, List<AlbumModel> items) {
+    public AlbumAdapter(Context context, List<AlbumModel> albums) {
         this.context = context;
-        this.items = items;
+        this.albums = albums;
     }
 
     @NonNull
@@ -39,7 +39,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        AlbumModel album = items.get(position);
+        AlbumModel album = albums.get(position);
         AlbumAdapter.AlbumViewHolder viewHolder = (AlbumAdapter.AlbumViewHolder) holder;
 
         Glide.with(context)
@@ -76,12 +76,14 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return items == null ? 0 : items.size();
+        return albums == null ? 0 : albums.size();
     }
 
     public static class AlbumViewHolder extends RecyclerView.ViewHolder {
+
         private final ImageView imageView;
-        private final TextView album_name, album_size;
+        private final TextView album_name;
+        private final TextView album_size;
 
         public AlbumViewHolder(@NonNull View itemView) {
             super(itemView);

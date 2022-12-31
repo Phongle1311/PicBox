@@ -4,8 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
-import com.hcmus.picbox.database.FavouritesDatabase;
-import com.hcmus.picbox.database.MediaEntity;
+import com.hcmus.picbox.database.favorite.FavouritesDatabase;
+import com.hcmus.picbox.database.favorite.FavoriteEntity;
 import com.hcmus.picbox.interfaces.IOnItemRangeInserted;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.MediaModel;
@@ -23,7 +23,7 @@ public final class LoadStorageHelper {
     private static IOnItemRangeInserted deviceAlbumListener;
     private static IOnItemRangeInserted userAlbumListener;
 
-    private static List<MediaEntity> favourites;
+    private static List<FavoriteEntity> favourites;
 
     public static void setMediasListener(String category, IOnItemRangeInserted listener) {
         switch (category) {
@@ -45,7 +45,7 @@ public final class LoadStorageHelper {
 
     public static void getAllMediaFromStorage(Context context) {
         // Get favourite mediaIds
-        favourites = FavouritesDatabase.getInstance(context).favouriteDao().getAllFavorites();
+        favourites = FavouritesDatabase.getInstance(context).favoriteDao().getAllFavorites();
 
         // Check device has SDCard or not
         if (android.os.Environment.getExternalStorageState()
@@ -56,7 +56,6 @@ public final class LoadStorageHelper {
 
             AlbumModel totalAlbum = MediaHolder.sTotalAlbum;
             AlbumHolder deviceAlbumList = AlbumHolder.getDeviceAlbumList();
-            AlbumHolder userAlbumList = AlbumHolder.getUserAlbumList(); // tạm thời để đây, cái này không xài ở đây
 
             // Two-pointer: merge two sorted-lists
             int photoIndex = 0;
@@ -94,8 +93,8 @@ public final class LoadStorageHelper {
                 allMediaListener.onItemRangeInserted(0, totalAlbum.getCount());
             if (deviceAlbumListener != null)
                 deviceAlbumListener.onItemRangeInserted(0, deviceAlbumList.size());
-            if (userAlbumListener != null)
-                userAlbumListener.onItemRangeInserted(0, userAlbumList.size());
+//            if (userAlbumListener != null)
+//                userAlbumListener.onItemRangeInserted(0, userAlbumList.size());
         }
     }
 
@@ -171,7 +170,7 @@ public final class LoadStorageHelper {
     }
 
     private static boolean isFavourite(MediaModel model) {
-        for (MediaEntity media : favourites)
+        for (FavoriteEntity media : favourites)
             if (media.getMediaId() == model.getMediaId())
                 return true;
         return false;

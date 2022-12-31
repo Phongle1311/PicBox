@@ -30,13 +30,21 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ViewPagerAdapter;
+import com.hcmus.picbox.database.album.AlbumEntity;
+import com.hcmus.picbox.database.album.AlbumWithMedias;
+import com.hcmus.picbox.database.album.AlbumsDatabase;
+import com.hcmus.picbox.database.album.MediaEntity;
 import com.hcmus.picbox.fragments.PhotosFragment;
+import com.hcmus.picbox.models.AlbumModel;
+import com.hcmus.picbox.models.dataholder.AlbumHolder;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 import com.hcmus.picbox.works.LoadStorageHelper;
 
 import java.util.Locale;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,11 +56,12 @@ public class MainActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     LoadStorageHelper.getAllMediaFromStorage(this);
+                    new Thread(this::getUserAlbums).start();
                 } else {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
-  
+
     private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -71,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
                 }
             });
+
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
     private ViewPagerAdapter adapter;
@@ -97,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE)) {
             LoadStorageHelper.getAllMediaFromStorage(this);
+            new Thread(this::getUserAlbums).start();
         } else if (shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE)) {
             // TODO: show dialog to educate user and persuade user to grant permission
             Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
@@ -128,18 +139,17 @@ public class MainActivity extends AppCompatActivity {
     private void initSharedPreferencesDefault() {
         String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE, KEY_LANGUAGE};
         for (String key : SharedPreferencesKeys) {
-            if (!SharedPreferencesUtils.checkKeyExist(this, key)) {
-                switch (key) {
-                    case KEY_SPAN_COUNT:
-                        SharedPreferencesUtils.saveData(this, KEY_SPAN_COUNT, SPAN_COUNT_DEFAULT);
-                        break;
-                    case KEY_GROUP_MODE:
-                        SharedPreferencesUtils.saveData(this, KEY_GROUP_MODE, GROUP_MODE_DEFAULT);
-                        break;
-                    case KEY_LANGUAGE:
-                        SharedPreferencesUtils.saveData(this, KEY_LANGUAGE, LANGUAGE_DEFAULT);
-                        break;
-                }
+            if (SharedPreferencesUtils.checkKeyExist(this, key)) continue;
+            switch (key) {
+                case KEY_SPAN_COUNT:
+                    SharedPreferencesUtils.saveData(this, KEY_SPAN_COUNT, SPAN_COUNT_DEFAULT);
+                    break;
+                case KEY_GROUP_MODE:
+                    SharedPreferencesUtils.saveData(this, KEY_GROUP_MODE, GROUP_MODE_DEFAULT);
+                    break;
+                case KEY_LANGUAGE:
+                    SharedPreferencesUtils.saveData(this, KEY_LANGUAGE, LANGUAGE_DEFAULT);
+                    break;
             }
         }
     }
@@ -213,5 +223,22 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+    }
+
+    private void getUserAlbums() {
+        // todo: this code has high complexity, can make it decrease by list all media in Db first
+        AlbumsDatabase db = AlbumsDatabase.getInstance(this);
+        List<AlbumWithMedias> albumWithMedias = db.albumDao().getAllAlbumWithMedias();
+        AlbumHolder userAlbumList = AlbumHolder.getUserAlbumList();
+
+        for (AlbumWithMedias albumWithMedia : albumWithMedias) {
+            AlbumEntity albumEntity = albumWithMedia.albumEntity;
+            List<MediaEntity> mediaEntities = albumWithMedia.mediaEntities;
+            AlbumModel album = new AlbumModel(albumEntity.albumName, String.valueOf(albumEntity.albumId));
+            userAlbumList.addAlbum(album);
+            mediaEntities.stream()
+                    .map(mediaEntity -> MediaHolder.sTotalAlbum.findMediaById(mediaEntity.mediaId))
+                    .forEach(album::add);
+        }
     }
 }

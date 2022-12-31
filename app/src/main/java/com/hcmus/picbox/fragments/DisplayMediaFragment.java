@@ -1,5 +1,9 @@
 package com.hcmus.picbox.fragments;
 
+import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
+import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
+import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.WallpaperManager;
@@ -35,6 +39,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
@@ -61,20 +67,27 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.CreateAlbumActivity;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
-import com.hcmus.picbox.database.FavouritesDatabase;
-import com.hcmus.picbox.database.MediaEntity;
-import com.hcmus.picbox.database.NoteDatabase;
-import com.hcmus.picbox.database.NoteEntity;
+import com.hcmus.picbox.components.ChooseAlbumDialog;
+import com.hcmus.picbox.database.album.AlbumEntity;
+import com.hcmus.picbox.database.album.AlbumMediaCrossRef;
+import com.hcmus.picbox.database.album.AlbumsDatabase;
+import com.hcmus.picbox.database.album.MediaEntity;
+import com.hcmus.picbox.database.favorite.FavoriteEntity;
+import com.hcmus.picbox.database.favorite.FavouritesDatabase;
+import com.hcmus.picbox.database.note.NoteDatabase;
+import com.hcmus.picbox.database.note.NoteEntity;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.AbstractModel;
+import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,6 +102,68 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
     private Context context;
     private MediaModel model;
+    private final ActivityResultLauncher<Intent> createAlbumActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            // Add new album to albumHolder and database
+
+                            Intent data = result.getData();
+                            if (data == null) return;
+                            Bundle bundle = data.getBundleExtra(KEY_CREATE_ALBUM_RESULT);
+                            String albumName = bundle.getString(KEY_ALBUM_NAME);
+                            boolean[] selected = bundle.getBooleanArray(KEY_SELECTED_ITEMS);
+                            if (albumName == null) {
+                                Toast.makeText(context, R.string.toast_error_create_album,
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            AlbumsDatabase db = AlbumsDatabase.getInstance(context);
+
+                            // Add new album to database and data holder
+                            long albumId = db.albumDao().insertAlbum(new AlbumEntity(albumName));
+                            AlbumModel newAlbum = new AlbumModel(albumName, String.valueOf(albumId));
+                            AlbumHolder.getUserAlbumList().addAlbum(newAlbum);
+
+                            // Add media to database
+                            newAlbum.add(model);
+                            db.albumDao().insertMedia(
+                                    new MediaEntity(model.getMediaId(), model.getPath())
+                            );
+
+                            // Add cross-ref to database
+                            db.albumDao().insertAlbumMediaCrossRef(
+                                    new AlbumMediaCrossRef((int) albumId, model.getMediaId())
+                            );
+
+                            if (selected == null) return;
+                            // O(N^2) ??
+                            for (int i = 0; i < selected.length; i++) {
+                                if (!selected[i]) continue;
+                                AbstractModel model = MediaHolder.sTotalAlbum.getModelList().get(i);
+                                if (model.getType() == AbstractModel.TYPE_DATE) continue;
+                                MediaModel media = (MediaModel) model;
+                                if (media.getMediaId() == this.model.getMediaId()) continue;
+                                // Add media to data holder
+                                newAlbum.add(media);
+
+                                // Add media to database
+                                db.albumDao().insertMedia(
+                                        new MediaEntity(media.getMediaId(), media.getPath())
+                                );
+
+                                // Add cross-ref
+                                db.albumDao().insertAlbumMediaCrossRef(
+                                        new AlbumMediaCrossRef((int) albumId, media.getMediaId())
+                                );
+                            }
+
+                            Toast.makeText(context, "Add this file to album " +
+                                            newAlbum.getDisplayName() + " successfully!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
     private long playbackPosition = 0;
     private float mScaleFactor = 1.0f;
     private GestureDetector gestureDetector;
@@ -112,12 +187,12 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     private MaterialToolbar topAppBar;
     private BottomNavigationView bottomBar;
     private BottomSheetBehavior<View> bottomSheetBehavior;
-    private BottomSheetDialog dialogActionUseFor;
     private String original_note = "";
     private SupportMapFragment map;
     private LatLng position;
     private double[] latLong;
     private TextView btnPrint;
+    private TextView btnAddToAlbum;
 
     public DisplayMediaFragment() {
     }
@@ -168,7 +243,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
         setTopAppBarListener();
         setBottomAppBarListener();
-        setActionUseForListener();
+        setBottomSheetActionsListener();
+
         loadExif(view);
     }
 
@@ -241,7 +317,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         imageView = view.findViewById(R.id.image_view);
         playerView = view.findViewById(R.id.exoplayer2_view);
         showLocation = view.findViewById(R.id.tv_location);
-        tvMediaPath =  view.findViewById(R.id.tv_media_path);
+        tvMediaPath = view.findViewById(R.id.tv_media_path);
         pbPlayer = view.findViewById(R.id.pb_player);
         goToMap = view.findViewById(R.id.tv_go_to_map);
         btnUseFor = view.findViewById(R.id.action_use_for);
@@ -250,12 +326,12 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         gestureDetector = new GestureDetector(context, new CustomizeSwipeGestureListener());
         map = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         edit_note = view.findViewById(R.id.tv_add_note);
-        dialogActionUseFor = new BottomSheetDialog(context);
         edit_note_icon = view.findViewById(R.id.icon_edit_note);
         noteDB = NoteDatabase.getInstance(context);
         btnPrint = view.findViewById(R.id.action_print);
         retriever = new MediaMetadataRetriever();
         btnEditMediaName = view.findViewById(R.id.img_edit_file_name);
+        btnAddToAlbum = view.findViewById(R.id.action_add_to_album);
         int type = model.getType();
         if (type != AbstractModel.TYPE_PHOTO) {
             btnUseFor.setVisibility(View.GONE);
@@ -312,15 +388,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                     model.setFavorite(false);
                     MediaHolder.sFavouriteAlbum.remove(model);
                     FavouritesDatabase.getInstance(context)
-                            .favouriteDao()
-                            .delete(new MediaEntity(model.getMediaId(), model.getPath()));
+                            .favoriteDao()
+                            .delete(new FavoriteEntity(model.getMediaId(), model.getPath()));
                 } else {
                     item.setIcon(R.drawable.ic_baseline_star_24);
                     model.setFavorite(true);
                     MediaHolder.sFavouriteAlbum.insert(model);
                     FavouritesDatabase.getInstance(context)
-                            .favouriteDao()
-                            .insert(new MediaEntity(model.getMediaId(), model.getPath()));
+                            .favoriteDao()
+                            .insert(new FavoriteEntity(model.getMediaId(), model.getPath()));
                 }
                 return true;
             } else if (item.getItemId() == R.id.ic_more) {
@@ -348,11 +424,14 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
+    }
 
+    private void setBottomSheetActionsListener() {
         btnEditMediaName.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= 30) {
                 if (!Environment.isExternalStorageManager()) {
-                    Snackbar.make(((Activity) context).findViewById(android.R.id.content), "Permission needed!", Snackbar.LENGTH_INDEFINITE)
+                    Snackbar.make(((Activity) context).findViewById(android.R.id.content),
+                                    "Permission needed!", Snackbar.LENGTH_INDEFINITE)
                             .setAction("Settings", v1 -> {
                                 try {
                                     Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
@@ -366,28 +445,35 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                             })
                             .show();
                 } else {
-                    setEditFileNameListener();
+                    showEditFileNameDialog();
                 }
             }
         });
 
-        btnUseFor.setOnClickListener(v -> dialogActionUseFor.show());
-        btnPrint.setOnClickListener(v -> setActionPrintListener());
-
+        setActionPrintListener();
+        setActionUseForListener();
+        setActionAddToAlbumListener();
     }
 
     public void setActionPrintListener() {
-        PrintHelper photoPrinter = new PrintHelper(context);
-        photoPrinter.setScaleMode(PrintHelper.SCALE_MODE_FIT);
-        Bitmap bitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath());
-        photoPrinter.printBitmap("droids.jpg", bitmap);
+        btnPrint.setOnClickListener(v -> {
+            PrintHelper photoPrinter = new PrintHelper(context);
+            photoPrinter.setScaleMode(PrintHelper.SCALE_MODE_FIT);
+            Bitmap bitmap = BitmapFactory.decodeFile(model.getFile().getAbsolutePath());
+            photoPrinter.printBitmap("droids.jpg", bitmap);
+        });
     }
 
     public void setActionUseForListener() {
+        BottomSheetDialog dialogActionUseFor = new BottomSheetDialog(context);
+
         View view = getLayoutInflater().inflate(R.layout.fragment_bottom_action_use_for, null);
+        dialogActionUseFor.setContentView(view);
+
         TextView set_wallpaper = view.findViewById(R.id.txt_set_as_wallpaper);
         TextView set_background = view.findViewById(R.id.txt_set_as_background);
         decodedBitmap = PhotoModel.getBitMap(context, model.getFile().getAbsolutePath());
+
         set_wallpaper.setOnClickListener(v -> {
             try {
                 if (!("").equals(model.getFile().getAbsolutePath()) && decodedBitmap != null) {
@@ -400,15 +486,17 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
         });
         set_background.setOnClickListener(v -> {
-            SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE, model.getFile().getAbsolutePath());
+            SharedPreferencesUtils.saveData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE,
+                    model.getFile().getAbsolutePath());
             dialogActionUseFor.hide();
         });
-        dialogActionUseFor.setContentView(view);
+
+        btnUseFor.setOnClickListener(v -> dialogActionUseFor.show());
     }
 
-    public void setEditFileNameListener() {
+    private void showEditFileNameDialog() {
         Dialog dialogEditFileName = new Dialog(context);
-        View view = getLayoutInflater().inflate(R.layout.edit_file_name_dialog, null);
+        View view = getLayoutInflater().inflate(R.layout.dialog_edit_file_name, null);
         dialogEditFileName.setContentView(view);
 
         EditText edit_filename = view.findViewById(R.id.edit_text_file_name);
@@ -446,7 +534,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                         }
                     }
 
-                    String oldPath =model.getFile().getAbsolutePath();
+                    String oldPath = model.getFile().getAbsolutePath();
                     String newPath = oldPath.substring(0, oldPath.lastIndexOf("/") + 1) + newName;
 
                     if (type == AbstractModel.TYPE_PHOTO) {
@@ -480,12 +568,48 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                     Toast.makeText(context, "Rename file unsuccessfully.", Toast.LENGTH_SHORT).show();
                 }
             }
-                dialogEditFileName.dismiss();
+            dialogEditFileName.dismiss();
         });
         dialogEditFileName.show();
     }
 
-    public void toggleBottomSheet() {
+    private void setActionAddToAlbumListener() {
+        btnAddToAlbum.setOnClickListener(view -> {
+            Dialog dialog = new ChooseAlbumDialog(context,
+                    new ChooseAlbumDialog.IChooseAlbumDialogCallback() {
+                        @Override
+                        public void onCreateAlbum() {
+                            Intent intent = new Intent(context, CreateAlbumActivity.class);
+                            createAlbumActivityResultLauncher.launch(intent);
+                        }
+
+                        @Override
+                        public void onSelectAlbum(AlbumModel album) {
+                            AlbumsDatabase db = AlbumsDatabase.getInstance(context);
+
+                            // Insert media to database (if it existed in db, replace it)
+                            db.albumDao().insertMedia(
+                                    new MediaEntity(model.getMediaId(), model.getPath())
+                            );
+
+                            // Insert cross-ref to database
+                            db.albumDao().insertAlbumMediaCrossRef(
+                                    new AlbumMediaCrossRef(Integer.parseInt(album.getId()),
+                                            model.getMediaId())
+                            );
+
+                            // Insert to data holder
+                            album.add(model);
+
+                            Toast.makeText(context, "Add this file to album " + album.getDisplayName()
+                                    + " successfully!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            dialog.show();
+        });
+    }
+
+    private void toggleBottomSheet() {
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED)
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         else
@@ -690,8 +814,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     public void callGoogleMap(LatLng position) {
         String latitude = Double.toString(position.latitude);
         String longitude = Double.toString(position.longitude);
-        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude + "(" +
-                getStringFromPosition(position) + ")" + "?z=17");
+        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q=" + latitude + ","
+                + longitude + "(" + getStringFromPosition(position) + ")" + "?z=17");
         Uri gmmIntentUriWeb = Uri.parse("http://maps.google.com/maps?q=" + latitude + "," + longitude);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         Intent webIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUriWeb);

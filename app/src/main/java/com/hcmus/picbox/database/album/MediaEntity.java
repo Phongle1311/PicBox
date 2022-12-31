@@ -1,26 +1,21 @@
-package com.hcmus.picbox.database;
+package com.hcmus.picbox.database.album;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "favourites")
+@Entity(tableName = "media_table")
 public class MediaEntity {
 
     @PrimaryKey
+    @ColumnInfo(name = "media_id")
     public int mediaId;
+
     public String path;
 
     public MediaEntity(int mediaId, String path) {
         this.mediaId = mediaId;
         this.path = path;
-    }
-
-    public int getMediaId() {
-        return mediaId;
-    }
-
-    public void setMediaId(int mediaId) {
-        this.mediaId = mediaId;
     }
 
     public String getPath() {
@@ -31,3 +26,4 @@ public class MediaEntity {
         this.path = path;
     }
 }
+

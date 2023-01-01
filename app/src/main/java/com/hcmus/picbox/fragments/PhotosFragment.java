@@ -5,14 +5,15 @@ import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_R
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_HIDE_BUTTON_ADD_FILES;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -123,8 +124,14 @@ public class PhotosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        int newSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
-        String newGroupMode = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_GROUP_MODE);
+        int newLayoutMode = SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE);
+        if (newLayoutMode != layoutMode && mediaAdapter != null) {
+            layoutMode = newLayoutMode;
+            mediaAdapter.setLayoutMode(layoutMode);
+        }
+
+        int newSpanCount = SharedPreferencesUtils.getIntData(context, KEY_SPAN_COUNT);
+        String newGroupMode = SharedPreferencesUtils.getStringData(context, KEY_GROUP_MODE);
 //        if (newSpanCount != mSpanCount) {
         if (mediaAdapter != null) {
             mSpanCount = newSpanCount;
@@ -154,11 +161,9 @@ public class PhotosFragment extends Fragment {
         fabChangeLayout.setOnClickListener(view -> {
             new ChooseLayoutModeDialog(context, layoutMode, option -> {
                 mediaAdapter.setLayoutMode(option);
-                if (layoutMode != option) {
-                    layoutMode = option;
-                    bindLayoutManager();
-                    mediaAdapter.notifyDataSetChanged();
-                }
+                layoutMode = option;
+                bindLayoutManager();
+                mediaAdapter.notifyItemRangeChanged(0, album.getModelList().size());
             }).show();
             hideMiniFABs();
         });
@@ -167,7 +172,7 @@ public class PhotosFragment extends Fragment {
         if (!Objects.equals(backgroundPath, "")) {
             Bitmap decodedBitmap = PhotoModel.getBitMap(context, backgroundPath);
             if (decodedBitmap != null) {
-                Drawable ob = new BitmapDrawable(getResources(), decodedBitmap);
+//                Drawable ob = new BitmapDrawable(getResources(), decodedBitmap);
                 photoBackground.setImageBitmap(decodedBitmap);
             }
         }
@@ -189,7 +194,7 @@ public class PhotosFragment extends Fragment {
 
     private void prepareRecyclerView() {
         // init adapter
-        layoutMode = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_LAYOUT_MODE);
+        layoutMode = SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE);
         mediaAdapter = new MediaAdapter(context, album, layoutMode,
                 () -> actionMode = ((Activity) context).startActionMode(actionModeCallback));
         actionModeCallback = new CustomActionModeCallback(context, mediaAdapter, this::onAddingToAlbum);
@@ -197,7 +202,7 @@ public class PhotosFragment extends Fragment {
         mGallery.setAdapter(mediaAdapter);
 
         // init layout manager
-        mSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
+        mSpanCount = SharedPreferencesUtils.getIntData(context, KEY_SPAN_COUNT);
         linearLayoutManager = new LinearLayoutManager(context);
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(mSpanCount, StaggeredGridLayoutManager.VERTICAL);
         gridLayoutManager = new GridLayoutManager(context, mSpanCount);

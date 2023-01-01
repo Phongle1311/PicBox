@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/choose_layout_mode"
+            android:text="@string/select_app_layout_mode"
             android:textSize="20sp"
             android:textStyle="bold" />
 

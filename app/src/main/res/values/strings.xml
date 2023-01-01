@@ -28,8 +28,8 @@
     <string name="select_number_of_column_in_each_row">Select number of column in each row</string>
     <string name="column_in_row">Column in row</string>
     <string name="grid">Grid</string>
-    <string name="select_app_grid_mode">Select app grid mode</string>
-    <string name="grid_mode">Grid mode</string>
+    <string name="select_app_layout_mode">Select app\'s layout mode</string>
+    <string name="layout_mode">Layout mode</string>
     <string name="floating_button">Floating button</string>
     <string name="show_hide_floating_button">show hide floating button</string>
     <string name="language">Language</string>
@@ -113,6 +113,5 @@
     <string name="toast_delete_successfully">Delete successfully!</string>
     <string name="option_grid">Grid</string>
     <string name="option_list">List</string>
-    <string name="option_staggered">Staggered</string>
-    <string name="choose_layout_mode">Choose layout mode</string>
+    <string name="option_staggered">Staggered grid</string>
 </resources>

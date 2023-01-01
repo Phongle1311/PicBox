@@ -2,6 +2,7 @@ package com.hcmus.picbox.fragments;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.content.Intent.getIntent;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
@@ -24,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -51,6 +53,7 @@ import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SettingFragment extends Fragment {
 
@@ -72,7 +75,7 @@ public class SettingFragment extends Fragment {
     private LinearLayout passwordImageLayout;
     private SwitchCompat passwordImageSwitch;
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "RestrictedApi"})
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -173,6 +176,10 @@ public class SettingFragment extends Fragment {
                     languageTextView.setText(R.string.language_vietnamese);
                     SharedPreferencesUtils.saveData(context, KEY_LANGUAGE, LANGUAGE_OPTION_2);
                 }
+                Intent intent = requireActivity().getIntent();
+                requireActivity().finish();
+                startActivity(intent);
+
                 languageSettingDialog.dismiss();
             });
 

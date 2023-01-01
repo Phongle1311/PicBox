@@ -111,4 +111,8 @@
     <string name="toast_error_create_album">Error when create album</string>
     <string name="toast_add_file_to_album">Add these files to album %s successfully!</string>
     <string name="toast_delete_successfully">Delete successfully!</string>
+    <string name="option_grid">Grid</string>
+    <string name="option_list">List</string>
+    <string name="option_staggered">Staggered</string>
+    <string name="choose_layout_mode">Choose layout mode</string>
 </resources>

@@ -51,19 +51,19 @@ public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case AbstractModel.TYPE_DATE: {
-                View view = inflater.inflate(R.layout.date_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_date, parent, false);
                 return new DateViewHolder(view);
             }
             case AbstractModel.TYPE_PHOTO: {
-                View view = inflater.inflate(R.layout.photo_card_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_grid_photo, parent, false);
                 return new MediaViewHolder(view);
             }
             case AbstractModel.TYPE_VIDEO: {
-                View view = inflater.inflate(R.layout.video_card_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_grid_video, parent, false);
                 return new MediaViewHolder(view);
             }
             case AbstractModel.TYPE_GIF: {
-                View view = inflater.inflate(R.layout.gif_card_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_grid_gif, parent, false);
                 return new MediaViewHolder(view);
             }
             default:
@@ -108,7 +108,7 @@ public class PickerMediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                         .into(viewHolder.imageView);
 
                 // Set onClick Listener to display media
-                viewHolder.itemView.setOnClickListener(view -> {
+                viewHolder.imageContainer.setOnClickListener(view -> {
                     if (selectedIndex.get(position)) {
                         selectedIndex.put(position, false);
                         viewHolder.imageView.setScaleX(1f);

@@ -11,6 +11,7 @@ public abstract class AbstractModel {
     public static final int TYPE_PHOTO = 1;
     public static final int TYPE_VIDEO = 2;
     public static final int TYPE_GIF = 3;
+    public static final int COUNT_TYPE = 4;
 
     public static final String GROUP_MODE_OPTION_1 = "None";
     public static final String GROUP_MODE_OPTION_2 = "Day";

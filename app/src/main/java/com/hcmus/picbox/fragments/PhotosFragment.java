@@ -3,6 +3,8 @@ package com.hcmus.picbox.fragments;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_HIDE_BUTTON_ADD_FILES;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -25,7 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
@@ -33,6 +37,7 @@ import com.hcmus.picbox.activities.CreateAlbumActivity;
 import com.hcmus.picbox.adapters.CustomActionModeCallback;
 import com.hcmus.picbox.adapters.MediaAdapter;
 import com.hcmus.picbox.components.ChooseAlbumDialog;
+import com.hcmus.picbox.components.ChooseLayoutModeDialog;
 import com.hcmus.picbox.database.album.AlbumEntity;
 import com.hcmus.picbox.database.album.AlbumMediaCrossRef;
 import com.hcmus.picbox.database.album.AlbumsDatabase;
@@ -84,9 +89,13 @@ public class PhotosFragment extends Fragment {
                             addSelectedFilesToAlbum(newAlbum);
                         }
                     });
+    private GridLayoutManager gridLayoutManager;
+    private LinearLayoutManager linearLayoutManager;
+    private StaggeredGridLayoutManager staggeredGridLayoutManager;
     private CustomActionModeCallback actionModeCallback;
     private ActionMode actionMode;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
+    private int layoutMode;
 
     public PhotosFragment(String albumId) {
         album = AlbumHolder.sGetAlbumById(albumId);
@@ -132,6 +141,7 @@ public class PhotosFragment extends Fragment {
         fabChangeLayout = v.findViewById(R.id.fab_change_layout);
         fabSortBy = v.findViewById(R.id.fab_sort_by);
         ImageView photoBackground = v.findViewById(R.id.fragment_photo_layout);
+
         fabMain.setOnClickListener(view -> {
             if (fabClicked == 0) {
                 showMiniFABs();
@@ -140,6 +150,19 @@ public class PhotosFragment extends Fragment {
             }
             fabClicked = ~fabClicked;
         });
+
+        fabChangeLayout.setOnClickListener(view -> {
+            new ChooseLayoutModeDialog(context, layoutMode, option -> {
+                mediaAdapter.setLayoutMode(option);
+                if (layoutMode != option) {
+                    layoutMode = option;
+                    bindLayoutManager();
+                    mediaAdapter.notifyDataSetChanged();
+                }
+            }).show();
+            hideMiniFABs();
+        });
+
         String backgroundPath = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE);
         if (!Objects.equals(backgroundPath, "")) {
             Bitmap decodedBitmap = PhotoModel.getBitMap(context, backgroundPath);
@@ -165,18 +188,25 @@ public class PhotosFragment extends Fragment {
     }
 
     private void prepareRecyclerView() {
-        mediaAdapter = new MediaAdapter(context, album, () ->
-                actionMode = ((Activity) context).startActionMode(actionModeCallback));
+        // init adapter
+        layoutMode = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_LAYOUT_MODE);
+        mediaAdapter = new MediaAdapter(context, album, layoutMode,
+                () -> actionMode = ((Activity) context).startActionMode(actionModeCallback));
         actionModeCallback = new CustomActionModeCallback(context, mediaAdapter, this::onAddingToAlbum);
         mediaAdapter.setActionModeCallback(actionModeCallback);
+        mGallery.setAdapter(mediaAdapter);
+
+        // init layout manager
         mSpanCount = SharedPreferencesUtils.getIntData(context, SharedPreferencesUtils.KEY_SPAN_COUNT);
-        GridLayoutManager manager = new GridLayoutManager(context, mSpanCount);
-        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+        linearLayoutManager = new LinearLayoutManager(context);
+        staggeredGridLayoutManager = new StaggeredGridLayoutManager(mSpanCount, StaggeredGridLayoutManager.VERTICAL);
+        gridLayoutManager = new GridLayoutManager(context, mSpanCount);
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
                 switch (mediaAdapter.getItemViewType(position)) {
                     case AbstractModel.TYPE_DATE:
-                        return manager.getSpanCount();
+                        return gridLayoutManager.getSpanCount();
                     case AbstractModel.TYPE_PHOTO:
                     case AbstractModel.TYPE_GIF:
                     case AbstractModel.TYPE_VIDEO:
@@ -187,8 +217,10 @@ public class PhotosFragment extends Fragment {
                 }
             }
         });
-        mGallery.setLayoutManager(manager);
-        mGallery.setAdapter(mediaAdapter);
+
+        bindLayoutManager();
+
+        // Set listener for Fab
         mGallery.setOnTouchListener((view, motionEvent) -> {
             hideMiniFABs();
             fabClicked = 0;
@@ -217,6 +249,20 @@ public class PhotosFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void bindLayoutManager() {
+        switch (layoutMode) {
+            case LAYOUT_MODE_2:
+                mGallery.setLayoutManager(linearLayoutManager);
+                break;
+            case LAYOUT_MODE_3:
+                mGallery.setLayoutManager(staggeredGridLayoutManager);
+                break;
+            default:
+                mGallery.setLayoutManager(gridLayoutManager);
+                break;
+        }
     }
 
     public void onItemRangeInserted(int positionStart, int itemCount) {

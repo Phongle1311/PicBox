@@ -10,10 +10,12 @@ import com.hcmus.picbox.R;
 
 public class DateViewHolder extends RecyclerView.ViewHolder {
 
+    public final View itemView;
     public final TextView txt_date;
 
     public DateViewHolder(@NonNull View itemView) {
         super(itemView);
+        this.itemView = itemView;
         txt_date = itemView.findViewById(R.id.tv_date);
     }
 }

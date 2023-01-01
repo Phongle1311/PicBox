@@ -111,4 +111,5 @@
     <string name="toast_error_create_album">Lỗi khi tạo album!</string>
     <string name="toast_add_file_to_album">Thêm vào album %s thành công!</string>
     <string name="toast_delete_successfully">Xóa thành công!</string>
+    <string name="choose_layout_mode">Choose layout mode</string>
 </resources>

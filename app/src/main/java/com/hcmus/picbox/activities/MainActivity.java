@@ -6,9 +6,11 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.GROUP_MODE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_1;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.LAYOUT_MODE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
 
@@ -137,8 +139,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSharedPreferencesDefault() {
-        String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE, KEY_LANGUAGE};
-        for (String key : SharedPreferencesKeys) {
+        for (String key : SharedPreferencesUtils.SharedPreferencesKeys) {
             if (SharedPreferencesUtils.checkKeyExist(this, key)) continue;
             switch (key) {
                 case KEY_SPAN_COUNT:
@@ -149,6 +150,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case KEY_LANGUAGE:
                     SharedPreferencesUtils.saveData(this, KEY_LANGUAGE, LANGUAGE_DEFAULT);
+                    break;
+                case KEY_LAYOUT_MODE:
+                    SharedPreferencesUtils.saveData(this, KEY_LAYOUT_MODE, LAYOUT_MODE_DEFAULT);
                     break;
             }
         }

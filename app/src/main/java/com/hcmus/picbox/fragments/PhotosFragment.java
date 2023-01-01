@@ -3,6 +3,7 @@ package com.hcmus.picbox.fragments;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_HIDE_BUTTON_ADD_FILES;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
@@ -63,6 +64,7 @@ public class PhotosFragment extends Fragment {
     private int fabClicked = 0;
     private RecyclerView mGallery;
     private MediaAdapter mediaAdapter;
+    private int currentPosition = 0;
     private final ActivityResultLauncher<Intent> createAlbumActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                     result -> {
@@ -161,6 +163,7 @@ public class PhotosFragment extends Fragment {
         fabChangeLayout.setOnClickListener(view -> {
             new ChooseLayoutModeDialog(context, layoutMode, option -> {
                 mediaAdapter.setLayoutMode(option);
+                setCurrentPosition();
                 layoutMode = option;
                 bindLayoutManager();
                 mediaAdapter.notifyItemRangeChanged(0, album.getModelList().size());
@@ -266,6 +269,25 @@ public class PhotosFragment extends Fragment {
                 break;
             default:
                 mGallery.setLayoutManager(gridLayoutManager);
+                break;
+        }
+        mGallery.scrollToPosition(currentPosition);
+    }
+
+    private void setCurrentPosition() {
+        switch(layoutMode) {
+            case LAYOUT_MODE_1:
+                currentPosition = gridLayoutManager.findFirstVisibleItemPosition();
+                break;
+
+            case LAYOUT_MODE_2:
+                currentPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                break;
+
+            case LAYOUT_MODE_3:
+                int[] firstPositionArray = null;
+                firstPositionArray = staggeredGridLayoutManager.findFirstVisibleItemPositions(firstPositionArray);
+                currentPosition = firstPositionArray[0];
                 break;
         }
     }

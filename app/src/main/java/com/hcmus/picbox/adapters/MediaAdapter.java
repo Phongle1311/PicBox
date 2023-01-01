@@ -28,12 +28,12 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public static final int LAYOUT_MODE_1 = 1; // grid (default)
     public static final int LAYOUT_MODE_2 = 2; // list
-    public static final int LAYOUT_MODE_3 = 3; // staggered
+    public static final int LAYOUT_MODE_3 = 3; // staggered grid
+    public static final int LAYOUT_MODE_4 = 4; // spanned grid
     private static final float SCALE_X = 0.7f;
     private static final float SCALE_Y = 0.7f;
     private static final int TYPE_ITEM_LIST = -1;
     private static final int TYPE_ITEM_STAGGERED_GRID = -2;
-    private static final int TYPE_EMPTY = -3;
     private final Context context;
     private final AlbumModel album;
     private final IMediaAdapterCallback listener;
@@ -88,9 +88,6 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 View view = inflater.inflate(R.layout.item_staggered, parent, false);
                 return new MediaViewHolder(view);
             }
-            case TYPE_EMPTY: {
-                return new DateViewHolder(new View(context)); // return empty layout
-            }
             default:
                 throw new IllegalStateException("unsupported type");
         }
@@ -106,17 +103,17 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 viewHolder.txt_date.setText(date.getStringLastModifiedTime());
                 return;
             }
-            case TYPE_EMPTY: {
-                DateViewHolder viewHolder = (DateViewHolder) holder;
-                viewHolder.itemView.setVisibility(View.GONE);
-                return;
-            }
             case TYPE_ITEM_LIST:
             case TYPE_ITEM_STAGGERED_GRID:
             case AbstractModel.TYPE_GIF:
             case AbstractModel.TYPE_PHOTO:
             case AbstractModel.TYPE_VIDEO: {
-                MediaModel model = (MediaModel) album.getModelList().get(position);
+                MediaModel model;
+                if (layoutMode == LAYOUT_MODE_3 || layoutMode == LAYOUT_MODE_4)
+                    model = album.getMediaList().get(position);
+                else
+                    model = (MediaModel) album.getModelList().get(position);
+
                 if (model == null) return;
                 MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
@@ -170,6 +167,12 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 if (type == TYPE_ITEM_LIST)
                     viewHolder.tvFileName.setText(model.getPath());
 
+                if (layoutMode == LAYOUT_MODE_4) {
+                    // fix padding of spanned grid
+                    viewHolder.imageContainer.setBackground(null);
+                    viewHolder.itemView.setPadding(8, 8, 8, 8);
+                }
+
                 break;
             }
             default:
@@ -196,7 +199,11 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return album == null ? 0 : album.getModelList().size();
+        if (album == null)
+            return 0;
+        if (layoutMode == LAYOUT_MODE_3 || layoutMode == LAYOUT_MODE_4)
+            return album.getMediaList().size();
+        return album.getModelList().size();
     }
 
     @Override
@@ -204,6 +211,9 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (position < 0 || album == null || position >= album.getModelList().size()) {
             throw new IllegalStateException("The position is invalid");
         }
+
+        if (layoutMode == LAYOUT_MODE_4)
+            return album.getMediaList().get(position).getType();
 
         int type = album.getModelList().get(position).getType();
         if (layoutMode == LAYOUT_MODE_1)
@@ -213,8 +223,6 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return type;
             return TYPE_ITEM_LIST;
         }
-        if (type == AbstractModel.TYPE_DATE)
-            return TYPE_EMPTY;
         return TYPE_ITEM_STAGGERED_GRID;
     }
 

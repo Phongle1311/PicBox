@@ -6,6 +6,7 @@ import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_HIDE_BUTTON_AD
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_4;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
@@ -51,6 +52,8 @@ import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.LoadStorageHelper;
+import com.joeiot.spannedgridlayoutmanager.SpanSize;
+import com.joeiot.spannedgridlayoutmanager.SpannedGridLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +67,6 @@ public class PhotosFragment extends Fragment {
     private int fabClicked = 0;
     private RecyclerView mGallery;
     private MediaAdapter mediaAdapter;
-    private int currentPosition = 0;
     private final ActivityResultLauncher<Intent> createAlbumActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                     result -> {
@@ -92,9 +94,11 @@ public class PhotosFragment extends Fragment {
                             addSelectedFilesToAlbum(newAlbum);
                         }
                     });
+    private int currentPosition = 0;
     private GridLayoutManager gridLayoutManager;
     private LinearLayoutManager linearLayoutManager;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
+    private SpannedGridLayoutManager spannedGridLayoutManager;
     private CustomActionModeCallback actionModeCallback;
     private ActionMode actionMode;
     private FloatingActionButton fabMain, fabSearch, fabSecret, fabSortBy, fabChangeLayout;
@@ -166,7 +170,7 @@ public class PhotosFragment extends Fragment {
                 setCurrentPosition();
                 layoutMode = option;
                 bindLayoutManager();
-                mediaAdapter.notifyItemRangeChanged(0, album.getModelList().size());
+                mediaAdapter.notifyItemRangeChanged(0, mediaAdapter.getItemCount());
             }).show();
             hideMiniFABs();
         });
@@ -175,7 +179,6 @@ public class PhotosFragment extends Fragment {
         if (!Objects.equals(backgroundPath, "")) {
             Bitmap decodedBitmap = PhotoModel.getBitMap(context, backgroundPath);
             if (decodedBitmap != null) {
-//                Drawable ob = new BitmapDrawable(getResources(), decodedBitmap);
                 photoBackground.setImageBitmap(decodedBitmap);
             }
         }
@@ -225,6 +228,15 @@ public class PhotosFragment extends Fragment {
                 }
             }
         });
+        spannedGridLayoutManager = new SpannedGridLayoutManager(context,
+                SpannedGridLayoutManager.VERTICAL, 3, 1f);
+        spannedGridLayoutManager.setSpanSizeLookup(new SpannedGridLayoutManager.SpanSizeLookup(
+                position -> {
+                    if (position % 6 == 0 || position % 6 == 4)
+                        return new SpanSize(2, 2);
+                    return new SpanSize(1, 1);
+                }
+        ));
 
         bindLayoutManager();
 
@@ -267,6 +279,9 @@ public class PhotosFragment extends Fragment {
             case LAYOUT_MODE_3:
                 mGallery.setLayoutManager(staggeredGridLayoutManager);
                 break;
+            case LAYOUT_MODE_4:
+                mGallery.setLayoutManager(spannedGridLayoutManager);
+                break;
             default:
                 mGallery.setLayoutManager(gridLayoutManager);
                 break;
@@ -275,7 +290,7 @@ public class PhotosFragment extends Fragment {
     }
 
     private void setCurrentPosition() {
-        switch(layoutMode) {
+        switch (layoutMode) {
             case LAYOUT_MODE_1:
                 currentPosition = gridLayoutManager.findFirstVisibleItemPosition();
                 break;
@@ -288,6 +303,10 @@ public class PhotosFragment extends Fragment {
                 int[] firstPositionArray = null;
                 firstPositionArray = staggeredGridLayoutManager.findFirstVisibleItemPositions(firstPositionArray);
                 currentPosition = firstPositionArray[0];
+                break;
+
+            case LAYOUT_MODE_4:
+                currentPosition = spannedGridLayoutManager.findFirstVisibleItemPosition();
                 break;
         }
     }

@@ -3,6 +3,7 @@ package com.hcmus.picbox.components;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_4;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
 
 import android.app.Dialog;
@@ -38,6 +39,9 @@ public class ChooseLayoutModeDialog extends Dialog {
             case LAYOUT_MODE_3:
                 ((RadioButton) findViewById(R.id.rb_staggered)).setChecked(true);
                 break;
+            case LAYOUT_MODE_4:
+                ((RadioButton) findViewById(R.id.rb_spanned)).setChecked(true);
+                break;
             default:
                 ((RadioButton) findViewById(R.id.rb_grid)).setChecked(true);
                 break;
@@ -52,6 +56,8 @@ public class ChooseLayoutModeDialog extends Dialog {
                 option = LAYOUT_MODE_2;
             } else if (checkedRadioButtonId == R.id.rb_staggered) {
                 option = LAYOUT_MODE_3;
+            } else if (checkedRadioButtonId == R.id.rb_spanned) {
+                option = LAYOUT_MODE_4;
             }
             if (option != currentOption) {
                 SharedPreferencesUtils.saveData(context, KEY_LAYOUT_MODE, option);

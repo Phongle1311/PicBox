@@ -5,6 +5,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_4;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
@@ -216,8 +217,11 @@ public class SettingFragment extends Fragment {
         });
 
         // Grid mode setting
-        layoutModeLayout.setOnClickListener(v -> new ChooseLayoutModeDialog(context,
-                SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE), null).show());
+        layoutModeLayout.setOnClickListener(v -> new ChooseLayoutModeDialog(
+                context,
+                SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE),
+                (option) -> updateLayoutModeTextView(option)
+        ).show());
 
         // Lock rotation setting
         rotationSwitch.setOnCheckedChangeListener((compoundButton, b) ->
@@ -337,7 +341,17 @@ public class SettingFragment extends Fragment {
                 break;
         }
 
-        switch (SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE)) {
+        updateLayoutModeTextView(SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE));
+
+        if (SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
+            passwordImageSwitch.setChecked(true);
+        } else {
+            passwordImageSwitch.setChecked(false);
+        }
+    }
+
+    public void updateLayoutModeTextView(int option) {
+        switch (option) {
             case LAYOUT_MODE_1:
                 layoutModeTextView.setText(R.string.option_grid);
                 break;
@@ -347,12 +361,9 @@ public class SettingFragment extends Fragment {
             case LAYOUT_MODE_3:
                 layoutModeTextView.setText(R.string.option_staggered);
                 break;
-        }
-
-        if (SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
-            passwordImageSwitch.setChecked(true);
-        } else {
-            passwordImageSwitch.setChecked(false);
+            case LAYOUT_MODE_4:
+                layoutModeTextView.setText(R.string.option_spanned_grid);
+                break;
         }
     }
 }

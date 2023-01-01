@@ -26,18 +26,27 @@ import java.util.List;
 
 public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    public static final int LAYOUT_MODE_1 = 1; // grid (default)
+    public static final int LAYOUT_MODE_2 = 2; // list
+    public static final int LAYOUT_MODE_3 = 3; // staggered grid
+    public static final int LAYOUT_MODE_4 = 4; // spanned grid
     private static final float SCALE_X = 0.7f;
     private static final float SCALE_Y = 0.7f;
+    private static final int TYPE_ITEM_LIST = -1;
+    private static final int TYPE_ITEM_STAGGERED_GRID = -2;
     private final Context context;
     private final AlbumModel album;
     private final IMediaAdapterCallback listener;
     public List<MediaModel> selectedMedia = new ArrayList<>();
     private boolean isSelecting = false;
     private CustomActionModeCallback actionModeCallback;
+    private int layoutMode = LAYOUT_MODE_1;
 
-    public MediaAdapter(Context context, AlbumModel album, IMediaAdapterCallback listener) {
+    public MediaAdapter(Context context, AlbumModel album, int layoutMode, IMediaAdapterCallback listener) {
         this.context = context;
         this.album = album;
+        if (layoutMode != 0)
+            this.layoutMode = layoutMode;
         this.listener = listener;
     }
 
@@ -45,25 +54,38 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.actionModeCallback = actionModeCallback;
     }
 
+    public void setLayoutMode(int layoutMode) {
+        this.layoutMode = layoutMode;
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
         switch (viewType) {
             case AbstractModel.TYPE_DATE: {
-                View view = inflater.inflate(R.layout.date_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_date, parent, false);
                 return new DateViewHolder(view);
             }
             case AbstractModel.TYPE_PHOTO: {
-                View view = inflater.inflate(R.layout.photo_card_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_grid_photo, parent, false);
                 return new MediaViewHolder(view);
             }
             case AbstractModel.TYPE_VIDEO: {
-                View view = inflater.inflate(R.layout.video_card_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_grid_video, parent, false);
                 return new MediaViewHolder(view);
             }
             case AbstractModel.TYPE_GIF: {
-                View view = inflater.inflate(R.layout.gif_card_layout, parent, false);
+                View view = inflater.inflate(R.layout.item_grid_gif, parent, false);
+                return new MediaViewHolder(view);
+            }
+            case TYPE_ITEM_LIST: {
+                View view = inflater.inflate(R.layout.item_list, parent, false);
+                return new MediaViewHolder(view);
+            }
+            case TYPE_ITEM_STAGGERED_GRID: {
+                View view = inflater.inflate(R.layout.item_staggered, parent, false);
                 return new MediaViewHolder(view);
             }
             default:
@@ -79,12 +101,20 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 DateModel date = (DateModel) album.getModelList().get(position);
                 DateViewHolder viewHolder = (DateViewHolder) holder;
                 viewHolder.txt_date.setText(date.getStringLastModifiedTime());
-                break;
+                return;
             }
+            case TYPE_ITEM_LIST:
+            case TYPE_ITEM_STAGGERED_GRID:
             case AbstractModel.TYPE_GIF:
             case AbstractModel.TYPE_PHOTO:
             case AbstractModel.TYPE_VIDEO: {
-                MediaModel model = (MediaModel) album.getModelList().get(position);
+                MediaModel model;
+                if (layoutMode == LAYOUT_MODE_3 || layoutMode == LAYOUT_MODE_4)
+                    model = album.getMediaList().get(position);
+                else
+                    model = (MediaModel) album.getModelList().get(position);
+
+                if (model == null) return;
                 MediaViewHolder viewHolder = (MediaViewHolder) holder;
 
                 if (selectedMedia.contains(model)) {
@@ -110,7 +140,7 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         .into(viewHolder.imageView);
 
                 // Set onClick Listener to display media
-                viewHolder.itemView.setOnClickListener(view -> {
+                viewHolder.imageContainer.setOnClickListener(view -> {
                     if (isSelecting) {
                         onClickItem(viewHolder, model);
                     } else {
@@ -123,7 +153,7 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     }
                 });
 
-                viewHolder.itemView.setOnLongClickListener(view -> {
+                viewHolder.imageContainer.setOnLongClickListener(view -> {
                     if (!isSelecting) {
                         isSelecting = true;
                         listener.onStartSelectMultiple();
@@ -133,6 +163,16 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     }
                     return false;
                 });
+
+                if (type == TYPE_ITEM_LIST)
+                    viewHolder.tvFileName.setText(model.getPath());
+
+                if (layoutMode == LAYOUT_MODE_4) {
+                    // fix padding of spanned grid
+                    viewHolder.imageContainer.setBackground(null);
+                    viewHolder.itemView.setPadding(8, 8, 8, 8);
+                }
+
                 break;
             }
             default:
@@ -159,7 +199,11 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return album == null ? 0 : album.getModelList().size();
+        if (album == null)
+            return 0;
+        if (layoutMode == LAYOUT_MODE_3 || layoutMode == LAYOUT_MODE_4)
+            return album.getMediaList().size();
+        return album.getModelList().size();
     }
 
     @Override
@@ -167,7 +211,19 @@ public class MediaAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (position < 0 || album == null || position >= album.getModelList().size()) {
             throw new IllegalStateException("The position is invalid");
         }
-        return album.getModelList().get(position).getType();
+
+        if (layoutMode == LAYOUT_MODE_4)
+            return album.getMediaList().get(position).getType();
+
+        int type = album.getModelList().get(position).getType();
+        if (layoutMode == LAYOUT_MODE_1)
+            return type;
+        if (layoutMode == LAYOUT_MODE_2) {
+            if (type == AbstractModel.TYPE_DATE)
+                return type;
+            return TYPE_ITEM_LIST;
+        }
+        return TYPE_ITEM_STAGGERED_GRID;
     }
 
     public void selectAll() {

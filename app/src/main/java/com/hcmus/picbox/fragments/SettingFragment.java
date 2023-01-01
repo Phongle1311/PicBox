@@ -3,9 +3,14 @@ package com.hcmus.picbox.fragments;
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.content.Intent.getIntent;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
+import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_4;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PET_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
@@ -23,12 +28,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
@@ -39,13 +41,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.button.MaterialButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.ImagePasswordActivity;
-import com.hcmus.picbox.activities.MainActivity;
 import com.hcmus.picbox.activities.RegisterPasswordActivity;
+import com.hcmus.picbox.components.ChooseLayoutModeDialog;
 import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
@@ -68,8 +69,8 @@ public class SettingFragment extends Fragment {
     private TextView languageTextView;
     private LinearLayout groupModeLayout;
     private TextView groupModeTextView;
-    private LinearLayout gridModeLayout;
-    private TextView gridModeTextView;
+    private LinearLayout layoutModeLayout;
+    private TextView layoutModeTextView;
     private SwitchCompat rotationSwitch;
     private LinearLayout passwordImageLayout;
     private SwitchCompat passwordImageSwitch;
@@ -223,16 +224,16 @@ public class SettingFragment extends Fragment {
         });
 
         // Grid mode setting
-        gridModeLayout.setOnClickListener(view13 ->
-        {
-            //TODO: show dialog choose grid mode
-            //setGridModeTextView.text(....);
-        });
+        layoutModeLayout.setOnClickListener(v -> new ChooseLayoutModeDialog(
+                context,
+                SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE),
+                (option) -> updateLayoutModeTextView(option)
+        ).show());
 
         // Lock rotation setting
         rotationSwitch.setOnCheckedChangeListener((compoundButton, b) ->
         {
-
+            // TODO: lock/unlock rotation
         });
 
         // Secret setting
@@ -301,8 +302,8 @@ public class SettingFragment extends Fragment {
         groupModeLayout = view.findViewById(R.id.groupModeLayout);
         groupModeTextView = view.findViewById(R.id.groupModeTextView);
 
-        gridModeLayout = view.findViewById(R.id.gridModeLayout);
-        gridModeTextView = view.findViewById(R.id.gridModeTextView);
+        layoutModeLayout = view.findViewById(R.id.gridModeLayout);
+        layoutModeTextView = view.findViewById(R.id.gridModeTextView);
 
         rotationSwitch = view.findViewById(R.id.rotationSwitch);
 
@@ -347,10 +348,29 @@ public class SettingFragment extends Fragment {
                 break;
         }
 
+        updateLayoutModeTextView(SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE));
+
         if (SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
             passwordImageSwitch.setChecked(true);
         } else {
             passwordImageSwitch.setChecked(false);
+        }
+    }
+
+    public void updateLayoutModeTextView(int option) {
+        switch (option) {
+            case LAYOUT_MODE_1:
+                layoutModeTextView.setText(R.string.option_grid);
+                break;
+            case LAYOUT_MODE_2:
+                layoutModeTextView.setText(R.string.option_list);
+                break;
+            case LAYOUT_MODE_3:
+                layoutModeTextView.setText(R.string.option_staggered);
+                break;
+            case LAYOUT_MODE_4:
+                layoutModeTextView.setText(R.string.option_spanned_grid);
+                break;
         }
     }
 }

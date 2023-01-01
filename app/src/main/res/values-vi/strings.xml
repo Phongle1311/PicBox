@@ -28,8 +28,8 @@
     <string name="select_number_of_column_in_each_row">Chọn số lượng cột trên mỗi dòng</string>
     <string name="column_in_row">Cột trên dòng</string>
     <string name="grid">Lưới</string>
-    <string name="select_app_grid_mode">Chọn chế độ lưới</string>
-    <string name="grid_mode">Chế độ lưới</string>
+    <string name="select_app_layout_mode">Chọn chế độ hiển thị</string>
+    <string name="layout_mode">Chế độ hiển thị</string>
     <string name="floating_button">Nút nổi</string>
     <string name="show_hide_floating_button">Ẩn hiện nút nổi</string>
     <string name="language">Ngôn ngữ</string>
@@ -111,4 +111,8 @@
     <string name="toast_error_create_album">Lỗi khi tạo album!</string>
     <string name="toast_add_file_to_album">Thêm vào album %s thành công!</string>
     <string name="toast_delete_successfully">Xóa thành công!</string>
+    <string name="option_grid">Dạng lưới</string>
+    <string name="option_list">Dạng danh sách</string>
+    <string name="option_staggered">Dạng lưới so le</string>
+    <string name="option_spanned_grid">Dạng lưới mở rộng</string>
 </resources>

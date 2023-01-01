@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/select_app_layout_mode"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/rb_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_grid" />
+
+            <RadioButton
+                android:id="@+id/rb_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_list" />
+
+            <RadioButton
+                android:id="@+id/rb_staggered"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_staggered" />
+
+            <RadioButton
+                android:id="@+id/rb_spanned"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_spanned_grid" />
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:backgroundTint="@color/grey"
+                android:text="@string/cancel"
+                app:cornerRadius="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm"
+                app:cornerRadius="8dp" />
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

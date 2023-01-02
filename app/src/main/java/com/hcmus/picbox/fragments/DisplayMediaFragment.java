@@ -3,6 +3,8 @@ package com.hcmus.picbox.fragments;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
 import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
+import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_INPUT_PATH;
+import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_OUTPUT_DIR;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -45,7 +47,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.print.PrintHelper;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -86,6 +93,7 @@ import com.hcmus.picbox.models.PhotoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
+import com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker;
 import com.hcmus.picbox.works.DeleteHelper;
 
 import java.io.FileNotFoundException;
@@ -420,6 +428,26 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 ScreenSlidePagerAdapter.deletePosition = pos;
                 return true;
             } else if (itemId == R.id.secret_display_image) {
+                // Copy media file from external to dir in internal storage
+                String outputPath = context.getDir("secret_photos", Context.MODE_PRIVATE).getPath();
+                OneTimeWorkRequest copyFileRequest =
+                        new OneTimeWorkRequest.Builder(CopyFileFromExternalToInternalWorker.class)
+                                .setInputData(
+                                        new Data.Builder()
+                                                .putString(KEY_INPUT_PATH, model.getPath())
+                                                .putString(KEY_OUTPUT_DIR, outputPath)
+                                                .build()
+                                )
+                                .build();
+                WorkManager.getInstance(context).enqueue(copyFileRequest);
+
+                WorkManager.getInstance(context)
+                        .getWorkInfoByIdLiveData(copyFileRequest.getId())
+                        .observe((LifecycleOwner) context, info -> {
+                            if (info != null && info.getState() == WorkInfo.State.SUCCEEDED) {
+                                Toast.makeText(context, "copy successful", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 return true;
             }
             return false;

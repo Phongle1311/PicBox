@@ -1,8 +1,6 @@
 package com.hcmus.picbox.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,22 +13,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hcmus.picbox.R;
-import com.hcmus.picbox.activities.SlideShowActivity;
-import com.hcmus.picbox.models.MediaModel;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 
 public class CustomActionModeCallback implements ActionMode.Callback {
 
     private final Context ctx;
     private final MediaAdapter adapter;
-    private TextView tvTitle;
     private final ICustomActionModeCallback callback;
-
-    public interface ICustomActionModeCallback {
-        void onAddingToAlbum();
-    }
+    private TextView tvTitle;
 
     public CustomActionModeCallback(Context ctx, MediaAdapter adapter, ICustomActionModeCallback callback) {
         this.ctx = ctx;
@@ -93,7 +84,6 @@ public class CustomActionModeCallback implements ActionMode.Callback {
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();
             if (itemId == R.id.add_to_album) {
-                // Todo: add to album
                 callback.onAddingToAlbum();
                 return true;
             } else if (itemId == R.id.add_to_favourite) {
@@ -110,26 +100,7 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 // Todo: navigate to fragment 3
                 return true;
             } else if (itemId == R.id.slide_show) {
-                // Todo: slide show (check if all media is photo, not video and gif)
-                ArrayList<MediaModel> list = new ArrayList<>(adapter.selectedMedia);
-                ArrayList<String> listAlbum = new ArrayList<>();
-                ArrayList<Integer> listMediaID = new ArrayList<>();
-                for (MediaModel selected : adapter.selectedMedia) {
-                    if (selected.getType() == MediaModel.TYPE_PHOTO) {
-                        listAlbum.add(selected.getAlbumId());
-                        listMediaID.add(selected.getMediaId());
-                    }
-                }
-                if (listAlbum.size() == 0) {
-                    Toast.makeText(ctx, "Not exists supported file type.", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                Intent intent = new Intent(ctx, SlideShowActivity.class);
-                Bundle data = new Bundle();
-                data.putIntegerArrayList("selected_media_id", listMediaID);
-                data.putStringArrayList("selected_album_id", listAlbum);
-                intent.putExtra("media_selected_list", data);
-                ctx.startActivity(intent);
+                callback.onSliding();
                 return true;
             } else if (itemId == R.id.make_gif) {
                 // Todo: navigate to fragment 3
@@ -138,5 +109,11 @@ public class CustomActionModeCallback implements ActionMode.Callback {
             return false;
         });
         popup.show();
+    }
+
+    public interface ICustomActionModeCallback {
+        void onAddingToAlbum();
+
+        void onSliding();
     }
 }

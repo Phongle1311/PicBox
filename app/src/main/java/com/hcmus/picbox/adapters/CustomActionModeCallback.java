@@ -1,6 +1,8 @@
 package com.hcmus.picbox.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,8 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.SlideShowActivity;
+import com.hcmus.picbox.models.MediaModel;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 public class CustomActionModeCallback implements ActionMode.Callback {
 
@@ -106,6 +111,18 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 return true;
             } else if (itemId == R.id.slide_show) {
                 // Todo: slide show (check if all media is photo, not video and gif)
+                ArrayList<MediaModel> list = new ArrayList<>(adapter.selectedMedia);
+                for (MediaModel selected : list) {
+                    if (selected.getType() != MediaModel.TYPE_PHOTO) {
+                        Toast.makeText(ctx, "Unsupported file type", Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                }
+                Intent intent = new Intent(ctx, SlideShowActivity.class);
+                Bundle data = new Bundle();
+                data.putParcelableArrayList("SELECTED_LIST", list);
+                intent.putExtra("media_selected_list", data);
+                ctx.startActivity(intent);
                 return true;
             } else if (itemId == R.id.make_gif) {
                 // Todo: navigate to fragment 3

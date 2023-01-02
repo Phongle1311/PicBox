@@ -52,14 +52,9 @@ public class SlideShowActivity extends AppCompatActivity {
                 }
             });
             view.setDescriptionBackgroundAlpha(0f);
-            flipperLayout.setScrollTimeInSec(3);
             flipperLayout.addFlipperView(view);
-//            btnReplay.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    flipperLayout.startAutoCycle();
-//                }
-//            });
         }
+        flipperLayout.setScrollTimeInSec(3);
+        btnReplay.setOnClickListener(v -> flipperLayout.onCurrentPageChanged(0));
     }
 }

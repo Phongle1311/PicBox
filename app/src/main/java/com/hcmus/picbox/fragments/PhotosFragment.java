@@ -12,7 +12,6 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -37,6 +36,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.CreateAlbumActivity;
+import com.hcmus.picbox.activities.SlideShowActivity;
 import com.hcmus.picbox.adapters.CustomActionModeCallback;
 import com.hcmus.picbox.adapters.MediaAdapter;
 import com.hcmus.picbox.components.ChooseAlbumDialog;
@@ -203,7 +203,46 @@ public class PhotosFragment extends Fragment {
         layoutMode = SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE);
         mediaAdapter = new MediaAdapter(context, album, layoutMode,
                 () -> actionMode = ((Activity) context).startActionMode(actionModeCallback));
-        actionModeCallback = new CustomActionModeCallback(context, mediaAdapter, this::onAddingToAlbum);
+        actionModeCallback = new CustomActionModeCallback(context, mediaAdapter,
+                new CustomActionModeCallback.ICustomActionModeCallback() {
+                    @Override
+                    public void onAddingToAlbum() {
+                        new ChooseAlbumDialog(context,
+                                new ChooseAlbumDialog.IChooseAlbumDialogCallback() {
+                                    @Override
+                                    public void onCreateAlbum() {
+                                        Intent intent = new Intent(context, CreateAlbumActivity.class);
+                                        intent.putExtra(KEY_HIDE_BUTTON_ADD_FILES, true);
+                                        createAlbumActivityResultLauncher.launch(intent);
+                                    }
+
+                                    @Override
+                                    public void onSelectAlbum(AlbumModel album) {
+                                        addSelectedFilesToAlbum(album);
+                                    }
+                                }).show();
+                    }
+
+                    @Override
+                    public void onSliding() {
+                        ArrayList<Integer> listMediaID = new ArrayList<>();
+                        for (MediaModel selected : mediaAdapter.selectedMedia) {
+                            if (selected.getType() == MediaModel.TYPE_PHOTO) {
+                                listMediaID.add(selected.getMediaId());
+                            }
+                        }
+                        if (listMediaID.size() == 0) {
+                            Toast.makeText(context, "Not exists supported file type.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Intent intent = new Intent(context, SlideShowActivity.class);
+                        Bundle data = new Bundle();
+                        data.putIntegerArrayList("selected_media_id", listMediaID);
+                        data.putString("album_id", album.getId());
+                        intent.putExtra("media_selected_list", data);
+                        context.startActivity(intent);
+                    }
+                });
         mediaAdapter.setActionModeCallback(actionModeCallback);
         mGallery.setAdapter(mediaAdapter);
 
@@ -320,24 +359,6 @@ public class PhotosFragment extends Fragment {
         actionMode.finish();
         Toast.makeText(context, this.getString(R.string.toast_delete_successfully)
                 , Toast.LENGTH_SHORT).show();
-    }
-
-    public void onAddingToAlbum() {
-        Dialog dialog = new ChooseAlbumDialog(context,
-                new ChooseAlbumDialog.IChooseAlbumDialogCallback() {
-                    @Override
-                    public void onCreateAlbum() {
-                        Intent intent = new Intent(context, CreateAlbumActivity.class);
-                        intent.putExtra(KEY_HIDE_BUTTON_ADD_FILES, true);
-                        createAlbumActivityResultLauncher.launch(intent);
-                    }
-
-                    @Override
-                    public void onSelectAlbum(AlbumModel album) {
-                        addSelectedFilesToAlbum(album);
-                    }
-                });
-        dialog.show();
     }
 
     private void addSelectedFilesToAlbum(AlbumModel album) {

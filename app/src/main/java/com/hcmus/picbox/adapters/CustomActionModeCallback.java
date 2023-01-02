@@ -20,12 +20,8 @@ public class CustomActionModeCallback implements ActionMode.Callback {
 
     private final Context ctx;
     private final MediaAdapter adapter;
+    private final ICustomActionModeCallback callback;
     private TextView tvTitle;
-    private ICustomActionModeCallback callback;
-
-    public interface ICustomActionModeCallback {
-        void onAddingToAlbum();
-    }
 
     public CustomActionModeCallback(Context ctx, MediaAdapter adapter, ICustomActionModeCallback callback) {
         this.ctx = ctx;
@@ -88,7 +84,6 @@ public class CustomActionModeCallback implements ActionMode.Callback {
         popup.setOnMenuItemClickListener(menuItem -> {
             int itemId = menuItem.getItemId();
             if (itemId == R.id.add_to_album) {
-                // Todo: add to album
                 callback.onAddingToAlbum();
                 return true;
             } else if (itemId == R.id.add_to_favourite) {
@@ -105,7 +100,7 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 // Todo: navigate to fragment 3
                 return true;
             } else if (itemId == R.id.slide_show) {
-                // Todo: slide show (check if all media is photo, not video and gif)
+                callback.onSliding();
                 return true;
             } else if (itemId == R.id.make_gif) {
                 // Todo: navigate to fragment 3
@@ -114,5 +109,11 @@ public class CustomActionModeCallback implements ActionMode.Callback {
             return false;
         });
         popup.show();
+    }
+
+    public interface ICustomActionModeCallback {
+        void onAddingToAlbum();
+
+        void onSliding();
     }
 }

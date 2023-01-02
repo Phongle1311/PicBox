@@ -112,15 +112,22 @@ public class CustomActionModeCallback implements ActionMode.Callback {
             } else if (itemId == R.id.slide_show) {
                 // Todo: slide show (check if all media is photo, not video and gif)
                 ArrayList<MediaModel> list = new ArrayList<>(adapter.selectedMedia);
-                for (MediaModel selected : list) {
-                    if (selected.getType() != MediaModel.TYPE_PHOTO) {
-                        Toast.makeText(ctx, "Unsupported file type", Toast.LENGTH_SHORT).show();
-                        return true;
+                ArrayList<String> listAlbum = new ArrayList<>();
+                ArrayList<Integer> listMediaID = new ArrayList<>();
+                for (MediaModel selected : adapter.selectedMedia) {
+                    if (selected.getType() == MediaModel.TYPE_PHOTO) {
+                        listAlbum.add(selected.getAlbumId());
+                        listMediaID.add(selected.getMediaId());
                     }
+                }
+                if (listAlbum.size() == 0) {
+                    Toast.makeText(ctx, "Not exists supported file type.", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
                 Intent intent = new Intent(ctx, SlideShowActivity.class);
                 Bundle data = new Bundle();
-                data.putParcelableArrayList("SELECTED_LIST", list);
+                data.putIntegerArrayList("selected_media_id", listMediaID);
+                data.putStringArrayList("selected_album_id", listAlbum);
                 intent.putExtra("media_selected_list", data);
                 ctx.startActivity(intent);
                 return true;

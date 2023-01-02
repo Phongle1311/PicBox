@@ -26,7 +26,7 @@ public class CustomActionModeCallback implements ActionMode.Callback {
     private final Context ctx;
     private final MediaAdapter adapter;
     private TextView tvTitle;
-    private ICustomActionModeCallback callback;
+    private final ICustomActionModeCallback callback;
 
     public interface ICustomActionModeCallback {
         void onAddingToAlbum();

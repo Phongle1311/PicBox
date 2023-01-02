@@ -111,7 +111,6 @@ public class CustomActionModeCallback implements ActionMode.Callback {
                 return true;
             } else if (itemId == R.id.slide_show) {
                 // Todo: slide show (check if all media is photo, not video and gif)
-                ArrayList<MediaModel> list = new ArrayList<>(adapter.selectedMedia);
                 ArrayList<String> listAlbum = new ArrayList<>();
                 ArrayList<Integer> listMediaID = new ArrayList<>();
                 for (MediaModel selected : adapter.selectedMedia) {

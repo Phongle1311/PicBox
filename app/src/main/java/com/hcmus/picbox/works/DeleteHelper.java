@@ -82,9 +82,7 @@ public class DeleteHelper {
         TextView tvHelper = dialogLayout.findViewById(R.id.tv_helper_text);
         setHintText(rgTypeOfDelete, tvHelper);
 
-        rgTypeOfDelete.setOnCheckedChangeListener((radioGroup, i) -> {
-            setHintText(radioGroup, tvHelper);
-        });
+        rgTypeOfDelete.setOnCheckedChangeListener((radioGroup, i) -> setHintText(radioGroup, tvHelper));
 
         ((TextView) dialogLayout.findViewById(R.id.tv_header))
                 .setText(String.format(Locale.getDefault(), "Do you want to delete %d file%s",
@@ -103,9 +101,6 @@ public class DeleteHelper {
             WorkManager.getInstance(context).enqueue(getContentUriIdWorkRequest);
 
             if (selectedId == R.id.rb_move_to_trash_bin) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                }
-//                    moveToTrashBin(uriList, context);
             } else if (selectedId == R.id.rb_delete_permanently) {
                 WorkManager.getInstance(context)
                         .getWorkInfoByIdLiveData(getContentUriIdWorkRequest.getId())
@@ -135,7 +130,7 @@ public class DeleteHelper {
                             if (info != null && info.getState() == WorkInfo.State.FAILED) {
                                 alertDialog.dismiss();
                             }
-                            });
+                        });
 
 
             } else if (selectedId == R.id.rb_deeply_delete) {

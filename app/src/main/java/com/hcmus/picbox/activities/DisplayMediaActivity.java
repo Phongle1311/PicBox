@@ -41,11 +41,11 @@ public class DisplayMediaActivity extends AppCompatActivity {
         }
         if (Build.VERSION.SDK_INT <= 28) {
             if (!PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE)) {
-                PermissionUtils.requestPermissions(this, 123, WRITE_EXTERNAL_STORAGE);
+                PermissionUtils.requestPermissions(this, 124, WRITE_EXTERNAL_STORAGE);
             }
         }
         if (!PermissionUtils.checkPermissions(this, SET_WALLPAPER)) {
-            PermissionUtils.requestPermissions(this, 123, SET_WALLPAPER);
+            PermissionUtils.requestPermissions(this, 125, SET_WALLPAPER);
         }
 
         // Get model being selected

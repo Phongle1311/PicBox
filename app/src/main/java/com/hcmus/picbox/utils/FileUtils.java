@@ -65,4 +65,12 @@ public class FileUtils {
             Log.e("tag", e.getMessage());
         }
     }
+
+    public static boolean isVideoFile(String path) {
+        return path.endsWith(".mp4") || path.endsWith(".3gp") || path.endsWith(".mkv");
+    }
+
+    public static boolean isPhotoFile(String path) {
+        return path.endsWith(".jpg") || path.endsWith(".jpeg") || path.endsWith(".png") || path.endsWith(".gif");
+    }
 }

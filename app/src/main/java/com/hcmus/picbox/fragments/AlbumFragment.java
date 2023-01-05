@@ -2,6 +2,7 @@ package com.hcmus.picbox.fragments;
 
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
+import static com.hcmus.picbox.activities.ImagePasswordActivity.KEY_ENTER_PASSWORD_RESPONSE;
 import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
 
@@ -28,9 +29,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hcmus.picbox.R;
+import com.hcmus.picbox.activities.AlbumActivity;
 import com.hcmus.picbox.activities.CreateAlbumActivity;
 import com.hcmus.picbox.activities.ImagePasswordActivity;
-import com.hcmus.picbox.activities.MainActivity;
 import com.hcmus.picbox.adapters.AlbumAdapter;
 import com.hcmus.picbox.database.album.AlbumEntity;
 import com.hcmus.picbox.database.album.AlbumMediaCrossRef;
@@ -53,6 +54,18 @@ public class AlbumFragment extends Fragment {
     private final List<AlbumModel> deviceAlbumList = AlbumHolder.getDeviceAlbumList().getList();
     private final List<AlbumModel> userAlbumList = AlbumHolder.getUserAlbumList().getList();
     private Context context;
+    private final ActivityResultLauncher<Intent> imagePasswordActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null &&
+                            data.getBooleanExtra(KEY_ENTER_PASSWORD_RESPONSE, false)) {
+                        Intent intent = new Intent(context, AlbumActivity.class);
+                        intent.putExtra("albumId", MediaHolder.sSecretAlbum.getId());
+                        context.startActivity(intent);
+                    }
+                }
+            });
     private final ActivityResultLauncher<Intent> createAlbumActivityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                     result -> {
@@ -115,7 +128,9 @@ public class AlbumFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_album, container, false);
         context = view.getContext();
 
-        initUI(view);
+        bindUI(view);
+        setWallpaper(view);
+        setListener(view);
         prepareRecyclerView();
         LoadStorageHelper.setDeviceAlbumListener(this::onDeviceAlbumRangeInserted);
         LoadStorageHelper.setUserAlbumListener(this::onUserAlbumRangeInserted);
@@ -130,18 +145,14 @@ public class AlbumFragment extends Fragment {
         super.onResume();
     }
 
-    private void initUI(View view) {
-        view.findViewById(R.id.secretLayout).setOnClickListener(v -> {
-            if (!SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
-                Toast.makeText(context, getResources().getString(R.string.require_password_for_view_image), Toast.LENGTH_LONG).show();
-                return;
-            }
-            Intent intent = new Intent(getActivity(), ImagePasswordActivity.class);
-            ((MainActivity) requireActivity()).startActivity(intent);
-        });
-
+    private void bindUI(View view) {
         rcvUserAlbums = view.findViewById(R.id.rcv_user_album);
         rcvDeviceAlbum = view.findViewById(R.id.rcv_device_album);
+
+
+    }
+
+    private void setWallpaper(View view) {
         ImageView albumBackground = view.findViewById(R.id.fragment_album_layout);
         String backgroundPath = SharedPreferencesUtils.getStringData(context, SharedPreferencesUtils.KEY_BACKGROUND_IMAGE);
         if (!Objects.equals(backgroundPath, "")) {
@@ -151,12 +162,22 @@ public class AlbumFragment extends Fragment {
                 albumBackground.setImageDrawable(ob);
             }
         }
+    }
+
+    private void setListener(View view) {
+        // open favourite album
         view.findViewById(R.id.card_view_favorite).setOnClickListener(v -> {
             // TODO: open album
         });
 
+        // open secret album
         view.findViewById(R.id.card_view_secret).setOnClickListener(v -> {
-            // TODO: open album
+            if (!SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
+                Toast.makeText(context, R.string.toast_have_not_create_password, Toast.LENGTH_LONG).show();
+            } else {
+                Intent intent = new Intent(context, ImagePasswordActivity.class);
+                imagePasswordActivityResultLauncher.launch(intent);
+            }
         });
 
         view.findViewById(R.id.card_view_creativity).setOnClickListener(v -> {

@@ -23,7 +23,6 @@
     <string name="change_to_dark_theme">Chuyển sang chế độ tối</string>
     <string name="dark_theme">Chế độ tối</string>
     <string name="security">Bảo mật</string>
-    <string name="require_password_for_view_image">Yêu cầu mật khẩu để xem ảnh</string>
     <string name="password_image">Mật khẩu cho ảnh</string>
     <string name="select_number_of_column_in_each_row">Chọn số lượng cột trên mỗi dòng</string>
     <string name="column_in_row">Cột trên dòng</string>
@@ -115,4 +114,6 @@
     <string name="option_list">Dạng danh sách</string>
     <string name="option_staggered">Dạng lưới so le</string>
     <string name="option_spanned_grid">Dạng lưới mở rộng</string>
+    <string name="toast_have_not_create_password">Bạn chưa tạo mật khẩu</string>
+    <string name="require_password_for_view_image">Cần mật khẩu để xem ảnh</string>
 </resources>

@@ -141,7 +141,7 @@ public class PhotosFragment extends Fragment {
 //        if (newSpanCount != mSpanCount) {
         if (mediaAdapter != null) {
             mSpanCount = newSpanCount;
-            AbstractModel.groupMode = newGroupMode;
+            AbstractModel.groupMode = newGroupMode; // todo: get instead of set
             mediaAdapter.updateAll();
         }
     }

@@ -38,4 +38,12 @@ public class AlbumModel extends ModelList implements Serializable {
     public File getCover() {
         return lastItem != null ? lastItem.getFile() : null;
     }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 }

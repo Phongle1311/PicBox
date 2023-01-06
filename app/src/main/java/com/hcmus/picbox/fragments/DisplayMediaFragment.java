@@ -3,6 +3,7 @@ package com.hcmus.picbox.fragments;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
 import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_PASSWORD;
 import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_INPUT_PATH;
 import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_OUTPUT_DIR;
 
@@ -75,6 +76,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.picbox.BuildConfig;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.activities.CreateAlbumActivity;
+import com.hcmus.picbox.activities.RegisterPasswordActivity;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
 import com.hcmus.picbox.components.ChooseAlbumDialog;
 import com.hcmus.picbox.database.album.AlbumEntity;
@@ -90,12 +92,15 @@ import com.hcmus.picbox.models.AbstractModel;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
+import com.hcmus.picbox.utils.FileUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker;
 import com.hcmus.picbox.works.DeleteHelper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -428,43 +433,68 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 ScreenSlidePagerAdapter.deletePosition = pos;
                 return true;
             } else if (itemId == R.id.secret_display_image) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Confirm to make it secret");
-                builder.setMessage("This action will delete this file in your storage.\n If you delete this app, this file will be deleted permanently!")
-                        .setCancelable(true)
-                        .setPositiveButton("Confirm", (dialog, id) -> {
-                            dialog.dismiss();
-                            // Copy media file from external to dir in internal storage
-                            String outputPath = context.getDir("secret_photos", Context.MODE_PRIVATE).getPath();
-                            OneTimeWorkRequest copyFileRequest =
-                                    new OneTimeWorkRequest.Builder(CopyFileFromExternalToInternalWorker.class)
-                                            .setInputData(
-                                                    new Data.Builder()
-                                                            .putString(KEY_INPUT_PATH, model.getPath())
-                                                            .putString(KEY_OUTPUT_DIR, outputPath)
-                                                            .build()
-                                            )
-                                            .build();
-                            WorkManager.getInstance(context).enqueue(copyFileRequest);
+                if (!SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
+                    Toast.makeText(context, R.string.toast_have_not_create_password, Toast.LENGTH_LONG).show();
 
-                            WorkManager.getInstance(context)
-                                    .getWorkInfoByIdLiveData(copyFileRequest.getId())
-                                    .observe((LifecycleOwner) context, info -> {
-                                        if (info != null && info.getState() == WorkInfo.State.SUCCEEDED) {
-                                            // delete image after copy
-                                            DeleteHelper.deleteWithoutDialog(context, model);
-                                            ScreenSlidePagerAdapter.deletePosition = pos;
-                                        }
-                                    });
-                        })
-                        .setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Register a secret password?");
+                    builder.setMessage("You have not created a password.\nDo you want to create a new password?")
+                            .setCancelable(true)
+                            .setPositiveButton("Confirm", (dialog, id) -> {
+                                dialog.dismiss();
+                                Intent intent = new Intent(context, RegisterPasswordActivity.class);
+                                context.startActivity(intent);
+                            })
+                            .setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
 
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                } else {
+                    secretAction();
+                }
                 return true;
             }
             return false;
         });
+    }
+
+    private void secretAction() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Confirm to make it secret");
+        builder.setMessage("This action will delete this file in your storage.\n If you delete this app, this file will be deleted permanently!")
+                .setCancelable(true)
+                .setPositiveButton("Confirm", (dialog, id) -> {
+                    dialog.dismiss();
+                    // Copy media file from external to dir in internal storage
+                    String outputDir = context.getDir("secret_photos", Context.MODE_PRIVATE).getPath();
+                    OneTimeWorkRequest copyFileRequest =
+                            new OneTimeWorkRequest.Builder(CopyFileFromExternalToInternalWorker.class)
+                                    .setInputData(
+                                            new Data.Builder()
+                                                    .putString(KEY_INPUT_PATH, model.getPath())
+                                                    .putString(KEY_OUTPUT_DIR, outputDir)
+                                                    .build()
+                                    )
+                                    .build();
+                    WorkManager.getInstance(context).enqueue(copyFileRequest);
+                    String newPath = new File(new File(outputDir), model.getFile().getName()).getPath();
+                    MediaHolder.sSecretAlbum.add(FileUtils.isVideoFile(model.getPath()) ?
+                            new VideoModel(newPath) : new PhotoModel(newPath));
+
+                    WorkManager.getInstance(context)
+                            .getWorkInfoByIdLiveData(copyFileRequest.getId())
+                            .observe((LifecycleOwner) context, info -> {
+                                if (info != null && info.getState() == WorkInfo.State.SUCCEEDED) {
+                                    // delete image after copy
+                                    DeleteHelper.deleteWithoutDialog(context, model);
+                                    ScreenSlidePagerAdapter.deletePosition = pos;
+                                }
+                            });
+                })
+                .setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void setBottomSheetActionsListener() {

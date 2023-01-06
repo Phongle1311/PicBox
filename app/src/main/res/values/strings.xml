@@ -23,7 +23,6 @@
     <string name="change_to_dark_theme">Change to dark theme</string>
     <string name="dark_theme">Dark theme</string>
     <string name="security">Security</string>
-    <string name="require_password_for_view_image">Require password for view image</string>
     <string name="password_image">Password Image</string>
     <string name="select_number_of_column_in_each_row">Select number of column in each row</string>
     <string name="column_in_row">Column in row</string>
@@ -115,4 +114,7 @@
     <string name="option_list">List</string>
     <string name="option_staggered">Staggered grid</string>
     <string name="option_spanned_grid">Spanned grid</string>
+    <string name="toast_have_not_create_password">You haven\'t created password yet</string>
+    <string name="require_password_for_view_image">Require password for view image</string>
+    <string name="delete">Delete</string>
 </resources>

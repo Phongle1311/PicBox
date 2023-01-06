@@ -8,16 +8,16 @@ import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_1;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LAYOUT_MODE_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.SPAN_COUNT_DEFAULT;
-import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_DEFAULT;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -38,15 +38,19 @@ import com.hcmus.picbox.database.album.AlbumsDatabase;
 import com.hcmus.picbox.database.album.MediaEntity;
 import com.hcmus.picbox.fragments.PhotosFragment;
 import com.hcmus.picbox.models.AlbumModel;
+import com.hcmus.picbox.models.PhotoModel;
+import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
+import com.hcmus.picbox.utils.FileUtils;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
 import com.hcmus.picbox.works.LoadStorageHelper;
 
-import java.util.Locale;
+import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -96,16 +100,15 @@ public class MainActivity extends AppCompatActivity {
         initSharedPreferencesDefault();
         initUI();
         initViewPager();
+        getSecretAlbum();
 
         // check permission
-        if (Build.VERSION.SDK_INT <= 28) {
-            if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
-            } else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
-            } else {
-                requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
-            }
+        if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
+            Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
+        } else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
+            Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
+        } else {
+            requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
         }
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE)) {
             LoadStorageHelper.getAllMediaFromStorage(this);
@@ -243,6 +246,24 @@ public class MainActivity extends AppCompatActivity {
             mediaEntities.stream()
                     .map(mediaEntity -> MediaHolder.sTotalAlbum.findMediaById(mediaEntity.mediaId))
                     .forEach(album::add);
+        }
+    }
+
+    private void getSecretAlbum() {
+        // Load all media from secret internal directory
+        MediaHolder.sSecretAlbum.setPath(getDir("secret_photos", Context.MODE_PRIVATE).getPath());
+        File secretDir = new File(MediaHolder.sSecretAlbum.getPath());
+        if (!secretDir.exists()) {
+            Toast.makeText(this, "Secret directory doesn't exist", Toast.LENGTH_SHORT).show();
+        } else {
+            File[] list = secretDir.listFiles();
+            if (list != null && list.length > 0)
+                for (File file : list) {
+                    if (FileUtils.isVideoFile(file.getPath()))
+                        MediaHolder.sSecretAlbum.add(new VideoModel(file.getPath()));
+                    else if (FileUtils.isPhotoFile(file.getPath()))
+                        MediaHolder.sSecretAlbum.add(new PhotoModel(file.getPath()));
+                }
         }
     }
 }

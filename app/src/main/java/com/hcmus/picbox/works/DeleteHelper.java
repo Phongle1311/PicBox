@@ -6,17 +6,14 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IntentSender;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.work.Data;
@@ -45,7 +42,7 @@ import java.util.Locale;
  */
 public class DeleteHelper {
 
-    public static final int DELETE_REQUEST_CODE = 1;
+    public static final int DELETE_REQUEST_CODE = 1134;
 
     public static void delete(Context context, MediaModel media) {
         List<MediaModel> modelList = new ArrayList<>();
@@ -71,20 +68,12 @@ public class DeleteHelper {
         alertDialog.show();
 
         RadioGroup rgTypeOfDelete = dialogLayout.findViewById(R.id.rg_type_of_delete);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            rgTypeOfDelete.check(R.id.rb_move_to_trash_bin);
-        } else {
-            RadioButton rbMoveToTrashBin = dialogLayout.findViewById(R.id.rb_move_to_trash_bin);
-            rbMoveToTrashBin.setEnabled(false);
-            rgTypeOfDelete.check(R.id.rb_delete_permanently);
-        }
+        rgTypeOfDelete.check(R.id.rb_move_to_trash_bin);
 
         TextView tvHelper = dialogLayout.findViewById(R.id.tv_helper_text);
         setHintText(rgTypeOfDelete, tvHelper);
 
-        rgTypeOfDelete.setOnCheckedChangeListener((radioGroup, i) -> {
-            setHintText(radioGroup, tvHelper);
-        });
+        rgTypeOfDelete.setOnCheckedChangeListener((radioGroup, i) -> setHintText(radioGroup, tvHelper));
 
         ((TextView) dialogLayout.findViewById(R.id.tv_header))
                 .setText(String.format(Locale.getDefault(), "Do you want to delete %d file%s",
@@ -103,9 +92,6 @@ public class DeleteHelper {
             WorkManager.getInstance(context).enqueue(getContentUriIdWorkRequest);
 
             if (selectedId == R.id.rb_move_to_trash_bin) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                }
-//                    moveToTrashBin(uriList, context);
             } else if (selectedId == R.id.rb_delete_permanently) {
                 WorkManager.getInstance(context)
                         .getWorkInfoByIdLiveData(getContentUriIdWorkRequest.getId())
@@ -119,49 +105,83 @@ public class DeleteHelper {
                                     uriList.add(Uri.parse(data));
 
                                 try {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                        deleteAPI30(uriList, context);
-                                        alertDialog.dismiss();
-                                    } else {
-                                        deleteAPI28(uriList, context);
-                                        alertDialog.dismiss();
-                                    }
+                                    ContentResolver contentResolver = context.getContentResolver();
+                                    PendingIntent pendingIntent = MediaStore.createDeleteRequest(contentResolver, uriList);
+                                    IntentSender intentSender = pendingIntent.getIntentSender();
+                                    ((Activity) context).startIntentSenderForResult(intentSender, DELETE_REQUEST_CODE,
+                                            null, 0, 0, 0, null);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     Log.d("test", e.getMessage());
+                                } finally {
                                     alertDialog.dismiss();
                                 }
                             }
                             if (info != null && info.getState() == WorkInfo.State.FAILED) {
                                 alertDialog.dismiss();
                             }
-                            });
-
-
+                        });
             } else if (selectedId == R.id.rb_deeply_delete) {
 //                deleteDeeply(uriList, context);
             }
         });
     }
 
-//    @RequiresApi(api = Build.VERSION_CODES.R)
-//    private static void moveToTrashBin(List<Uri> uriList, Context context) {
-//
-//    }
+    public static void deleteWithoutDialog(Context context, MediaModel media) {
+        List<MediaModel> modelList = new ArrayList<>();
+        modelList.add(media);
+        deleteWithoutDialog(context, modelList);
+    }
 
-//    private static void deleteDeeply(List<Uri> uriList, Context context) {
-//
-//    }
+    public static void deleteWithoutDialog(Context context, List<MediaModel> mediaList) {
+        String[] paths = new String[mediaList.size()];
+        int index = 0;
+        for (MediaModel media : mediaList) {
+            paths[index++] = Uri.fromFile(media.getFile()).getPath();
+        }
 
-    @RequiresApi(api = Build.VERSION_CODES.R)
+        OneTimeWorkRequest getContentUriIdWorkRequest =
+                new OneTimeWorkRequest.Builder(GetContentUriIdWorker.class)
+                        .setInputData(
+                                new Data.Builder()
+                                        .putStringArray(GetContentUriIdWorker.KEY_PATHS, paths)
+                                        .build()
+                        )
+                        .build();
+        WorkManager.getInstance(context).enqueue(getContentUriIdWorkRequest);
+
+        WorkManager.getInstance(context)
+                .getWorkInfoByIdLiveData(getContentUriIdWorkRequest.getId())
+                .observe((LifecycleOwner) context, info -> {
+                    if (info != null && info.getState() == WorkInfo.State.SUCCEEDED) {
+                        String[] outputData = info.getOutputData().getStringArray(
+                                GetContentUriIdWorker.KEY_CONTENT_URI);
+                        if (outputData == null) return;
+                        List<Uri> uriList = new ArrayList<>();
+                        for (String data : outputData)
+                            uriList.add(Uri.parse(data));
+
+                        try {
+                            ContentResolver contentResolver = context.getContentResolver();
+                            PendingIntent pendingIntent = MediaStore.createDeleteRequest(contentResolver, uriList);
+                            IntentSender intentSender = pendingIntent.getIntentSender();
+                            ((Activity) context).startIntentSenderForResult(intentSender, DELETE_REQUEST_CODE,
+                                    null, 0, 0, 0, null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.d("test", e.getMessage());
+                        }
+                    }
+                });
+    }
+
     private static void deleteAPI30(List<Uri> uriList, @NonNull Context context) throws
             IntentSender.SendIntentException {
         ContentResolver contentResolver = context.getContentResolver();
         PendingIntent pendingIntent = MediaStore.createDeleteRequest(contentResolver, uriList);
         IntentSender intentSender = pendingIntent.getIntentSender();
-        ((Activity) context).startIntentSenderForResult(intentSender,
-                DELETE_REQUEST_CODE, null, 0,
-                0, 0, null);
+        ((Activity) context).startIntentSenderForResult(intentSender, DELETE_REQUEST_CODE,
+                null, 0, 0, 0, null);
     }
 
     private static void deleteAPI28(@NonNull List<Uri> uriList, @NonNull Context context) {
@@ -171,7 +191,7 @@ public class DeleteHelper {
     }
 
     // for radio group
-    private static void setHintText(RadioGroup rg, TextView tv) {
+    private static void setHintText(@NonNull RadioGroup rg, TextView tv) {
         int i = rg.getCheckedRadioButtonId();
         if (i == R.id.rb_move_to_trash_bin)
             tv.setText(R.string.helper_text_move_to_trash_bin);

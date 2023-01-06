@@ -2,16 +2,23 @@ package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.ACCESS_MEDIA_LOCATION;
 import static android.Manifest.permission.SET_WALLPAPER;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_INPUT_PATH;
+import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_OUTPUT_DIR;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.viewpager2.widget.ViewPager2;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.adapters.ScreenSlidePagerAdapter;
@@ -19,6 +26,7 @@ import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.transformers.ZoomOutPageTransformer;
 import com.hcmus.picbox.utils.PermissionUtils;
+import com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker;
 import com.hcmus.picbox.works.DeleteHelper;
 
 /**
@@ -34,21 +42,14 @@ public class DisplayMediaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_media);
 
         // Request permission to show geolocation and map
-        if (Build.VERSION.SDK_INT >= 29) {
-            if (!PermissionUtils.checkPermissions(this, ACCESS_MEDIA_LOCATION)) {
-                PermissionUtils.requestPermissions(this, 123, ACCESS_MEDIA_LOCATION);
-            }
-        }
-        if (Build.VERSION.SDK_INT <= 28) {
-            if (!PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE)) {
-                PermissionUtils.requestPermissions(this, 123, WRITE_EXTERNAL_STORAGE);
-            }
+        if (!PermissionUtils.checkPermissions(this, ACCESS_MEDIA_LOCATION)) {
+            PermissionUtils.requestPermissions(this, 123, ACCESS_MEDIA_LOCATION);
         }
         if (!PermissionUtils.checkPermissions(this, SET_WALLPAPER)) {
-            PermissionUtils.requestPermissions(this, 123, SET_WALLPAPER);
+            PermissionUtils.requestPermissions(this, 125, SET_WALLPAPER);
         }
 
-        // Get model being selected
+        // Get selected model's position
         Bundle bundle = getIntent().getBundleExtra("model");
         String albumId = bundle.getString("category", MediaHolder.KEY_TOTAL_ALBUM);
         int position = bundle.getInt("position", 0);
@@ -56,7 +57,8 @@ public class DisplayMediaActivity extends AppCompatActivity {
         // Init View pager
         ViewPager2 viewPager = findViewById(R.id.pager);
         adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
-                AlbumHolder.sGetAlbumById(albumId).getMediaList(), this::finish);
+                AlbumHolder.sGetAlbumById(albumId).getMediaList(),
+                albumId.equals(MediaHolder.sSecretAlbum.getId()), this::finish);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position, false); // immediately scroll to position
         viewPager.setPageTransformer(new ZoomOutPageTransformer());

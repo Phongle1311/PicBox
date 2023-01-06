@@ -2,7 +2,7 @@ package com.hcmus.picbox.fragments;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.content.Intent.getIntent;
+import static com.hcmus.picbox.activities.ImagePasswordActivity.KEY_ENTER_PASSWORD_RESPONSE;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -37,6 +36,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
@@ -53,11 +54,9 @@ import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Objects;
 
 public class SettingFragment extends Fragment {
 
-    private final int IMAGE_PASSWORD_REQUEST_CODE = 1298912;
     private Context context;
     private MaterialButton cameraPermissionButton;
     private MaterialButton galleyPermissionButton;
@@ -74,6 +73,19 @@ public class SettingFragment extends Fragment {
     private SwitchCompat rotationSwitch;
     private LinearLayout passwordImageLayout;
     private SwitchCompat passwordImageSwitch;
+    private final ActivityResultLauncher<Intent> imagePasswordActivityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null &&
+                            data.getBooleanExtra(KEY_ENTER_PASSWORD_RESPONSE, false)) {
+                        SharedPreferencesUtils.removeData(context, KEY_PASSWORD);
+                        SharedPreferencesUtils.removeData(context, KEY_PET_QUESTION);
+                        SharedPreferencesUtils.removeData(context, KEY_FOOD_QUESTION);
+                        passwordImageSwitch.setChecked(false);
+                    }
+                }
+            });
 
     @SuppressLint({"SetTextI18n", "RestrictedApi"})
     @Nullable
@@ -227,7 +239,7 @@ public class SettingFragment extends Fragment {
         layoutModeLayout.setOnClickListener(v -> new ChooseLayoutModeDialog(
                 context,
                 SharedPreferencesUtils.getIntData(context, KEY_LAYOUT_MODE),
-                (option) -> updateLayoutModeTextView(option)
+                this::updateLayoutModeTextView
         ).show());
 
         // Lock rotation setting
@@ -253,7 +265,7 @@ public class SettingFragment extends Fragment {
                     && SharedPreferencesUtils.checkKeyExist(context, KEY_PASSWORD)) {
                 passwordImageSwitch.setChecked(true);
                 Intent intent = new Intent(context, ImagePasswordActivity.class);
-                startActivityForResult(intent, IMAGE_PASSWORD_REQUEST_CODE);
+                imagePasswordActivityResultLauncher.launch(intent);
             }
         });
 
@@ -265,25 +277,6 @@ public class SettingFragment extends Fragment {
         // TODO: change UI when data change, no need to update on resume
         super.onResume();
         initUI();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMAGE_PASSWORD_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                boolean result = data.getBooleanExtra("accept_password", false);
-                if (result) {
-                    SharedPreferencesUtils.removeData(context, KEY_PASSWORD);
-                    SharedPreferencesUtils.removeData(context, KEY_PET_QUESTION);
-                    SharedPreferencesUtils.removeData(context, KEY_FOOD_QUESTION);
-                    passwordImageSwitch.setChecked(false);
-                }
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                // Write your code if there's no result
-            }
-        }
     }
 
     private void declareUI(View view) {

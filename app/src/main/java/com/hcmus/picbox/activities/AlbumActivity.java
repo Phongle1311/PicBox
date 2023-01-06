@@ -10,11 +10,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.fragments.PhotosFragment;
+import com.hcmus.picbox.fragments.SecretPhotoFragment;
+import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.works.DeleteHelper;
 
 public class AlbumActivity extends AppCompatActivity {
 
     private PhotosFragment photosFragment;
+    private SecretPhotoFragment secretPhotoFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +28,15 @@ public class AlbumActivity extends AppCompatActivity {
             Intent intent = getIntent();
             String albumId = intent.getStringExtra("albumId");
 
-            photosFragment = new PhotosFragment(albumId);
+            boolean isSecretFragment = albumId.equals(MediaHolder.sSecretAlbum.getId());
+            if (isSecretFragment)
+                secretPhotoFragment = new SecretPhotoFragment();
+            else
+                photosFragment = new PhotosFragment(albumId);
+
             getSupportFragmentManager().beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(R.id.fragment_container_view, photosFragment)
+                    .add(R.id.fragment_container_view, isSecretFragment ? secretPhotoFragment : photosFragment)
                     .commit();
         }
 

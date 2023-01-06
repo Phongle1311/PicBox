@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.hcmus.picbox.fragments.DisplayMediaFragment;
+import com.hcmus.picbox.fragments.DisplaySecretMediaFragment;
 import com.hcmus.picbox.interfaces.IOnClickDetailBackButton;
 import com.hcmus.picbox.models.MediaModel;
 
@@ -18,13 +19,19 @@ import java.util.List;
  */
 public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
 
+    public static int deletePosition;
     private final List<MediaModel> models;
     private final IOnClickDetailBackButton backListener;
-    public static int deletePosition;
+    private boolean isSecretAlbum;
 
-    public ScreenSlidePagerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, List<MediaModel> models, IOnClickDetailBackButton backListen) {
+    public ScreenSlidePagerAdapter(@NonNull FragmentManager fragmentManager,
+                                   @NonNull Lifecycle lifecycle,
+                                   List<MediaModel> models,
+                                   boolean isSecretAlbum,
+                                   IOnClickDetailBackButton backListen) {
         super(fragmentManager, lifecycle);
         this.models = models;
+        this.isSecretAlbum = isSecretAlbum;
         this.backListener = backListen;
     }
 
@@ -32,7 +39,8 @@ public class ScreenSlidePagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         MediaModel model = models.get(position);
-        return new DisplayMediaFragment(model, backListener, position);
+        return isSecretAlbum ? new DisplaySecretMediaFragment(model, backListener, position) :
+                new DisplayMediaFragment(model, backListener, position);
     }
 
     @Override

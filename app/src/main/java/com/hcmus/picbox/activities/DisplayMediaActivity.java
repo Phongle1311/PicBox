@@ -48,7 +48,7 @@ public class DisplayMediaActivity extends AppCompatActivity {
             PermissionUtils.requestPermissions(this, 125, SET_WALLPAPER);
         }
 
-        // Get model being selected
+        // Get selected model's position
         Bundle bundle = getIntent().getBundleExtra("model");
         String albumId = bundle.getString("category", MediaHolder.KEY_TOTAL_ALBUM);
         int position = bundle.getInt("position", 0);
@@ -56,7 +56,8 @@ public class DisplayMediaActivity extends AppCompatActivity {
         // Init View pager
         ViewPager2 viewPager = findViewById(R.id.pager);
         adapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getLifecycle(),
-                AlbumHolder.sGetAlbumById(albumId).getMediaList(), this::finish);
+                AlbumHolder.sGetAlbumById(albumId).getMediaList(),
+                albumId.equals(MediaHolder.sSecretAlbum.getId()), this::finish);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position, false); // immediately scroll to position
         viewPager.setPageTransformer(new ZoomOutPageTransformer());

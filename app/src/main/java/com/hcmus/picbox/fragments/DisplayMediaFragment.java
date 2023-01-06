@@ -7,6 +7,7 @@ import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_IN
 import static com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker.KEY_OUTPUT_DIR;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.WallpaperManager;
 import android.content.ContentUris;
@@ -19,7 +20,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -428,26 +428,39 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                 ScreenSlidePagerAdapter.deletePosition = pos;
                 return true;
             } else if (itemId == R.id.secret_display_image) {
-                // Copy media file from external to dir in internal storage
-                String outputPath = context.getDir("secret_photos", Context.MODE_PRIVATE).getPath();
-                OneTimeWorkRequest copyFileRequest =
-                        new OneTimeWorkRequest.Builder(CopyFileFromExternalToInternalWorker.class)
-                                .setInputData(
-                                        new Data.Builder()
-                                                .putString(KEY_INPUT_PATH, model.getPath())
-                                                .putString(KEY_OUTPUT_DIR, outputPath)
-                                                .build()
-                                )
-                                .build();
-                WorkManager.getInstance(context).enqueue(copyFileRequest);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Confirm to make it secret");
+                builder.setMessage("This action will delete this file in your storage.\n If you delete this app, this file will be deleted permanently!")
+                        .setCancelable(true)
+                        .setPositiveButton("Confirm", (dialog, id) -> {
+                            dialog.dismiss();
+                            // Copy media file from external to dir in internal storage
+                            String outputPath = context.getDir("secret_photos", Context.MODE_PRIVATE).getPath();
+                            OneTimeWorkRequest copyFileRequest =
+                                    new OneTimeWorkRequest.Builder(CopyFileFromExternalToInternalWorker.class)
+                                            .setInputData(
+                                                    new Data.Builder()
+                                                            .putString(KEY_INPUT_PATH, model.getPath())
+                                                            .putString(KEY_OUTPUT_DIR, outputPath)
+                                                            .build()
+                                            )
+                                            .build();
+                            WorkManager.getInstance(context).enqueue(copyFileRequest);
 
-                WorkManager.getInstance(context)
-                        .getWorkInfoByIdLiveData(copyFileRequest.getId())
-                        .observe((LifecycleOwner) context, info -> {
-                            if (info != null && info.getState() == WorkInfo.State.SUCCEEDED) {
-                                Toast.makeText(context, "copy successful", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                            WorkManager.getInstance(context)
+                                    .getWorkInfoByIdLiveData(copyFileRequest.getId())
+                                    .observe((LifecycleOwner) context, info -> {
+                                        if (info != null && info.getState() == WorkInfo.State.SUCCEEDED) {
+                                            // delete image after copy
+                                            DeleteHelper.deleteWithoutDialog(context, model);
+                                            ScreenSlidePagerAdapter.deletePosition = pos;
+                                        }
+                                    });
+                        })
+                        .setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 return true;
             }
             return false;
@@ -456,25 +469,23 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
 
     private void setBottomSheetActionsListener() {
         btnEditMediaName.setOnClickListener(v -> {
-            if (Build.VERSION.SDK_INT >= 30) {
-                if (!Environment.isExternalStorageManager()) {
-                    Snackbar.make(((Activity) context).findViewById(android.R.id.content),
-                                    "Permission needed!", Snackbar.LENGTH_INDEFINITE)
-                            .setAction("Settings", v1 -> {
-                                try {
-                                    Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
-                                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
-                                    startActivity(intent);
-                                } catch (Exception ex) {
-                                    Intent intent = new Intent();
-                                    intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                                    startActivity(intent);
-                                }
-                            })
-                            .show();
-                } else {
-                    showEditFileNameDialog();
-                }
+            if (!Environment.isExternalStorageManager()) {
+                Snackbar.make(((Activity) context).findViewById(android.R.id.content),
+                                "Permission needed!", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Settings", v1 -> {
+                            try {
+                                Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
+                                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri);
+                                startActivity(intent);
+                            } catch (Exception ex) {
+                                Intent intent = new Intent();
+                                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                startActivity(intent);
+                            }
+                        })
+                        .show();
+            } else {
+                showEditFileNameDialog();
             }
         });
 

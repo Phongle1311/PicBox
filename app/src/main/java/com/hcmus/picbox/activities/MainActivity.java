@@ -18,7 +18,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -104,14 +103,12 @@ public class MainActivity extends AppCompatActivity {
         getSecretAlbum();
 
         // check permission
-        if (Build.VERSION.SDK_INT <= 28) {
-            if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
-            } else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
-                Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
-            } else {
-                requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
-            }
+        if (PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)) {
+            Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
+        } else if (shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
+            Toast.makeText(this, "need to show rationale", Toast.LENGTH_LONG).show();
+        } else {
+            requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
         }
         if (PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE)) {
             LoadStorageHelper.getAllMediaFromStorage(this);

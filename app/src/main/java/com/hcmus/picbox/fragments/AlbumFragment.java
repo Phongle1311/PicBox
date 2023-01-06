@@ -167,7 +167,9 @@ public class AlbumFragment extends Fragment {
     private void setListener(View view) {
         // open favourite album
         view.findViewById(R.id.card_view_favorite).setOnClickListener(v -> {
-            // TODO: open album
+            Intent intent = new Intent(context, AlbumActivity.class);
+            intent.putExtra("albumId", MediaHolder.sFavouriteAlbum.getId());
+            context.startActivity(intent);
         });
 
         // open secret album

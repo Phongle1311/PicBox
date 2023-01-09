@@ -123,7 +123,11 @@ public class SlideShowActivity extends AppCompatActivity {
             flipperLayout.setScrollTimeInSec(1);
             flipperLayout.onCurrentPageChanged(0);
             flipperLayout.setScrollTimeInSec(scrollTime);
-            if (player != null) {
+            if(!isPlaying){
+                isPlaying = true;
+                btnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+            }
+            if (isPlaying&&player != null) {
                 player.seekTo(0);
                 player.start();
             }
@@ -237,7 +241,9 @@ public class SlideShowActivity extends AppCompatActivity {
                     uri = resultData.getData();
                     player = MediaPlayer.create(getBaseContext(), uri);
                     player.setLooping(true);
-                    player.start();
+                    if(isPlaying) {
+                        player.start();
+                    }
                 }
             }
         }

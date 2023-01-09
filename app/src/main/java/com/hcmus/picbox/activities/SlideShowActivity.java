@@ -193,14 +193,6 @@ public class SlideShowActivity extends AppCompatActivity {
                     flipperLayout.addFlipperView(v);
                 }
                 flipperLayout.setScrollTimeInSec(scrollTime);
-                flipperLayout.customizeFlipperPager(new Function1<ViewPager, Unit>() {
-                    @Override
-                    public Unit invoke(ViewPager viewPager) {
-                        viewPager.setCurrentItem(0);
-                        viewPager.setCurrentItem(current);
-                        return Unit.INSTANCE;
-                    }
-                });
                 switch (position) {
                     case 0:
                         flipperLayout.addPageTransformer(false, new ZoomOutPageTransformer());
@@ -220,6 +212,15 @@ public class SlideShowActivity extends AppCompatActivity {
                     default:
                         break;
                 }
+                flipperLayout.customizeFlipperPager(new Function1<ViewPager, Unit>() {
+                    @Override
+                    public Unit invoke(ViewPager viewPager) {
+                        viewPager.setCurrentItem(0);
+                        viewPager.setCurrentItem(current);
+                        return Unit.INSTANCE;
+                    }
+                });
+                flipperLayout.onCurrentPageChanged(current);
                 dialog.dismiss();
             }
         });

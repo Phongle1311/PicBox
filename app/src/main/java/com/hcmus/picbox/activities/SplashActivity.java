@@ -1,7 +1,10 @@
 package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.FAB_BUTTON_DEFAULT;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.GROUP_MODE_DEFAULT;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FAB_BUTTON;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
@@ -73,6 +76,9 @@ public class SplashActivity extends AppCompatActivity {
             switch (key) {
                 case KEY_SPAN_COUNT:
                     SharedPreferencesUtils.saveData(this, KEY_SPAN_COUNT, SPAN_COUNT_DEFAULT);
+                    break;
+                case KEY_FAB_BUTTON:
+                    SharedPreferencesUtils.saveData(this, KEY_FAB_BUTTON, FAB_BUTTON_DEFAULT);
                     break;
                 case KEY_GROUP_MODE:
                     SharedPreferencesUtils.saveData(this, KEY_GROUP_MODE, GROUP_MODE_DEFAULT);

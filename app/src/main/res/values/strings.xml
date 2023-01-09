@@ -117,5 +117,6 @@
     <string name="toast_have_not_create_password">You haven\'t created password yet</string>
     <string name="require_password_for_view_image">Require password for view image</string>
     <string name="delete">Delete</string>
+    <string name="choose_animation">Choose animation:</string>
     <string name="picbox">PicBox</string>
 </resources>

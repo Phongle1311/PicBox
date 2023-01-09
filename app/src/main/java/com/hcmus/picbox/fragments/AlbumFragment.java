@@ -129,11 +129,13 @@ public class AlbumFragment extends Fragment {
         context = view.getContext();
 
         bindUI(view);
-        setWallpaper(view);
         setListener(view);
         prepareRecyclerView();
+
         LoadStorageHelper.setDeviceAlbumListener(this::onDeviceAlbumRangeInserted);
         LoadStorageHelper.setUserAlbumListener(this::onUserAlbumRangeInserted);
+
+        setWallpaper(view);
 
         return view;
     }

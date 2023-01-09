@@ -13,6 +13,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     LoadStorageHelper.getAllMediaFromStorage(this);
                     new Thread(this::getUserAlbums).start();
                 } else {
-                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Grant this required permission on setting to use the app", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -62,18 +63,16 @@ public class MainActivity extends AppCompatActivity {
                     Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
                     startActivity(cameraIntent);
                 } else {
-                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app..", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Grant this required permission on setting to use this feature", Toast.LENGTH_SHORT).show();
                 }
             });
 
-    private final ActivityResultLauncher<String> requestWritePermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    Toast.makeText(this, "write permission is already granted!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Permissions denied, Permissions are required to use the app...", Toast.LENGTH_SHORT).show();
-                }
-            });
+//    private final ActivityResultLauncher<String> requestWritePermissionLauncher =
+//            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+//                if (!isGranted) {
+//                    Toast.makeText(this, "Grant this required permission on setting to use the app", Toast.LENGTH_SHORT).show();
+//                }
+//            });
 
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
@@ -89,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
         initViewPager();
 
         // check permission
-        if (!PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE)) {
-            requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
-        }
+//        if (!PermissionUtils.checkPermissions(this, WRITE_EXTERNAL_STORAGE)) {
+//            requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
+//        }
 
         if (!PermissionUtils.checkPermissions(this, READ_EXTERNAL_STORAGE)) {
             requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);

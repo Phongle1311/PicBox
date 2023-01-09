@@ -30,7 +30,8 @@
                 android:id="@+id/img_slider_play_pause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:padding="4dp"
+                android:layout_marginEnd="8dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_baseline_pause_24" />
 
@@ -38,7 +39,8 @@
                 android:id="@+id/img_slider_replay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:padding="4dp"
+                android:layout_marginEnd="8dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_baseline_replay_24" />
 
@@ -46,14 +48,17 @@
                 android:id="@+id/img_choose_music"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="8dp"
+                android:padding="4dp"
                 android:background="?android:attr/selectableItemBackground"
-                android:src="@drawable/ic_baseline_music_note_24" />
+                android:src="@drawable/ic_baseline_music_off_24" />
 
             <ImageView
                 android:id="@+id/img_slider_choose_animation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:layout_marginEnd="8dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_baseline_animation_24" />
 

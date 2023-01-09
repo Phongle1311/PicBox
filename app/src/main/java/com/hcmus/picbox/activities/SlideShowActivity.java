@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -20,18 +18,14 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.tabs.TabLayout;
 import com.hcmus.picbox.R;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.transformers.CubeInPageTransformer;
 import com.hcmus.picbox.transformers.CubeOutPageTransformer;
-import com.hcmus.picbox.transformers.NoAnimationPageTransformer;
 import com.hcmus.picbox.transformers.ZoomInTransformer;
 
 import java.net.MalformedURLException;
@@ -39,18 +33,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-import kotlin.jvm.functions.Function2;
 import technolifestyle.com.imageslider.FlipperLayout;
 import technolifestyle.com.imageslider.FlipperView;
 import technolifestyle.com.imageslider.pagetransformers.DepthPageTransformer;
 import technolifestyle.com.imageslider.pagetransformers.ZoomOutPageTransformer;
-import technolifestyle.com.imageslider.pagetransformers.ZoomOutPageTransformerKt;
 
 public class SlideShowActivity extends AppCompatActivity {
+
     private final String[] speeds = {"0.25x", "0.5x", "1x", "2x"};
-    private final String[] animations = {"Zoom out Page Transformer", "Depth page transformer",
-            "Zoom in Page Transformer", "Cube in Page Transformer", "Cube out Page Transformer"};
+    private final String[] animations = {"Zoom out", "Depth page", "Zoom in", "Cube in", "Cube out"};
     private ImageView btnBack;
     private ImageView btnReplay;
     private FlipperLayout flipperLayout;
@@ -60,6 +51,25 @@ public class SlideShowActivity extends AppCompatActivity {
     private int scrollTime = 2;
     private Spinner spinnerChooseSpeed;
     private MediaPlayer player;
+    ActivityResultLauncher<Intent> fileChooseActivity = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent resultData = result.getData();
+                        Uri uri;
+                        if (resultData != null) {
+                            uri = resultData.getData();
+                            player = MediaPlayer.create(getBaseContext(), uri);
+                            player.setLooping(true);
+                            if (isPlaying) {
+                                player.start();
+                            }
+                        }
+                    }
+                }
+            });
     private ImageView btnChooseMusic;
     private List<MediaModel> medias;
 
@@ -82,7 +92,11 @@ public class SlideShowActivity extends AppCompatActivity {
             FlipperView view = new FlipperView(SlideShowActivity.this);
             try {
                 view.setImage(R.drawable.placeholder_color, (imageView, o) -> {
-                    Glide.with(SlideShowActivity.this).load(media.getFile()).placeholder(R.drawable.placeholder_color).error(R.drawable.placeholder_color).into(imageView);
+                    Glide.with(SlideShowActivity.this)
+                            .load(media.getFile())
+                            .placeholder(R.drawable.placeholder_color)
+                            .error(R.drawable.placeholder_color)
+                            .into(imageView);
                     return Unit.INSTANCE;
                 });
             } catch (MalformedURLException e) {
@@ -94,6 +108,14 @@ public class SlideShowActivity extends AppCompatActivity {
 
         flipperLayout.setScrollTimeInSec(scrollTime);
         setListener();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (player != null) {
+            player.stop();
+        }
     }
 
     private void bindUI() {
@@ -115,7 +137,7 @@ public class SlideShowActivity extends AppCompatActivity {
     }
 
     private void setListener() {
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, speeds);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, speeds);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerChooseSpeed.setAdapter(spinnerArrayAdapter);
         spinnerChooseSpeed.setSelection(2);
@@ -123,35 +145,32 @@ public class SlideShowActivity extends AppCompatActivity {
             flipperLayout.setScrollTimeInSec(1);
             flipperLayout.onCurrentPageChanged(0);
             flipperLayout.setScrollTimeInSec(scrollTime);
-            if(!isPlaying){
+            if (!isPlaying) {
                 isPlaying = true;
                 btnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
             }
-            if (isPlaying&&player != null) {
+            if (isPlaying && player != null) {
                 player.seekTo(0);
                 player.start();
             }
         });
-        btnPlayPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isPlaying) {
-                    flipperLayout.removeAutoCycle();
-                    isPlaying = false;
-                    if (player != null) {
-                        player.pause();
-                    }
-                    btnPlayPause.setImageResource(R.drawable.ic_baseline_play_24);
-                } else {
-                    flipperLayout.startAutoCycle(scrollTime);
-                    if (player != null) {
-                        player.start();
-                    }
-                    isPlaying = true;
-                    btnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+        btnPlayPause.setOnClickListener(v -> {
+            if (isPlaying) {
+                flipperLayout.removeAutoCycle();
+                isPlaying = false;
+                if (player != null) {
+                    player.pause();
                 }
-
+                btnPlayPause.setImageResource(R.drawable.ic_baseline_play_24);
+            } else {
+                flipperLayout.startAutoCycle(scrollTime);
+                if (player != null) {
+                    player.start();
+                }
+                isPlaying = true;
+                btnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
             }
+
         });
         spinnerChooseSpeed.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -165,7 +184,15 @@ public class SlideShowActivity extends AppCompatActivity {
             }
         });
         btnChooseMusic.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+            if (player != null && player.isPlaying()) {
+                player.stop();
+                player = null;
+                btnChooseMusic.setImageResource(R.drawable.ic_baseline_music_off_24);
+                return;
+            }
+            btnChooseMusic.setImageResource(R.drawable.ic_baseline_music_note_24);
+            Intent intent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
             fileChooseActivity.launch(intent);
         });
         btnChooseAnimation.setOnClickListener(v -> showChooseAnimationDialog());
@@ -176,77 +203,55 @@ public class SlideShowActivity extends AppCompatActivity {
         View view = getLayoutInflater().inflate(R.layout.dialog_choose_animation, null);
         dialog.setContentView(view);
         ListView listView = view.findViewById(R.id.list_view_choose_animation);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, animations);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, animations);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int current = flipperLayout.getCurrentPagePosition();
-                flipperLayout.removeAllFlipperViews();
-                for (MediaModel media : medias) {
-                    FlipperView v = new FlipperView(SlideShowActivity.this);
-                    try {
-                        v.setImage(R.drawable.placeholder_color, (imageView, o) -> {
-                            Glide.with(SlideShowActivity.this).load(media.getFile()).placeholder(R.drawable.placeholder_color).error(R.drawable.placeholder_color).into(imageView);
-                            return Unit.INSTANCE;
-                        });
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
-                    v.setDescriptionBackgroundAlpha(0f);
-                    flipperLayout.addFlipperView(v);
-                }
-                flipperLayout.setScrollTimeInSec(scrollTime);
-                switch (position) {
-                    case 0:
-                        flipperLayout.addPageTransformer(false, new ZoomOutPageTransformer());
-                        break;
-                    case 1:
-                        flipperLayout.addPageTransformer(false, new DepthPageTransformer());
-                        break;
-                    case 2:
-                        flipperLayout.addPageTransformer(false, new ZoomInTransformer());
-                        break;
-                    case 3:
-                        flipperLayout.addPageTransformer(false, new CubeInPageTransformer());
-                        break;
-                    case 4:
-                        flipperLayout.addPageTransformer(false, new CubeOutPageTransformer());
-                        break;
-                    default:
-                        break;
-                }
-                flipperLayout.customizeFlipperPager(new Function1<ViewPager, Unit>() {
-                    @Override
-                    public Unit invoke(ViewPager viewPager) {
-                        viewPager.setCurrentItem(0);
-                        viewPager.setCurrentItem(current);
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            int current = flipperLayout.getCurrentPagePosition();
+            flipperLayout.removeAllFlipperViews();
+            for (MediaModel media : medias) {
+                FlipperView v = new FlipperView(SlideShowActivity.this);
+                try {
+                    v.setImage(R.drawable.placeholder_color, (imageView, o) -> {
+                        Glide.with(SlideShowActivity.this)
+                                .load(media.getFile())
+                                .placeholder(R.drawable.placeholder_color)
+                                .error(R.drawable.placeholder_color).into(imageView);
                         return Unit.INSTANCE;
-                    }
-                });
-                flipperLayout.onCurrentPageChanged(current);
-                dialog.dismiss();
+                    });
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                v.setDescriptionBackgroundAlpha(0f);
+                flipperLayout.addFlipperView(v);
             }
+            flipperLayout.setScrollTimeInSec(scrollTime);
+            switch (position) {
+                case 0:
+                    flipperLayout.addPageTransformer(false, new ZoomOutPageTransformer());
+                    break;
+                case 1:
+                    flipperLayout.addPageTransformer(false, new DepthPageTransformer());
+                    break;
+                case 2:
+                    flipperLayout.addPageTransformer(false, new ZoomInTransformer());
+                    break;
+                case 3:
+                    flipperLayout.addPageTransformer(false, new CubeInPageTransformer());
+                    break;
+                case 4:
+                    flipperLayout.addPageTransformer(false, new CubeOutPageTransformer());
+                    break;
+                default:
+                    break;
+            }
+            flipperLayout.customizeFlipperPager(viewPager -> {
+                viewPager.setCurrentItem(0);
+                viewPager.setCurrentItem(current);
+                return Unit.INSTANCE;
+            });
+            flipperLayout.onCurrentPageChanged(current);
+            dialog.dismiss();
         });
         dialog.show();
     }
-
-    ActivityResultLauncher<Intent> fileChooseActivity = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                Intent resultData = result.getData();
-                Uri uri = null;
-                if (resultData != null) {
-                    uri = resultData.getData();
-                    player = MediaPlayer.create(getBaseContext(), uri);
-                    player.setLooping(true);
-                    if(isPlaying) {
-                        player.start();
-                    }
-                }
-            }
-        }
-    });
-
 }

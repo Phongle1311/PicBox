@@ -17,8 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
@@ -103,7 +101,6 @@ import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker;
 import com.hcmus.picbox.works.DeleteHelper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -430,7 +427,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         bottomBar.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.share_display_image) {
-                shareImageandText(decodedBitmap);
+                shareImageAndText(decodedBitmap);
                 return true;
             } else if (itemId == R.id.edit_display_image) {
                 return true;
@@ -464,8 +461,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         });
     }
 
-    private void shareImageandText(Bitmap bitmap) {
-        Uri uri = getmageToShare(bitmap);
+    private void shareImageAndText(Bitmap bitmap) {
+        Uri uri = getImageToShare(bitmap);
         Intent intent = new Intent(Intent.ACTION_SEND);
 
         // putting uri of image to be shared
@@ -477,27 +474,25 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         // Add subject Here
         intent.putExtra(Intent.EXTRA_SUBJECT, "Subject Here");
 
-        // setting type to image
         intent.setType("image/png");
 
-        // calling startactivity() to share
         startActivity(Intent.createChooser(intent, "Share Via"));
     }
 
     // Retrieving the url to share
-    private Uri getmageToShare(Bitmap bitmap) {
-        File imagefolder = new File(context.getCacheDir(), "images");
+    private Uri getImageToShare(Bitmap bitmap) {
+        File imageFolder = new File(context.getCacheDir(), "images");
         Uri uri = null;
         try {
-            imagefolder.mkdirs();
-            File file = new File(imagefolder, "shared_image.png");
+            imageFolder.mkdirs();
+            File file = new File(imageFolder, "shared_image.png");
             FileOutputStream outputStream = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.PNG, 90, outputStream);
             outputStream.flush();
             outputStream.close();
             uri = FileProvider.getUriForFile(context, "com.anni.shareimage.fileprovider", file);
         } catch (Exception e) {
-            Toast.makeText(context, "" + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
         return uri;
     }

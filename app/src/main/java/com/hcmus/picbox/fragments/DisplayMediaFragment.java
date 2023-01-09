@@ -17,6 +17,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
@@ -46,6 +48,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
@@ -100,8 +103,10 @@ import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker;
 import com.hcmus.picbox.works.DeleteHelper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -425,6 +430,7 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         bottomBar.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.share_display_image) {
+                shareImageandText(decodedBitmap);
                 return true;
             } else if (itemId == R.id.edit_display_image) {
                 return true;
@@ -456,6 +462,44 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
+    }
+
+    private void shareImageandText(Bitmap bitmap) {
+        Uri uri = getmageToShare(bitmap);
+        Intent intent = new Intent(Intent.ACTION_SEND);
+
+        // putting uri of image to be shared
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+
+        // adding text to share
+        intent.putExtra(Intent.EXTRA_TEXT, "Sharing Image");
+
+        // Add subject Here
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Subject Here");
+
+        // setting type to image
+        intent.setType("image/png");
+
+        // calling startactivity() to share
+        startActivity(Intent.createChooser(intent, "Share Via"));
+    }
+
+    // Retrieving the url to share
+    private Uri getmageToShare(Bitmap bitmap) {
+        File imagefolder = new File(context.getCacheDir(), "images");
+        Uri uri = null;
+        try {
+            imagefolder.mkdirs();
+            File file = new File(imagefolder, "shared_image.png");
+            FileOutputStream outputStream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            uri = FileProvider.getUriForFile(context, "com.anni.shareimage.fileprovider", file);
+        } catch (Exception e) {
+            Toast.makeText(context, "" + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        return uri;
     }
 
     private void secretAction() {

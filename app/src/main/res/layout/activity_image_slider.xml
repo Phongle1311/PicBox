@@ -38,13 +38,21 @@
                 android:id="@+id/img_slider_replay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_baseline_replay_24" />
+
+            <ImageView
+                android:id="@+id/img_choose_music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:src="@drawable/ic_baseline_music_note_24" />
+
             <Spinner
                 android:id="@+id/spinner_choose_speed"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                />
+                android:layout_height="wrap_content" />
             />
         </LinearLayout>
 

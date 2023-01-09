@@ -116,4 +116,6 @@
     <string name="option_spanned_grid">Dạng lưới mở rộng</string>
     <string name="toast_have_not_create_password">Bạn chưa tạo mật khẩu</string>
     <string name="require_password_for_view_image">Cần mật khẩu để xem ảnh</string>
+    <string name="delete">Xóa</string>
+    <string name="choose_animation">Chọn hiệu ứng:</string>
 </resources>

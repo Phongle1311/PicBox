@@ -1,15 +1,18 @@
 package com.hcmus.picbox.activities;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Spinner;
 
 import androidx.activity.result.ActivityResult;
@@ -17,6 +20,8 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
@@ -24,6 +29,10 @@ import com.hcmus.picbox.R;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.MediaModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
+import com.hcmus.picbox.transformers.CubeInPageTransformer;
+import com.hcmus.picbox.transformers.CubeOutPageTransformer;
+import com.hcmus.picbox.transformers.NoAnimationPageTransformer;
+import com.hcmus.picbox.transformers.ZoomInTransformer;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -36,18 +45,23 @@ import technolifestyle.com.imageslider.FlipperLayout;
 import technolifestyle.com.imageslider.FlipperView;
 import technolifestyle.com.imageslider.pagetransformers.DepthPageTransformer;
 import technolifestyle.com.imageslider.pagetransformers.ZoomOutPageTransformer;
+import technolifestyle.com.imageslider.pagetransformers.ZoomOutPageTransformerKt;
 
 public class SlideShowActivity extends AppCompatActivity {
     private final String[] speeds = {"0.25x", "0.5x", "1x", "2x"};
+    private final String[] animations = {"Zoom out Page Transformer", "Depth page transformer",
+            "Zoom in Page Transformer", "Cube in Page Transformer", "Cube out Page Transformer"};
     private ImageView btnBack;
     private ImageView btnReplay;
     private FlipperLayout flipperLayout;
     private ImageView btnPlayPause;
+    private ImageView btnChooseAnimation;
     private boolean isPlaying = true;
     private int scrollTime = 2;
     private Spinner spinnerChooseSpeed;
     private MediaPlayer player;
     private ImageView btnChooseMusic;
+    private List<MediaModel> medias;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +74,10 @@ public class SlideShowActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getBundleExtra("media_selected_list");
         String albumId = bundle.getString("album_id");
         ArrayList<Integer> selected_media_id = bundle.getIntegerArrayList("selected_media_id");
-
         AlbumModel album = AlbumHolder.sGetAlbumById(albumId);
-        List<MediaModel> medias = new ArrayList<>();
+        medias = new ArrayList<>();
         for (Integer id : selected_media_id)
             medias.add(album.findMediaById(id));
-
         for (MediaModel media : medias) {
             FlipperView view = new FlipperView(SlideShowActivity.this);
             try {
@@ -91,6 +103,15 @@ public class SlideShowActivity extends AppCompatActivity {
         btnPlayPause = findViewById(R.id.img_slider_play_pause);
         spinnerChooseSpeed = (Spinner) findViewById(R.id.spinner_choose_speed);
         btnChooseMusic = findViewById(R.id.img_choose_music);
+        btnChooseAnimation = findViewById(R.id.img_slider_choose_animation);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.pause();
+        }
     }
 
     private void setListener() {
@@ -99,9 +120,13 @@ public class SlideShowActivity extends AppCompatActivity {
         spinnerChooseSpeed.setAdapter(spinnerArrayAdapter);
         spinnerChooseSpeed.setSelection(2);
         btnReplay.setOnClickListener(v -> {
+            flipperLayout.setScrollTimeInSec(1);
             flipperLayout.onCurrentPageChanged(0);
-            player.seekTo(0);
-            player.start();
+            flipperLayout.setScrollTimeInSec(scrollTime);
+            if (player != null) {
+                player.seekTo(0);
+                player.start();
+            }
         });
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,11 +134,15 @@ public class SlideShowActivity extends AppCompatActivity {
                 if (isPlaying) {
                     flipperLayout.removeAutoCycle();
                     isPlaying = false;
-                    player.pause();
+                    if (player != null) {
+                        player.pause();
+                    }
                     btnPlayPause.setImageResource(R.drawable.ic_baseline_play_24);
                 } else {
                     flipperLayout.startAutoCycle(scrollTime);
-                    player.start();
+                    if (player != null) {
+                        player.start();
+                    }
                     isPlaying = true;
                     btnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
                 }
@@ -135,6 +164,66 @@ public class SlideShowActivity extends AppCompatActivity {
             Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
             fileChooseActivity.launch(intent);
         });
+        btnChooseAnimation.setOnClickListener(v -> showChooseAnimationDialog());
+    }
+
+    private void showChooseAnimationDialog() {
+        Dialog dialog = new Dialog(this);
+        View view = getLayoutInflater().inflate(R.layout.dialog_choose_animation, null);
+        dialog.setContentView(view);
+        ListView listView = view.findViewById(R.id.list_view_choose_animation);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, animations);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int current = flipperLayout.getCurrentPagePosition();
+                flipperLayout.removeAllFlipperViews();
+                for (MediaModel media : medias) {
+                    FlipperView v = new FlipperView(SlideShowActivity.this);
+                    try {
+                        v.setImage(R.drawable.placeholder_color, (imageView, o) -> {
+                            Glide.with(SlideShowActivity.this).load(media.getFile()).placeholder(R.drawable.placeholder_color).error(R.drawable.placeholder_color).into(imageView);
+                            return Unit.INSTANCE;
+                        });
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                    v.setDescriptionBackgroundAlpha(0f);
+                    flipperLayout.addFlipperView(v);
+                }
+                flipperLayout.setScrollTimeInSec(scrollTime);
+                flipperLayout.customizeFlipperPager(new Function1<ViewPager, Unit>() {
+                    @Override
+                    public Unit invoke(ViewPager viewPager) {
+                        viewPager.setCurrentItem(0);
+                        viewPager.setCurrentItem(current);
+                        return Unit.INSTANCE;
+                    }
+                });
+                switch (position) {
+                    case 0:
+                        flipperLayout.addPageTransformer(false, new ZoomOutPageTransformer());
+                        break;
+                    case 1:
+                        flipperLayout.addPageTransformer(false, new DepthPageTransformer());
+                        break;
+                    case 2:
+                        flipperLayout.addPageTransformer(false, new ZoomInTransformer());
+                        break;
+                    case 3:
+                        flipperLayout.addPageTransformer(false, new CubeInPageTransformer());
+                        break;
+                    case 4:
+                        flipperLayout.addPageTransformer(false, new CubeOutPageTransformer());
+                        break;
+                    default:
+                        break;
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
     ActivityResultLauncher<Intent> fileChooseActivity = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -152,4 +241,5 @@ public class SlideShowActivity extends AppCompatActivity {
             }
         }
     });
+
 }

@@ -1,5 +1,6 @@
 package com.hcmus.picbox.fragments;
 
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
 import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
@@ -96,6 +97,7 @@ import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.FileUtils;
+import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker;
 import com.hcmus.picbox.works.DeleteHelper;
@@ -427,6 +429,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             if (itemId == R.id.share_display_image) {
                 return true;
             } else if (itemId == R.id.edit_display_image) {
+                if (PermissionUtils.checkPermissions(context, WRITE_EXTERNAL_STORAGE)) {
+                    editMedia();
+                }
                 return true;
             } else if (itemId == R.id.delete_display_image) {
                 DeleteHelper.delete(context, model);
@@ -456,6 +461,10 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             }
             return false;
         });
+    }
+
+    private void editMedia() {
+//        Intent = new Intent(Intent.ACTION_PICK);
     }
 
     private void secretAction() {

@@ -7,6 +7,7 @@ import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_4;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FAB_BUTTON;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LAYOUT_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_SPAN_COUNT;
@@ -289,22 +290,26 @@ public class PhotosFragment extends Fragment {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
-                    if (fabMain.isShown()) {
-                        hideMiniFABs();
-                        fabMain.hide();
-                        fabClicked = 0;
+                if (Objects.equals(SharedPreferencesUtils.getStringData(context, KEY_FAB_BUTTON), "show")) {
+                    if (dy > 0) {
+                        if (fabMain.isShown()) {
+                            hideMiniFABs();
+                            fabMain.hide();
+                            fabClicked = 0;
+                        }
+                    } else if (dy < -50) {
+                        if (!fabMain.isShown()) {
+                            fabMain.show();
+                            fabClicked = 0;
+                        }
+                    } else if (!recyclerView.canScrollVertically(-1)) {
+                        if (!fabMain.isShown()) {
+                            fabMain.show();
+                            fabClicked = 0;
+                        }
                     }
-                } else if (dy < -50) {
-                    if (!fabMain.isShown()) {
-                        fabMain.show();
-                        fabClicked = 0;
-                    }
-                } else if (!recyclerView.canScrollVertically(-1)) {
-                    if (!fabMain.isShown()) {
-                        fabMain.show();
-                        fabClicked = 0;
-                    }
+                } else {
+                    fabMain.hide();
                 }
             }
         });

@@ -21,8 +21,9 @@ public class SharedPreferencesUtils {
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_PET_QUESTION = "pet_question";
     public static final String KEY_FOOD_QUESTION = "food_question";
+    public static final String KEY_FAB_BUTTON = "fab_button";
     public static final String[] SharedPreferencesKeys = {KEY_SPAN_COUNT, KEY_GROUP_MODE,
-            KEY_LANGUAGE, KEY_LAYOUT_MODE}; // use in main activity
+            KEY_LANGUAGE, KEY_LAYOUT_MODE, KEY_FAB_BUTTON}; // use in main activity
 
 
     public static final String LANGUAGE_OPTION_1 = "english";
@@ -32,6 +33,7 @@ public class SharedPreferencesUtils {
     public static final String GROUP_MODE_DEFAULT = GROUP_MODE_OPTION_3;
     public static final String LANGUAGE_DEFAULT = LANGUAGE_OPTION_2;
     public static final int LAYOUT_MODE_DEFAULT = LAYOUT_MODE_1;
+    public static final String FAB_BUTTON_DEFAULT = "show";
 
     private SharedPreferencesUtils() {
         throw new UnsupportedOperationException(

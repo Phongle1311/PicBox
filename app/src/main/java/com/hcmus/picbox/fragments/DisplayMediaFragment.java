@@ -427,7 +427,10 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         bottomBar.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.share_display_image) {
+                if (model.checkExists() && model.getType() == AbstractModel.TYPE_PHOTO)
                 shareImageAndText(decodedBitmap);
+                else
+                    Toast.makeText(context, "Don't support this type", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.edit_display_image) {
                 return true;

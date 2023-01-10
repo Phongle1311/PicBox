@@ -118,4 +118,6 @@
     <string name="require_password_for_view_image">Cần mật khẩu để xem ảnh</string>
     <string name="delete">Xóa</string>
     <string name="choose_animation">Chọn hiệu ứng:</string>
+    <string name="picbox">PicBox</string>
+    <string name="coming_soon">Sắp ra mắt...</string>
 </resources>

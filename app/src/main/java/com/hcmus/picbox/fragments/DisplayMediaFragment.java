@@ -1,6 +1,5 @@
 package com.hcmus.picbox.fragments;
 
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_ALBUM_NAME;
 import static com.hcmus.picbox.activities.CreateAlbumActivity.KEY_CREATE_ALBUM_RESULT;
 import static com.hcmus.picbox.activities.PickMediaActivity.KEY_SELECTED_ITEMS;
@@ -101,7 +100,6 @@ import com.hcmus.picbox.models.VideoModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
 import com.hcmus.picbox.utils.FileUtils;
-import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.CopyFileFromExternalToInternalWorker;
 import com.hcmus.picbox.works.DeleteHelper;
@@ -184,14 +182,6 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
-    private final ActivityResultLauncher<String> requestWritePermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    editMedia();
-                } else {
-                    Toast.makeText(context, "Please grant this permission to use this feature...", Toast.LENGTH_SHORT).show();
-                }
-            });
     private long playbackPosition = 0;
     private float mScaleFactor = 1.0f;
     private GestureDetector gestureDetector;
@@ -441,16 +431,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             int itemId = item.getItemId();
             if (itemId == R.id.share_display_image) {
                 if (model.checkExists() && model.getType() == AbstractModel.TYPE_PHOTO)
-                shareImageAndText(decodedBitmap);
+                    shareImageAndText(decodedBitmap);
                 else
                     Toast.makeText(context, "Don't support this type", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.edit_display_image) {
-                if (PermissionUtils.checkPermissions(context, WRITE_EXTERNAL_STORAGE)) {
+                if (model.getType() == AbstractModel.TYPE_PHOTO)
                     editMedia();
-                } else {
-                    requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
-                }
+                else
+                    Toast.makeText(context, "We haven't supported this type yet.", Toast.LENGTH_SHORT).show();
                 return true;
             } else if (itemId == R.id.delete_display_image) {
                 DeleteHelper.delete(context, model);
@@ -491,7 +480,9 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
         intent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_TOOLS_TO_HIDE,
                 new int[]{DsPhotoEditorActivity.TOOL_WARMTH, DsPhotoEditorActivity.TOOL_PIXELATE});
 
-        startActivityForResult(intent, 101);
+        startActivity(intent);
+    }
+
     private void shareImageAndText(Bitmap bitmap) {
         Uri uri = getImageToShare(bitmap);
         Intent intent = new Intent(Intent.ACTION_SEND);

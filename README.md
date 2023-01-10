@@ -1,4 +1,4 @@
-<img src="https://drive.google.com/file/d/1ekFPNU5Hz4Zr5mDBDwbF5I_Mt4PPMVH8/view?usp=share_link" align="right" width="150px">
+<img src="https://lh3.google.com/u/0/d/1ekFPNU5Hz4Zr5mDBDwbF5I_Mt4PPMVH8=w1920-h932-iv1" align="right" width="150px">
 <h1> PicBox </h1>
 
 A simple gallery app for Android

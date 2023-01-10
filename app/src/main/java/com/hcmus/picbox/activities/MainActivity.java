@@ -2,18 +2,21 @@ package com.hcmus.picbox.activities;
 
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_1;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.LANGUAGE_OPTION_2;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
@@ -33,6 +36,7 @@ import com.hcmus.picbox.fragments.PhotosFragment;
 import com.hcmus.picbox.models.AlbumModel;
 import com.hcmus.picbox.models.dataholder.AlbumHolder;
 import com.hcmus.picbox.models.dataholder.MediaHolder;
+import com.hcmus.picbox.services.MediaTrackerService;
 import com.hcmus.picbox.utils.PermissionUtils;
 import com.hcmus.picbox.utils.SharedPreferencesUtils;
 import com.hcmus.picbox.works.DeleteHelper;
@@ -73,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
 //                    Toast.makeText(this, "Grant this required permission on setting to use the app", Toast.LENGTH_SHORT).show();
 //                }
 //            });
-
+    Intent serviceIntent;
+    BroadcastReceiver receiver;
     private ViewPager mainViewPager;
     private BottomNavigationView bottomBar;
     private ViewPagerAdapter adapter;
@@ -96,6 +101,26 @@ public class MainActivity extends AppCompatActivity {
             requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE);
         }
 
+        // start service observe changes
+        serviceIntent = new Intent(this, MediaTrackerService.class);
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent == null) return;
+                if (intent.getAction().equals(MediaTrackerService.ACTION_NAME)) {
+                    int count = intent.getIntExtra("insert", 0);
+                    if (count > 0) {
+                        PhotosFragment photosFragment = adapter.getPhotosFragment();
+                        if (photosFragment != null)
+                            photosFragment.updateAll();
+                    }
+                    Log.d("test", count + " added");
+                }
+            }
+        };
+        registerReceiver(receiver, new IntentFilter(MediaTrackerService.ACTION_NAME));
+        startService(serviceIntent);
+
         cameraButton.setOnClickListener(view -> {
             if (PermissionUtils.checkPermissions(this, CAMERA)) {
                 Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -106,6 +131,13 @@ public class MainActivity extends AppCompatActivity {
             } else
                 requestCameraPermissionLauncher.launch(CAMERA);
         });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (serviceIntent != null)
+            stopService(serviceIntent);
     }
 
     @Override
@@ -205,6 +237,4 @@ public class MainActivity extends AppCompatActivity {
                     .forEach(album::add);
         }
     }
-
-
 }

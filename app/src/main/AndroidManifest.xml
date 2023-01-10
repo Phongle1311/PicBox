@@ -128,6 +128,9 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.NoActionBar" />
 
+        <service android:name=".services.MediaTrackerService"
+            android:exported="false"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAIEFgyy_kbf_cwbUPq2b62UamZFPdPCcs" />

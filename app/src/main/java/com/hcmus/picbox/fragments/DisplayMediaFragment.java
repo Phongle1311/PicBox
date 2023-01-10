@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
@@ -57,6 +58,8 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.bumptech.glide.Glide;
+import com.dsphotoeditor.sdk.activity.DsPhotoEditorActivity;
+import com.dsphotoeditor.sdk.utils.DsPhotoEditorConstants;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
@@ -179,6 +182,14 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
+    private final ActivityResultLauncher<String> requestWritePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    editMedia();
+                } else {
+                    Toast.makeText(context, "Please grant this permission to use this feature...", Toast.LENGTH_SHORT).show();
+                }
+            });
     private long playbackPosition = 0;
     private float mScaleFactor = 1.0f;
     private GestureDetector gestureDetector;
@@ -431,6 +442,8 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
             } else if (itemId == R.id.edit_display_image) {
                 if (PermissionUtils.checkPermissions(context, WRITE_EXTERNAL_STORAGE)) {
                     editMedia();
+                } else {
+                    requestWritePermissionLauncher.launch(WRITE_EXTERNAL_STORAGE);
                 }
                 return true;
             } else if (itemId == R.id.delete_display_image) {
@@ -464,7 +477,15 @@ public class DisplayMediaFragment extends Fragment implements ExoPlayer.Listener
     }
 
     private void editMedia() {
-//        Intent = new Intent(Intent.ACTION_PICK);
+        Intent intent = new Intent(context, DsPhotoEditorActivity.class);
+        intent.setData(Uri.fromFile(model.getFile()));
+        intent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_OUTPUT_DIRECTORY, "Picbox");
+        intent.putExtra(DsPhotoEditorConstants.DS_TOOL_BAR_BACKGROUND_COLOR, Color.parseColor("#FF6200EE"));
+        intent.putExtra(DsPhotoEditorConstants.DS_MAIN_BACKGROUND_COLOR, Color.parseColor("#FFFFFF"));
+        intent.putExtra(DsPhotoEditorConstants.DS_PHOTO_EDITOR_TOOLS_TO_HIDE,
+                new int[]{DsPhotoEditorActivity.TOOL_WARMTH, DsPhotoEditorActivity.TOOL_PIXELATE});
+
+        startActivityForResult(intent, 101);
     }
 
     private void secretAction() {

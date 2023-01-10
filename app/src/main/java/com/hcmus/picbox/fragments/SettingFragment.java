@@ -7,6 +7,7 @@ import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_1;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_2;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_3;
 import static com.hcmus.picbox.adapters.MediaAdapter.LAYOUT_MODE_4;
+import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FAB_BUTTON;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_FOOD_QUESTION;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_GROUP_MODE;
 import static com.hcmus.picbox.utils.SharedPreferencesUtils.KEY_LANGUAGE;
@@ -54,6 +55,7 @@ import com.hcmus.picbox.utils.SharedPreferencesUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SettingFragment extends Fragment {
 
@@ -123,7 +125,7 @@ public class SettingFragment extends Fragment {
 
         // Floating button setting
         floatingButtonSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
-            // TODO: hide FAB, show
+            SharedPreferencesUtils.saveData(context, KEY_FAB_BUTTON, floatingButtonSwitch.isChecked() ? "show": "hide");
         });
 
         // Span count setting
@@ -314,6 +316,8 @@ public class SettingFragment extends Fragment {
             galleyPermissionButton.setIconResource(R.drawable.ic_baseline_check_24);
             galleyPermissionButton.setIconTintResource(R.color.green);
         }
+
+        floatingButtonSwitch.setChecked(Objects.equals(SharedPreferencesUtils.getStringData(context, KEY_FAB_BUTTON), "show"));
 
         multiColumnTextView.setText(String.valueOf(SharedPreferencesUtils.getIntData(context, KEY_SPAN_COUNT)));
 

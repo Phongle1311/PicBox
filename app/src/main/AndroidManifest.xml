@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
@@ -105,6 +106,27 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity
+            android:name="com.dsphotoeditor.sdk.activity.DsPhotoEditorActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.NoActionBar" />
+        <activity
+            android:name="com.dsphotoeditor.sdk.activity.DsPhotoEditorStickerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.NoActionBar" />
+        <activity
+            android:name="com.dsphotoeditor.sdk.activity.DsPhotoEditorTextActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.dsphotoeditor.sdk.activity.DsPhotoEditorCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.NoActionBar" />
+        <activity
+            android:name="com.dsphotoeditor.sdk.activity.DsPhotoEditorDrawActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.NoActionBar" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

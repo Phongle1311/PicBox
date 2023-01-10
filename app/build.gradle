@@ -14,7 +14,8 @@ android {
         targetSdk 31
         versionCode 1
         versionName "1.0"
-
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -56,4 +57,15 @@ dependencies {
     implementation 'com.github.ChaosLeong:PinView:1.4.3'
 
     implementation 'io.github.joeiot:spannedgridlayoutmanager:4.0.0'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files('libs/ds-photo-editor-sdk-v10.aar')
+
+    // SDK related dependencies
+
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+    implementation 'com.itextpdf:itextg:5.5.10'
 }

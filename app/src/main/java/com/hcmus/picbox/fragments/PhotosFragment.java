@@ -359,6 +359,10 @@ public class PhotosFragment extends Fragment {
         mediaAdapter.notifyItemRangeInserted(positionStart, itemCount);
     }
 
+    // temp
+    public void updateAll() {
+        mediaAdapter.updateAll();
+    }
     public void finishDelete() {
         mediaAdapter.endSelection();
         actionMode.finish();

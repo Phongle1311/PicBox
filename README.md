@@ -10,10 +10,17 @@ This gallery app helps you manage and view your photos with a straightforward UI
 
 ## Highlighted features
 
-- View all of your photos
+- View all of your photos, videos and GIFs
 - Ability to hide photos in a secret album
-- Ability to star your favorite photos for quick access
+- Ability to make photo as favourite photo for quick access
 - Advanced photo editor
+- Config app's settign (language, grid mode, span count, ...)
+- Set photo as background cover
+- Share image
+- Read info of photo
+- Slide show (add music, repeat, animation, ...)
+- Delete image
+- Display location in Gooogle map
 
 ## Compatibility
 

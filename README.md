@@ -1,4 +1,4 @@
-<img src="./assets/ic_laucher_round.png" align="right" width="60px">
+<img src="./assets/ic_laucher_round" align="right" width="60px">
 <h1> PicBox </h1>
 
 A simple gallery app for Android

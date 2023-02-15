@@ -28,3 +28,24 @@ This gallery app helps you manage and view your photos with a straightforward UI
 + TargetedSDK: 31
 
 + This app will work properly on devices without any Google service installed.
+
+## Demo
+
+<img src="./assets/Picture1.png" width="200px">
+<img src="./assets/Picture2.png" width="200px">
+<img src="./assets/Picture3.png" width="200px">
+<img src="./assets/Picture4.png" width="200px">
+<img src="./assets/Picture5.png" width="200px">
+<img src="./assets/Picture6.png" width="200px">
+<img src="./assets/Picture7.png" width="200px">
+<img src="./assets/Picture8.png" width="200px">
+<img src="./assets/Picture9.png" width="200px">
+<img src="./assets/Picture10.png" width="200px">
+<img src="./assets/Picture11.png" width="200px">
+<img src="./assets/Picture12.png" width="200px">
+<img src="./assets/Picture13.png" width="200px">
+<img src="./assets/Picture14.png" width="200px">
+<img src="./assets/Picture15.png" width="200px">
+<img src="./assets/Picture16.png" width="200px">
+<img src="./assets/Picture17.png" width="200px">
+<img src="./assets/Picture18.png" width="200px">
